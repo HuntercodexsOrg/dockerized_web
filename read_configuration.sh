@@ -674,7 +674,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
         if echo "$line" | grep "COMMAND" >> /dev/null 2>&1
         then
-            COMMAND=$(echo "$line" | cut -d "=" -f2)
+            COMMAND=$(echo "$line" | sed -e 's/COMMAND=//g')
             echo "COMMAND" $COMMAND
 
             if [[ $COMMAND != "" && $COMMAND != "NULL" ]];

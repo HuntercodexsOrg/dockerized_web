@@ -257,6 +257,31 @@ then
         rm -rfv "${DOCKER_YML_PROJECTS}"
     fi
 
+    echo ""
+    echo "[WARNING] Please, check the information below !"
+    echo ""
+
+    echo ""
+    echo "[WARNING] Would like you remove all resources from docker ?"
+    echo "Containers, Images, Volumes, Networks and all dependencies...."
+    echo ""
+    echo "Please type yes or no: "
+    read  OP
+
+    if [[ $OP == "yes" ]]; then
+        echo "Please wait..."
+
+        docker container rm $(docker container ls -a -q)
+        docker container rm --force $(docker container ls -a -q)
+        docker images rm --force $(docker images ls -a -q)
+        docker images rm $(docker images ls -a -q)
+        docker volume rm $(docker volume ls -q)
+        docker image rm $(docker image ls -a -q)
+        docker rmi $(docker image ls -a -q)
+        docker rmi --force $(docker images -q)
+
+    fi
+
 	echo "Uninstall Finish..."
 	exit
 fi
