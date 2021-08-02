@@ -8,6 +8,8 @@ bkp/
 .idea/
 .log/
 *.log
+conf/env/*.tpl
+conf/env/*.conf
 installer.*
 install.*
 installed.*

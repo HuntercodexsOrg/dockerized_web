@@ -4,6 +4,156 @@
 # Author: Jereelton Teixeira
 ################################################################################
 
+function defineDatabaseVars {
+    DB_SETUP=""
+    DEFAULT_DB=""
+    DEFAULT_DB_FLAG=1
+    DB_ARRAY=""
+    DB_MAIN_MODEL1="NULL"
+    DB_MAIN_MODEL2="NULL"
+}
+
+function defineAppVars {
+    APP_SETUP=""
+    APP_URL_ACTIVE=0
+    APP_URL_MODEL1="NULL"
+    APP_URL_MODEL2="NULL"
+}
+
+function defineApiVars {
+    API_SETUP="NULL"
+    API_MODEL1="NULL"
+    API_MODEL2="NULL"
+}
+
+function showDebugDatabase {
+    echo "DB_SETUP" "$DB_SETUP"
+    echo "DEFAULT_DB" "$DEFAULT_DB"
+    echo "DEFAULT_DB_FLAG" $DEFAULT_DB_FLAG
+    echo "DB_MAIN_MODEL1" "$DB_MAIN_MODEL1"
+    echo "DB_MAIN_MODEL2" "$DB_MAIN_MODEL1"
+}
+
+function showDebugApp {
+    echo "APP_SETUP" $APP_SETUP
+    echo "APP_URL_MODEL1" "$APP_URL_MODEL1"
+    echo "APP_URL_MODEL1" "$APP_URL_MODEL1"
+    echo "API_SETUP" $API_SETUP
+}
+
+function showDebugApi {
+    echo "API_MODEL1" "$API_MODEL1"
+    echo "API_MODEL1" "$API_MODEL1"
+}
+
+function applyDatabaseEnvSettings {
+
+    ##Example: Databases
+    sed -i "s/{{{DB_MAIN_MODEL1}}}/${DB_MAIN_MODEL1_HOST}/g" tmp_env/*.env
+
+    ##Example: Apps
+    sed -i "s/{{{APP_URL_MODEL1}}}/${APP_URL_MODEL1}/g" tmp_env/*.env
+
+    ##Example: Apis
+    sed -i "s/{{{API_URL_MODEL1}}}/${API_URL_MODEL1}/g" tmp_env/*.env
+
+    ##Work in each project
+    for ((i = 0; i < ${#PROJECT[@]}; i++)); do
+
+        if [[ ! -e "tmp_env/${PROJECT[$i]}.env" ]]; then
+            echo "[WARNING] Missing .env file " "tmp_env/${PROJECT[$i]}.env"
+            exit
+        fi
+
+        ##Databases
+        DATA_ITEM=$(echo ${DB_ARRAY} | egrep -o "\[${PROJECT[$i]}=.*;=${PROJECT[$i]}\]"| cut -d "=" -f2)
+
+        DB_MAIN_HOST=$(echo "${DATA_ITEM}" | cut -d ";" -f1)
+        DB_MAIN_PORT=$(echo "${DATA_ITEM}" | cut -d ";" -f2)
+        DB_MAIN_USER=$(echo "${DATA_ITEM}" | cut -d ";" -f3)
+        DB_MAIN_PASSWD=$(echo "${DATA_ITEM}" | cut -d ";" -f4)
+        DB_MAIN_DBNAME=$(echo "${DATA_ITEM}" | cut -d ";" -f5)
+
+        ITEM_UPPER=$(echo "${PROJECT[$i]}" | tr '[:lower:]' '[:upper:]' | sed -e 's/-//g')
+
+        ##Force replace in all files that contain key to other project
+        sed -i "s/{{{DB_MAIN_${ITEM_UPPER}}}}/${DB_MAIN_HOST}/g" tmp_env/*.env
+        sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_PORT}}}/${DB_MAIN_PORT}/g" tmp_env/*.env
+        sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_USER}}}/${DB_MAIN_USER}/g" tmp_env/*.env
+        sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_PASSWD}}}/${DB_MAIN_PASSWD}/g" tmp_env/*.env
+        sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_DBNAME}}}/${DB_MAIN_DBNAME}/g" tmp_env/*.env
+
+        if [[ ! -e "${PROJECT[$i]}/" ]];
+        then
+            mkdir -p "${PROJECT[$i]}/"
+        fi
+
+    done
+
+    ##Put dotenv in project root path
+    for ((i = 0; i < ${#PROJECT[@]}; i++)); do
+        cp -v "tmp_env/${PROJECT[$i]}.env" "${PROJECT[$i]}/.env"
+    done
+
+}
+
+function setDefaultDatabaseSettings {
+    DB_MAIN_MODEL1="${DEFAULT_DB}"
+    DB_MAIN_MODEL2="${DEFAULT_DB}"
+}
+
+function setRulesDatabase {
+    if [[ $line =~ "DB_MAIN_MODEL1=" ]]; then
+        if [[ $DEFAULT_DB_FLAG == 0 ]]; then
+            DB_MAIN_MODEL1=$(echo "$line" | cut -d "=" -f2)
+            DB_ARRAY="${DB_ARRAY}[dbname=${DB_MAIN_MODEL1};=dbname]"
+        fi
+    fi
+
+    if [[ $line =~ "DB_MAIN_MODEL2=" ]]; then
+        if [[ $DEFAULT_DB_FLAG == 0 ]]; then
+            DB_MAIN_MODEL2=$(echo "$line" | cut -d "=" -f2)
+            DB_ARRAY="${DB_ARRAY}[dbname=${DB_MAIN_MODEL2};=dbname]"
+        fi
+    fi
+}
+
+function setRulesApp {
+    if [[ $APP_SETUP == "NULL" ]]; then
+        continue
+    fi
+
+    if [[ $line =~ "APP_URL_MODEL1=" ]]; then
+        if [[ $APP_SETUP == "true" ]]; then
+            APP_URL_MODEL1=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
+        fi
+    fi
+
+    if [[ $line =~ "APP_URL_MODEL2=" ]]; then
+        if [[ $APP_SETUP == "true" ]]; then
+            APP_URL_MODEL2=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
+        fi
+    fi
+}
+
+function setRulesApi {
+    if [[ $API_SETUP == "NULL" ]]; then
+        continue
+    fi
+
+    if [[ $line =~ "API_MODEL1=" ]]; then
+        if [[ $APP_SETUP == "true" ]]; then
+            API_MODEL1=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
+        fi
+    fi
+
+    if [[ $line =~ "API_MODEL2=" ]]; then
+        if [[ $APP_SETUP == "true" ]]; then
+            API_MODEL2=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
+        fi
+    fi
+}
+
 ############################
 # GLOBAL
 ############################
@@ -27,38 +177,21 @@ CONFIGURATION_FILE="configuration.conf"
 ############################
 
 #Define here the references of Databases placed in configuration file (configuration.conf)
-
-DB_SETUP=""
-
-DEFAULT_DB=""
-DEFAULT_DB_FLAG=1
-
-DB_ARRAY=""
-DB_MAIN_MODEL1="NULL"
-DB_MAIN_MODEL2="NULL"
+defineDatabaseVars
 
 ############################
 # APP
 ############################
 
 #Define here the references of App settings placed in configuration file (configuration.conf)
-
-APP_SETUP=""
-
-APP_URL_ACTIVE=0
-
-APP_URL_MODEL1="NULL"
-APP_URL_MODEL2="NULL"
+defineAppVars
 
 ############################
 # API
 ############################
 
 #Define here the references of API settings placed in configuration file (configuration.conf)
-
-API_SETUP="NULL"
-API_MODEL1="NULL"
-API_MODEL2="NULL"
+defineApiVars
 
 ############################
 # PROCESS START
@@ -101,77 +234,17 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         echo "SERVICES" $SERVICES
         echo "GATEWAY" "$GATEWAY"
 
-        echo "DB_SETUP" "$DB_SETUP"
-
         #Show here the Databases that placed in configuration file
-        echo "DEFAULT_DB" "$DEFAULT_DB"
-        echo "DEFAULT_DB_FLAG" $DEFAULT_DB_FLAG
-        echo "DB_MAIN_MODEL1" "$DB_MAIN_MODEL1"
-        echo "DB_MAIN_MODEL2" "$DB_MAIN_MODEL1"
-
-        echo "APP_SETUP" $APP_SETUP
+        showDebugDatabase
 
         #Show here the Apps settings that placed in configuration file
-        echo "APP_URL_MODEL1" "$APP_URL_MODEL1"
-        echo "APP_URL_MODEL1" "$APP_URL_MODEL1"
-
-        echo "API_SETUP" $API_SETUP
+        showDebugApp
 
         #Show here the API settings that placed in configuration file
-        echo "API_MODEL1" "$API_MODEL1"
-        echo "API_MODEL1" "$API_MODEL1"
+        showDebugApi
 
-        #
-        # Applying settings . . .
-        #
-
-        ########################################################
-        #DOTENV .ENV
-        ########################################################
-
-        #Example: Databases
-        #sed -i "s/{{{DB_MAIN_MODEL1}}}/${DB_MAIN_MODEL1_HOST}/g" tmp_env/*.env
-
-        #Example: Apps
-        #sed -i "s/{{{APP_URL_MODEL1}}}/${APP_URL_MODEL1}/g" tmp_env/*.env
-
-        #Work in each project
-        for ((i = 0; i < ${#PROJECT[@]}; i++)); do
-
-            if [[ ! -e "tmp_env/${PROJECT[$i]}.env" ]]; then
-                echo "[WARNING] Missing .env file " "tmp_env/${PROJECT[$i]}.env"
-                #exit
-            fi
-
-            #Databases
-            #DATA_ITEM=$(echo ${DB_ARRAY} | egrep -o "\[${PROJECT[$i]}=.*;=${PROJECT[$i]}\]"| cut -d "=" -f2)
-
-            #DB_MAIN_HOST=$(echo "${DATA_ITEM}" | cut -d ";" -f1)
-            #DB_MAIN_PORT=$(echo "${DATA_ITEM}" | cut -d ";" -f2)
-            #DB_MAIN_USER=$(echo "${DATA_ITEM}" | cut -d ";" -f3)
-            #DB_MAIN_PASSWD=$(echo "${DATA_ITEM}" | cut -d ";" -f4)
-            #DB_MAIN_DBNAME=$(echo "${DATA_ITEM}" | cut -d ";" -f5)
-
-            #ITEM_UPPER=$(echo "${PROJECT[$i]}" | tr '[:lower:]' '[:upper:]' | sed -e 's/-//g')
-
-            #Force replace in all files that contain key to other project
-            #sed -i "s/{{{DB_MAIN_${ITEM_UPPER}}}}/${DB_MAIN_HOST}/g" tmp_env/*.env
-            #sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_PORT}}}/${DB_MAIN_PORT}/g" tmp_env/*.env
-            #sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_USER}}}/${DB_MAIN_USER}/g" tmp_env/*.env
-            #sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_PASSWD}}}/${DB_MAIN_PASSWD}/g" tmp_env/*.env
-            #sed -i "s/{{{DB_MAIN_${ITEM_UPPER}_DBNAME}}}/${DB_MAIN_DBNAME}/g" tmp_env/*.env
-
-            #if [[ ! -e "${PROJECT[$i]}/" ]];
-            #then
-                #mkdir -p "${PROJECT[$i]}/"
-            #fi
-
-        done
-
-        #Put dotenv in project root path
-        #for ((i = 0; i < ${#PROJECT[@]}; i++)); do
-            #cp -v "tmp_env/${PROJECT[$i]}.env" "${PROJECT[$i]}/.env"
-        #done
+        ##Apply all database env settings
+        applyDatabaseEnvSettings
 
         echo "READ CONFIGURATION - GLOBAL END"
 
@@ -274,8 +347,8 @@ while IFS= read -r line || [[ -n "$line" ]]; do
             if [[ $DEFAULT_DB == "NULL" || $DEFAULT_DB == "null" ]]; then
                 DEFAULT_DB_FLAG=0
             else
-                DB_MAIN_MODEL1="${DEFAULT_DB}"
-                DB_MAIN_MODEL2="${DEFAULT_DB}"
+
+                setDefaultDatabaseSettings
 
                 for ((i = 0; i < ${#PROJECT[@]}; i++)); do
                     DB_ARRAY="${DB_ARRAY}[${PROJECT[$i]}=${DEFAULT_DB};=${PROJECT[$i]}]"
@@ -284,20 +357,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         fi
 
         #Define here the database rules of setting in configuration file
-
-        if [[ $line =~ "DB_MAIN_MODEL1=" ]]; then
-            if [[ $DEFAULT_DB_FLAG == 0 ]]; then
-                DB_MAIN_MODEL1=$(echo "$line" | cut -d "=" -f2)
-                DB_ARRAY="${DB_ARRAY}[dbname=${DB_MAIN_MODEL1};=dbname]"
-            fi
-        fi
-
-        if [[ $line =~ "DB_MAIN_MODEL2=" ]]; then
-            if [[ $DEFAULT_DB_FLAG == 0 ]]; then
-                DB_MAIN_MODEL2=$(echo "$line" | cut -d "=" -f2)
-                DB_ARRAY="${DB_ARRAY}[dbname=${DB_MAIN_MODEL2};=dbname]"
-            fi
-        fi
+        setRulesDatabase
 
         #######################################################################
         # DOTENV CONFIGURATION START - APPs
@@ -324,21 +384,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         fi
 
         #Ignore App config
-        if [[ $APP_SETUP == "NULL" ]]; then
-            continue
-        fi
-
-        if [[ $line =~ "APP_URL_MODEL1=" ]]; then
-            if [[ $APP_SETUP == "true" ]]; then
-                APP_URL_MODEL1=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
-            fi
-        fi
-
-        if [[ $line =~ "APP_URL_MODEL2=" ]]; then
-            if [[ $APP_SETUP == "true" ]]; then
-                APP_URL_MODEL2=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
-            fi
-        fi
+        setRulesApp
 
         #######################################################################
         # DOTENV CONFIGURATION START - APIs
@@ -365,21 +411,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         fi
 
         #Ignore API config
-        if [[ $API_SETUP == "NULL" ]]; then
-            continue
-        fi
-
-        if [[ $line =~ "API_MODEL1=" ]]; then
-            if [[ $APP_SETUP == "true" ]]; then
-                API_MODEL1=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
-            fi
-        fi
-
-        if [[ $line =~ "API_MODEL2=" ]]; then
-            if [[ $APP_SETUP == "true" ]]; then
-                API_MODEL2=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
-            fi
-        fi
+        setRulesApi
     fi
 
     #######################################################################
