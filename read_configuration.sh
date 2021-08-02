@@ -737,7 +737,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         if echo "$line" | grep "NGINX_FAST_CGI_PASS" >> /dev/null 2>&1
         then
             NGINX_FAST_CGI_PASS=$(echo "$line" | cut -d "=" -f2)
-            echo "NGINX_FAST_CGI_PASS" $NGINX_FASTCGI_PASS
+            echo "NGINX_FAST_CGI_PASS" $NGINX_FAST_CGI_PASS
         fi
 
         if echo "$line" | grep "NGINX_CONF" >> /dev/null 2>&1
@@ -785,7 +785,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
             echo "Writing conf to ${PROJECT_NAME}"
             sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/${PROJECT_NAME}.app.conf"
             sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/${PROJECT_NAME}.app.conf"
-            sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FASTCGI_PASS}/" "conf/${PROJECT_NAME}.app.conf"
+            sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/${PROJECT_NAME}.app.conf"
 
             #Copy app.conf to project path final
             FINAL_PATH=$(echo "${NGINX_APP_CONF}" | cut -d ":" -f1)
