@@ -221,6 +221,10 @@ touch .userdata
 echo "${CONFIGURATION}" > configuration.conf
 echo "${USERDATA}" > .userdata
 
+if [[ ! -e projects ]]; then
+    mkdir ./projects
+fi
+
 echo ""
 echo "Configure is done !"
 echo ""
