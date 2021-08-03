@@ -119,10 +119,6 @@ function setRulesDatabase {
 }
 
 function setRulesApp {
-    if [[ $APP_SETUP == "NULL" ]]; then
-        continue
-    fi
-
     if [[ $line =~ "APP_URL_MODEL1=" ]]; then
         if [[ $APP_SETUP == "true" ]]; then
             APP_URL_MODEL1=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
@@ -137,10 +133,6 @@ function setRulesApp {
 }
 
 function setRulesApi {
-    if [[ $API_SETUP == "NULL" ]]; then
-        continue
-    fi
-
     if [[ $line =~ "API_MODEL1=" ]]; then
         if [[ $APP_SETUP == "true" ]]; then
             API_MODEL1=$(echo "$line" | cut -d "=" -f2-9 | sed 's/\//\\\//g')
@@ -384,6 +376,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         fi
 
         #Ignore App config
+        if [[ $APP_SETUP == "NULL" ]]; then
+            continue
+        fi
         setRulesApp
 
         #######################################################################
@@ -411,6 +406,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         fi
 
         #Ignore API config
+        if [[ $API_SETUP == "NULL" ]]; then
+            continue
+        fi
         setRulesApi
     fi
 
