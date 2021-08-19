@@ -17,4 +17,4 @@ installed.*
 uninstall.txt
 *docker-compose.yml*
 *.env
-configuration.conf
+*configuration.conf

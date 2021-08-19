@@ -38,10 +38,14 @@ function install {
         mkdir -p ./projects
         cd ./projects
         mkdir ${DIRS}
+
     else
         echo "[INFO] Skipping repositories..."
     fi
 
+    sleep 2
+
+    rm -rfv ./${DOCKER_YML_PROJECTS}
     rm -rfv ./projects/${DOCKER_YML_PROJECTS}
 
     # Git Projects
@@ -358,6 +362,7 @@ function delete {
     echo "Removing network: [$ID_NETWORK]"
     if [[ $ID_NETWORK != "" ]]; then
         docker network rm ${ID_NETWORK}
+        docker network rm ${GATEWAY}
     fi
     echo ""
 
@@ -373,6 +378,7 @@ function delete {
         read -n1 OP
 
         rm -rf ./projects
+
     else
         echo "[INFO] Skipping repositories..."
     fi
@@ -381,18 +387,18 @@ function delete {
     rm -rfv "${UNINSTALL_FILE}"
 
     if [[ $PARAM3 == true ]]; then
-        rm -rfv "./projects/${DOCKER_YML_PROJECTS}"
+        rm -rf "${CONFIGURATION_FILE}"
         rm -rfv "${DOCKER_YML_PROJECTS}"
+        rm -rfv "./projects/${DOCKER_YML_PROJECTS}"
     fi
 
-    echo ""
-    echo "[WARNING] Please, check the information below !"
-    echo ""
-
-    echo ""
-    echo "[WARNING] Would like you remove all resources from docker ?"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "[ W A R N I N G ]"
+    echo "Please, check the information below !"
+    echo "-----------------------------------------------------------------------------"
+    echo "Would like you remove all resources from docker ?"
     echo "Containers, Images, Volumes, Networks and all dependencies...."
-    echo ""
+    echo "-----------------------------------------------------------------------------"
     echo "Please type yes or no: "
     read  OP
 
@@ -427,8 +433,8 @@ function refresh {
 
     sleep 2
 
-    rm -rfv ${DOCKER_YML_PROJECTS}
-    rm -rfv ./projects/${DOCKER_YML_PROJECTS}
+    rm -rfv "${DOCKER_YML_PROJECTS}"
+    rm -rfv "./projects/${DOCKER_YML_PROJECTS}"
 
     # Automatic Configuration
 
@@ -466,6 +472,8 @@ function refresh {
     echo ""
 
     docker-compose stop >> /dev/null 2>&1
+    docker network rm ${GATEWAY}
+    sleep 2
     docker network create "${GATEWAY}"
     docker-compose build
 
@@ -487,15 +495,13 @@ function refresh {
     echo "--------------------------------------------------------------------------"
 }
 
-STARTTIME=$(date +%T)
+START_TIME=$(date +%T)
 
 echo "*************************************************************************"
 echo "Welcome to Dockerized Environment for Web developer..."
 echo "*************************************************************************"
 
 SAVE_PATH="${PWD}"
-
-#System commands check-in
 
 #Git installed ?
 CHECKIN1=$(dpkg -l | grep git)
@@ -529,23 +535,23 @@ fi
 
 #User data file checkin
 if [[ ! -e .userdata ]]; then
-	echo "Error: Userdata File not Found !"
-	exit
+    echo "Error: Userdata File not Found !"
+    exit
 fi
 
 USERNAME=$(cat .userdata | cut -d ":" -f1)
 PASSWORD=$(cat .userdata | cut -d ":" -f2)
 
 if [[ $USERNAME == "" || $PASSWORD == "" ]]; then
-	echo "Error: USERNAME or PASSWORD not found: use USERNAME:PASSWORD in .userdata file"
-	exit
+    echo "Error: USERNAME or PASSWORD not found: use USERNAME:PASSWORD in .userdata file"
+    exit
 fi
 
 #Configuration file checkin
 CONFIGURATION_FILE="configuration.conf"
 if [[ ! -e ${CONFIGURATION_FILE} ]]; then
-	echo "Error: Configuration File not Found !"
-	exit
+    echo "Error: Configuration File not Found !"
+    exit
 fi
 
 PROJECTS=('"'$(grep "TARGET_PROJECTS" "${CONFIGURATION_FILE}" | sed -e 's/[ "]//g' | cut -d "=" -f2 | sed -e 's/,/" "/g')'"')
@@ -593,7 +599,7 @@ UNINSTALL_FILE="uninstall.txt"
 LOCKER_FILE="installer.lock"
 DOCKER_YML_PROJECTS="docker-compose.yml"
 
-if [[ ! $PARAM1 || ! $PARAM2 ]]; then
+if [[ ! "$PARAM1" || ! "$PARAM2" ]]; then
     echo "-------------------------------------------------------------"
     echo "[ERROR] Please inform correctly all parameters"
     echo "./envinit.sh [install|delete|refresh] [repo|skip] [configuration: true|false]"
@@ -620,6 +626,11 @@ if [[ $PARAM3 != "" ]]; then
     fi
 fi
 
+#If install environment
+if [[ $PARAM1 == "install" ]]; then
+    install
+fi
+
 #If delete environment
 if [[ $PARAM1 == "delete" ]]; then
     delete
@@ -630,15 +641,14 @@ if [[ $PARAM1 == "refresh" ]]; then
     refresh
 fi
 
-#If install environment
-if [[ $PARAM1 == "install" ]]; then
-    install
-fi
+#############################################
+#FINISHED
+#############################################
 
-ENDTIME=$(date +%T)
+END_TIME=$(date +%T)
 
-echo "START TIME : $STARTTIME"
-echo "END TIME    : $ENDTIME"
+echo "START TIME : $START_TIME"
+echo "END TIME    : $END_TIME"
 
 echo "Bye"
 echo ""

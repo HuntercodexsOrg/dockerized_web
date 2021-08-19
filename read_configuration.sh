@@ -192,7 +192,12 @@ defineApiVars
 #Copy dotenv files template
 PROJECT=($(grep "TARGET_PROJECTS" ${CONFIGURATION_FILE} | cut -d "=" -f2 | sed -e 's/,/"-"/g' | sed -e 's/ //g' | sed -e 's/"-"/" "/g' | sed -e 's/"//g'))
 
-mkdir tmp_env
+if [[ -e ./tmp_env ]]; then
+    rm -rf ./tmp_env
+fi
+
+mkdir -p tmp_env
+
 for ((i = 0; i < ${#PROJECT[@]}; i++)); do
     if [[ ! -e "conf/env/${PROJECT[$i]}.env.tpl" ]]; then
         echo "[WARNING] Missing .env file" "conf/env/${PROJECT[$i]}.env.tpl"
@@ -235,8 +240,18 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         #Show here the API settings that placed in configuration file
         showDebugApi
 
-        ##Apply all database env settings
-        applyDatabaseEnvSettings
+        #Apply all database env settings
+        echo "Apply database env settings ?"
+        echo "NOTE: "
+        echo "You should be ensure that theses configurations are placed in the file !"
+        echo "-----------------------------------------------------------------------------"
+        echo "Please type yes or no: "
+        read  OP
+
+        if [[ $OP == "yes" ]]; then
+            echo "Please wait..."
+            applyDatabaseEnvSettings
+        fi
 
         echo "READ CONFIGURATION - GLOBAL END"
 
@@ -797,74 +812,71 @@ while IFS= read -r line || [[ -n "$line" ]]; do
             fi
             NGINX_PROCESSED=1
 
-            if [[ -e "conf/${PROJECT_NAME}.app.conf" ]];
-            then
-                rm "conf/${PROJECT_NAME}.app.conf"
-            fi
+            ###############################################################################################
 
-            if [[ -e "nginx/${PROJECT_NAME}/app.conf" ]];
+            #App.conf to Nginx
+            if [[ -e "conf/nginx/${PROJECT_NAME}.app.conf" ]];
             then
-                rm "nginx/${PROJECT_NAME}/app.conf"
+                mv -v "conf/nginx/${PROJECT_NAME}.app.conf" "conf/nginx/${PROJECT_NAME}.app.conf.bkp"
             fi
 
             #New Conf File to Nginx based on project name - project.conf -> app.conf
-            touch "conf/${PROJECT_NAME}.app.conf"
-            cat "${TEMPLATE_TO_APP}" > "conf/${PROJECT_NAME}.app.conf"
+            if [[ -e "conf/${PROJECT_NAME}.app.conf" ]];
+            then
+                chmod 777 "conf/${PROJECT_NAME}.app.conf"
+                mv -v "conf/${PROJECT_NAME}.app.conf" "conf/nginx/${PROJECT_NAME}.app.conf"
+            else
+                touch "conf/nginx/${PROJECT_NAME}.app.conf"
+                chmod 777 "conf/nginx/${PROJECT_NAME}.app.conf"
+                cat "${TEMPLATE_TO_APP}" > "conf/nginx/${PROJECT_NAME}.app.conf"
+            fi
 
             #Replace data
             echo "Writing conf to ${PROJECT_NAME}"
-            sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/${PROJECT_NAME}.app.conf"
-            sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/${PROJECT_NAME}.app.conf"
-            sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/${PROJECT_NAME}.app.conf"
+            sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.app.conf"
+            sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.app.conf"
+            sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.app.conf"
 
-            #Copy app.conf to project path final
-            FINAL_PATH=$(echo "${NGINX_APP_CONF}" | cut -d ":" -f1)
-            FINAL_PATH=$(dirname "${FINAL_PATH}")
-            if [[ ! -e "${FINAL_PATH}" ]];
-            then
-                mkdir -p "${FINAL_PATH}"
-            fi
-            mv -v "./conf/${PROJECT_NAME}.app.conf" "${FINAL_PATH}/app.conf"
-            echo "FINAL_PATH ==>>> APP.CONF" "${FINAL_PATH}"
-        fi
+            ###############################################################################################
 
-        #Copy nginx.conf if exists
-        if [[ $NGINX_CONF != "NULL" ]];
-        then
-            FINAL_PATH=$(echo "${NGINX_CONF}" | cut -d ":" -f1)
-            FINAL_PATH=$(dirname "${FINAL_PATH}")
-            if [[ ! -e "${FINAL_PATH}" ]];
+            #Server.conf to Nginx
+            if [[ -e "conf/nginx/${PROJECT_NAME}.nginx.conf" ]];
             then
-                mkdir -p "${FINAL_PATH}"
+                mv -v "conf/nginx/${PROJECT_NAME}.nginx.conf" "conf/nginx/${PROJECT_NAME}.nginx.conf.bkp"
             fi
-            cp -v "./conf/nginx.conf" "${FINAL_PATH}/nginx.conf"
-            echo "FINAL_PATH ==>>> NGINX.CONF" "${FINAL_PATH}"
-        fi
 
-        #Copy nginx72.conf if exists
-        if [[ $NGINX72_CONF != "NULL" ]];
-        then
-            FINAL_PATH=$(echo "${NGINX72_CONF}" | cut -d ":" -f1)
-            FINAL_PATH=$(dirname "${FINAL_PATH}")
-            if [[ ! -e "${FINAL_PATH}" ]];
+            #Copy nginx.conf if exists
+            if [[ $NGINX_CONF != "NULL" ]];
             then
-                mkdir -p "${FINAL_PATH}"
+                if [[ -e "conf/${PROJECT_NAME}.nginx.conf" ]];
+                then
+                    cp -v "conf/${PROJECT_NAME}.nginx.conf" "./conf/nginx/${PROJECT_NAME}.nginx.conf"
+                else
+                    cp -v "conf/nginx.conf" "./conf/nginx/${PROJECT_NAME}.nginx.conf"
+                fi
             fi
-            cp -v "./conf/nginx72.conf" "${FINAL_PATH}/nginx72.conf"
-            echo "FINAL_PATH ==>>> NGINX72.CONF" "${FINAL_PATH}"
-        fi
 
-        #Copy supervisor.conf if exists
-        if [[ $SUPERVISOR_CONF != "NULL" ]];
-        then
-            FINAL_PATH=$(echo "${SUPERVISOR_CONF}" | cut -d ":" -f1)
-            FINAL_PATH=$(dirname "${FINAL_PATH}")
-            if [[ ! -e "${FINAL_PATH}" ]];
+            #Copy nginx72.conf if exists
+            if [[ $NGINX72_CONF != "NULL" ]];
             then
-                mkdir -p "${FINAL_PATH}"
+                if [[ -e "conf/${PROJECT_NAME}.nginx72.conf" ]];
+                then
+                    cp -v "conf/${PROJECT_NAME}.nginx72.conf" "./conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                else
+                    cp -v "conf/nginx72.conf" "./conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                fi
             fi
-            cp -v "./conf/supervisor.conf" "${FINAL_PATH}/supervisor.conf"
-            echo "FINAL_PATH ==>>> SUPERVISOR.CONF" "${FINAL_PATH}"
+
+            #Copy supervisor.conf if exists
+            if [[ $SUPERVISOR_CONF != "NULL" ]];
+            then
+                if [[ -e "conf/${PROJECT_NAME}.supervisor.conf" ]];
+                then
+                    cp -v "conf/${PROJECT_NAME}.supervisor.conf" "./conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                else
+                    cp -v "conf/supervisor.conf" "./conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                fi
+            fi
         fi
     fi
 
@@ -875,9 +887,11 @@ grep "{{{GATEWAY}}}" "${TEMPLATE_TO_YML}" | sed -e "s/{{{GATEWAY}}}/${GATEWAY}/"
 grep "{{{EXTERNAL_GATEWAY}}}" "${TEMPLATE_TO_YML}" | sed -e "s/{{{EXTERNAL_GATEWAY}}}/${EXTERNAL_GATEWAY}/" >> ${DOCKER_YML}
 
 mv -v ${DOCKER_YML} .
-#cp -rv nginx ./projects/
-cp -rv php ./projects/
-cp -rv redis ./projects/
+cp -rv ./conf/nginx ./projects/
+cp -rv ./conf/php ./projects/
+cp -rv ./conf/redis ./projects/
+cp -rv ./conf/mysql ./projects/
+
 rm -rf tmp_env
 
 echo ""

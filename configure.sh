@@ -176,11 +176,12 @@ SERVICE_NAME = \"mysql\"
 CONTAINER_NAME = \"mysql\"
 IMAGE = \"mysql\"
 PRIVILEGED = \"NULL\"
-LOCALHOST_PORT = \"8700\"
+LOCALHOST_PORT = \"3308\"
 INTERNAL_PORT = \"3306\"
 NETWORKS = \"NULL\"
 ENVIRONMENT = \"true\"
     MYSQL_ROOT_PASSWORD = \"root\"
+    MYSQL_USERNAME = \"root\"
     MYSQL_DATABASE = \"dbname\"
 VOLUMES = \"true\"
     VOLUME = \"./projects/project2/environment/mysql:/var/lib/mysql\"
@@ -225,7 +226,28 @@ if [[ ! -e projects ]]; then
     mkdir ./projects
 fi
 
+if [[ ! -e ./projects/mysql ]]; then
+    mkdir -p ./projects/mysql
+fi
+
+if [[ ! -e ./projects/nginx ]]; then
+    mkdir -p ./projects/nginx
+fi
+
+if [[ ! -e ./projects/php ]]; then
+    mkdir -p ./projects/php
+fi
+
+if [[ ! -e ./projects/redis ]]; then
+    mkdir -p ./projects/redis
+fi
+
+chmod 777 ./projects/mysql
+chmod 777 ./projects/nginx
+chmod 777 ./projects/php
+chmod 777 ./projects/redis
+
 echo ""
 echo "Configure is done !"
-echo "Now you can run envinit.sh..."
+echo "Now you can run ./envinit.sh..."
 echo ""
