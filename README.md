@@ -24,11 +24,13 @@ false: Para não usar o arquivo configuration (ignorar)
 </pre>
 
 <h4>Instalação</H4>
-- 1: execute ./configure.sh
-- 2: configure as informações no arquivo configuration.conf
-- 3: execute ./envinit.sh install repo true (para rodar pela primeira vez)
-- 4: execute ./envinit.sh delete repo true (para remover tudo)
-- 5: execute ./envinit.sh refresh skip true
+- 1: execute ./configure.sh para gerar o arquivo .configure
+- 2: editeo arquivo .configure com as informações corretas
+- 3: execute novamente o script ./configure.sh para configurar o ambiente
+- 4: configure as informações no arquivo configuration.conf
+- 5: execute ./envinit.sh install repo true (para rodar pela primeira vez)
+- 6: execute ./envinit.sh delete repo true (para remover tudo)
+- 7: execute ./envinit.sh refresh skip true
 
 # Opções
 

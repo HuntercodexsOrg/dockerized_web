@@ -22,7 +22,7 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 serverurl=unix:///dev/shm/supervisor.sock ; use a unix:// URL  for a unix socket
 
 [program:php-fpm]
-command = /opt/remi/php72/root/sbin/php-fpm --nodaemonize --fpm-config /etc/opt/remi/php72/php-fpm.d/www.conf
+command = /opt/remi/{{{PHP_VERSION}}}/root/sbin/php-fpm --nodaemonize --fpm-config /etc/opt/remi/{{{PHP_VERSION}}}/php-fpm.d/www.conf
 autorestart=true
 priority=5
 stdout_events_enabled=true

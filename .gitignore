@@ -7,6 +7,8 @@ backup/
 bkp/
 .idea/
 .log/
+conf/nginx/*bkp*
+conf/nginx/*.conf*
 *.log
 conf/env/*.tpl
 conf/env/*.conf
@@ -18,3 +20,4 @@ uninstall.txt
 *docker-compose.yml*
 *.env
 *configuration.conf
+.configure

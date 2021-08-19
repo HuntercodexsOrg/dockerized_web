@@ -385,6 +385,7 @@ function delete {
 
     rm -rfv "${LOCKER_FILE}"
     rm -rfv "${UNINSTALL_FILE}"
+    rm -rfv ".configure"
 
     if [[ $PARAM3 == true ]]; then
         rm -rf "${CONFIGURATION_FILE}"

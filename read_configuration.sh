@@ -451,15 +451,17 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 
         #Reset Status NGINX Conf (service by service)
         SERVICE_START=1
-        NGINX_PROCESSED=0
         PROJECT_NAME="NULL"
+        NGINX_SERVER_NAME="NULL"
         NGINX_LISTEN="NULL"
         NGINX_FAST_CGI_PASS="NULL"
         NGINX_CONF="NULL"
         NGINX_ROOT_PATH="NULL"
         NGINX_APP_CONF="NULL"
         NGINX72_CONF="NULL"
+        NGINX72_RESTFUL_CONF="NULL"
         SUPERVISOR_CONF="NULL"
+        LAST_LINE_SERVICE=0
     fi
 
     if echo "$line" | egrep '\*{90}' >> /dev/null 2>&1
@@ -764,13 +766,19 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         fi
 
         #################################################################################
-        # NGINX - APP.CONF
+        # NGINX CONFIGURATION SERVER
         #################################################################################
 
         if echo "$line" | grep "PROJECT_NAME" >> /dev/null 2>&1
         then
             PROJECT_NAME=$(echo "$line" | cut -d "=" -f2)
             echo "PROJECT_NAME" $PROJECT_NAME
+        fi
+
+        if echo "$line" | grep "NGINX_SERVER_NAME" >> /dev/null 2>&1
+        then
+            NGINX_SERVER_NAME=$(echo "$line" | cut -d "=" -f2)
+            echo "NGINX_SERVER_NAME" $NGINX_SERVER_NAME
         fi
 
         if echo "$line" | grep "NGINX_LISTEN" >> /dev/null 2>&1
@@ -803,78 +811,112 @@ while IFS= read -r line || [[ -n "$line" ]]; do
             echo "NGINX_ROOT_PATH" $NGINX_ROOT_PATH
         fi
 
-        if [[ $PROJECT_NAME != "NULL" && $NGINX_LISTEN != "NULL" && $NGINX_FAST_CGI_PASS != "NULL" && $NGINX_APP_CONF != "NULL" && $NGINX_ROOT_PATH != "NULL" ]];
+        if echo "$line" | grep "NGINX72_CONF" >> /dev/null 2>&1
+        then
+            NGINX72_CONF=$(echo "$line" | cut -d "=" -f2)
+            echo "NGINX72_CONF" $NGINX72_CONF
+        fi
+
+        if echo "$line" | grep "NGINX72_RESTFUL_CONF" >> /dev/null 2>&1
+        then
+            NGINX72_RESTFUL_CONF=$(echo "$line" | cut -d "=" -f2)
+            echo "NGINX72_RESTFUL_CONF" $NGINX72_RESTFUL_CONF
+        fi
+
+        #Last line of service
+        if echo "$line" | grep "SUPERVISOR_CONF" >> /dev/null 2>&1
+        then
+            SUPERVISOR_CONF=$(echo "$line" | cut -d "=" -f2)
+            echo "SUPERVISOR_CONF" $SUPERVISOR_CONF
+            LAST_LINE_SERVICE=1
+        fi
+
+        if [[
+            $PROJECT_NAME != "NULL" &&
+            $NGINX_SERVER_NAME != "NULL" &&
+            $NGINX_LISTEN != "NULL" &&
+            $NGINX_FAST_CGI_PASS != "NULL" &&
+            $NGINX_APP_CONF != "NULL" &&
+            $NGINX_ROOT_PATH != "NULL" &&
+            $LAST_LINE_SERVICE == 1
+            ]];
         then
 
-            if [[ $NGINX_PROCESSED == 1 ]];
+            LAST_LINE_SERVICE=0
+
+            if ls conf/nginx/${PROJECT_NAME}*conf >> /dev/null 2>&1
             then
-                continue
-            fi
-            NGINX_PROCESSED=1
 
-            ###############################################################################################
+                ###############################################################################################
+                #App.conf to Nginx
 
-            #App.conf to Nginx
-            if [[ -e "conf/nginx/${PROJECT_NAME}.app.conf" ]];
-            then
-                mv -v "conf/nginx/${PROJECT_NAME}.app.conf" "conf/nginx/${PROJECT_NAME}.app.conf.bkp"
-            fi
-
-            #New Conf File to Nginx based on project name - project.conf -> app.conf
-            if [[ -e "conf/${PROJECT_NAME}.app.conf" ]];
-            then
-                chmod 777 "conf/${PROJECT_NAME}.app.conf"
-                mv -v "conf/${PROJECT_NAME}.app.conf" "conf/nginx/${PROJECT_NAME}.app.conf"
-            else
-                touch "conf/nginx/${PROJECT_NAME}.app.conf"
-                chmod 777 "conf/nginx/${PROJECT_NAME}.app.conf"
-                cat "${TEMPLATE_TO_APP}" > "conf/nginx/${PROJECT_NAME}.app.conf"
-            fi
-
-            #Replace data
-            echo "Writing conf to ${PROJECT_NAME}"
-            sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.app.conf"
-            sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.app.conf"
-            sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.app.conf"
-
-            ###############################################################################################
-
-            #Server.conf to Nginx
-            if [[ -e "conf/nginx/${PROJECT_NAME}.nginx.conf" ]];
-            then
-                mv -v "conf/nginx/${PROJECT_NAME}.nginx.conf" "conf/nginx/${PROJECT_NAME}.nginx.conf.bkp"
-            fi
-
-            #Copy nginx.conf if exists
-            if [[ $NGINX_CONF != "NULL" ]];
-            then
-                if [[ -e "conf/${PROJECT_NAME}.nginx.conf" ]];
+                if [[ -e "conf/nginx/${PROJECT_NAME}.app.conf" ]];
                 then
-                    cp -v "conf/${PROJECT_NAME}.nginx.conf" "./conf/nginx/${PROJECT_NAME}.nginx.conf"
-                else
-                    cp -v "conf/nginx.conf" "./conf/nginx/${PROJECT_NAME}.nginx.conf"
+                    #Replace data
+                    echo "Writing conf to ${PROJECT_NAME}"
+                    sed -i "s/{{{NGINX_SERVER_NAME}}}/${NGINX_SERVER_NAME}/" "conf/nginx/${PROJECT_NAME}.app.conf"
+                    sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.app.conf"
+                    sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.app.conf"
+                    sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.app.conf"
                 fi
-            fi
 
-            #Copy nginx72.conf if exists
-            if [[ $NGINX72_CONF != "NULL" ]];
-            then
-                if [[ -e "conf/${PROJECT_NAME}.nginx72.conf" ]];
+                ###############################################################################################
+                #Server.conf to Nginx
+
+                #Copy nginx.conf if exists
+                if [[ $NGINX_CONF != "NULL" ]];
                 then
-                    cp -v "conf/${PROJECT_NAME}.nginx72.conf" "./conf/nginx/${PROJECT_NAME}.nginx72.conf"
-                else
-                    cp -v "conf/nginx72.conf" "./conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                    if [[ -e "conf/nginx/${PROJECT_NAME}.nginx.conf" ]];
+                    then
+                        #Replace data
+                        echo "Writing NGINX conf to ${PROJECT_NAME}"
+                        sed -i "s/{{{NGINX_SERVER_NAME}}}/${NGINX_SERVER_NAME}/" "conf/nginx/${PROJECT_NAME}.nginx.conf"
+                        sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.nginx.conf"
+                        sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.nginx.conf"
+                        sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.nginx.conf"
+                    fi
                 fi
-            fi
 
-            #Copy supervisor.conf if exists
-            if [[ $SUPERVISOR_CONF != "NULL" ]];
-            then
-                if [[ -e "conf/${PROJECT_NAME}.supervisor.conf" ]];
+                #Copy nginx72.conf if exists
+                if [[ $NGINX72_CONF != "NULL" ]];
                 then
-                    cp -v "conf/${PROJECT_NAME}.supervisor.conf" "./conf/nginx/${PROJECT_NAME}.supervisor.conf"
-                else
-                    cp -v "conf/supervisor.conf" "./conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                    if [[ -e "conf/nginx/${PROJECT_NAME}.nginx72.conf" ]];
+                    then
+                        #Replace data
+                        echo "Writing NGINX conf to ${PROJECT_NAME}"
+                        sed -i "s/{{{NGINX_SERVER_NAME}}}/${NGINX_SERVER_NAME}/" "conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                        sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                        sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                        sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.nginx72.conf"
+                    fi
+                fi
+
+                #Copy nginx72-restful.conf if exists
+                if [[ $NGINX72_RESTFUL_CONF != "NULL" ]];
+                then
+                    if [[ -e "conf/nginx/${PROJECT_NAME}.nginx72-restful.conf" ]];
+                    then
+                        #Replace data
+                        echo "Writing NGINX conf to ${PROJECT_NAME}"
+                        sed -i "s/{{{NGINX_SERVER_NAME}}}/${NGINX_SERVER_NAME}/" "conf/nginx/${PROJECT_NAME}.nginx72-restful.conf"
+                        sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.nginx72-restful.conf"
+                        sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.nginx72-restful.conf"
+                        sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.nginx72-restful.conf"
+                    fi
+                fi
+
+                #Copy supervisor.conf if exists
+                if [[ $SUPERVISOR_CONF != "NULL" ]];,
+                then
+                    if [[ -e "conf/nginx/${PROJECT_NAME}.supervisor.conf" ]];
+                    then
+                        #Replace data
+                        echo "Writing NGINX conf to ${PROJECT_NAME}"
+                        sed -i "s/{{{NGINX_SERVER_NAME}}}/${NGINX_SERVER_NAME}/" "conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                        sed -i "s/{{{NGINX_LISTEN}}}/${NGINX_LISTEN}/" "conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                        sed -i "s/{{{NGINX_ROOT_PATH}}}/${NGINX_ROOT_PATH}/" "conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                        sed -i "s/{{{NGINX_FAST_CGI_PASS}}}/${NGINX_FAST_CGI_PASS}/" "conf/nginx/${PROJECT_NAME}.supervisor.conf"
+                    fi
                 fi
             fi
         fi
@@ -887,10 +929,7 @@ grep "{{{GATEWAY}}}" "${TEMPLATE_TO_YML}" | sed -e "s/{{{GATEWAY}}}/${GATEWAY}/"
 grep "{{{EXTERNAL_GATEWAY}}}" "${TEMPLATE_TO_YML}" | sed -e "s/{{{EXTERNAL_GATEWAY}}}/${EXTERNAL_GATEWAY}/" >> ${DOCKER_YML}
 
 mv -v ${DOCKER_YML} .
-cp -rv ./conf/nginx ./projects/
-cp -rv ./conf/php ./projects/
-cp -rv ./conf/redis ./projects/
-cp -rv ./conf/mysql ./projects/
+cp -rv conf/nginx/*.conf projects/nginx/
 
 rm -rf tmp_env
 
