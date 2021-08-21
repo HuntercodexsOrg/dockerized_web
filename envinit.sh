@@ -243,6 +243,8 @@ function install {
     sleep 2
 
     docker-compose stop >> /dev/null 2>&1
+    docker network rm "${GATEWAY}"
+    sleep 2
     docker network create "${GATEWAY}"
     docker-compose build
     #docker-compose -f ${DOCKER_YML_PROJECTS} up --build
@@ -393,6 +395,30 @@ function delete {
         rm -rfv "./projects/${DOCKER_YML_PROJECTS}"
     fi
 
+
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "[ W A R N I N G ]"
+    echo "Please, check the information below !"
+    echo "-----------------------------------------------------------------------------"
+    echo "Would like you remove all configurations and resources folders ?"
+    echo "-----------------------------------------------------------------------------"
+    echo "Please type yes or no: "
+    read  OP
+
+    if [[ $OP == "yes" ]];
+    then
+        echo "Cleaning configurations and resources folders, Please wait..."
+        rm -rfv "./projects/mysql"
+        rm -rfv "./projects/php"
+        rm -rfv "./projects/nginx"
+        rm -rfv "./projects/redis"
+        rm -rfv ./conf/nginx/*.conf
+        rm -rfv ./conf/nginx/*.conf.bkp
+        sleep 2
+    else
+        echo "[INFO] Skipping cleaning..."
+    fi
+
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     echo "[ W A R N I N G ]"
     echo "Please, check the information below !"
@@ -434,6 +460,7 @@ function refresh {
 
     sleep 2
 
+    docker-compose stop >> /dev/null 2>&1
     rm -rfv "${DOCKER_YML_PROJECTS}"
     rm -rfv "./projects/${DOCKER_YML_PROJECTS}"
 
@@ -451,7 +478,7 @@ function refresh {
         echo "======================================================================="
         echo ""
 
-        source read_configuration.sh "${PROJECTS}"
+        source read_configuration.sh "${PROJECTS}" "refresh"
 
         if [[ $? != "0" ]]; then
             echo "CRITICAL ERROR in process, aborting..."
@@ -473,14 +500,12 @@ function refresh {
     echo ""
 
     docker-compose stop >> /dev/null 2>&1
-    docker network rm ${GATEWAY}
     sleep 2
-    docker network create "${GATEWAY}"
     docker-compose build
 
     echo ""
     echo "--------------------------------------------------------------------------"
-    echo "Execute docker composer up now ?"
+    echo "Execute docker composer up now..."
     echo ""
 
     docker-compose up -d

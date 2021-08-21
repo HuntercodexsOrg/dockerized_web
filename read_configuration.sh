@@ -151,6 +151,7 @@ function setRulesApi {
 ############################
 
 TARGET_PROJECTS=$1 #Array
+OPERATION=$2
 VERSION=NULL
 SERVICES=0
 GATEWAY=""
@@ -843,6 +844,49 @@ while IFS= read -r line || [[ -n "$line" ]]; do
         then
 
             LAST_LINE_SERVICE=0
+
+            if [[ "${OPERATION}" == "refresh" ]];
+            then
+                echo "----------------------------"
+                echo "REFRESHING PROJECT ${PROJECT}"
+                echo "----------------------------"
+
+                #APP
+                ################################################################################
+                if [[ -e "conf/nginx/${PROJECT}.app.conf" ]];
+                then
+                    mv -v "conf/nginx/${PROJECT}.app.conf" "conf/nginx/${PROJECT}.app.conf.bkp"
+                fi
+
+                cp -v "conf/app.tpl" "conf/nginx/${PROJECT}.app.conf"
+
+                #NGINX
+                ################################################################################
+                if [[ -e "conf/nginx/${PROJECT}.nginx.conf" ]];
+                then
+                    mv -v "conf/nginx/${PROJECT}.nginx.conf" "conf/nginx/${PROJECT}.nginx.conf.bkp"
+                fi
+
+                cp -v "conf/nginx.tpl" "conf/nginx/${PROJECT}.nginx.conf"
+
+                #NGINX72
+                ################################################################################
+                if [[ -e "conf/nginx/${PROJECT}.nginx72.conf" ]];
+                then
+                    mv -v "conf/nginx/${PROJECT}.nginx72.conf" "conf/nginx/${PROJECT}.nginx72.conf.bkp"
+                fi
+
+                cp -v "conf/nginx72.tpl" "conf/nginx/${PROJECT}.nginx72.conf"
+
+                #NGINX72RESTFULL
+                ################################################################################
+                if [[ -e "conf/nginx/${PROJECT}.nginx72-restful.conf" ]];
+                then
+                    mv -v "conf/nginx/${PROJECT}.nginx72-restful.conf" "conf/nginx/${PROJECT}.nginx72-restful.conf.bkp"
+                fi
+
+                cp -v "conf/nginx72-restful.tpl" "conf/nginx/${PROJECT}.nginx72-restful.conf"
+            fi
 
             if ls conf/nginx/${PROJECT_NAME}*conf >> /dev/null 2>&1
             then
