@@ -49,8 +49,27 @@ RUN echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini
 RUN echo "date.timezone=America/Sao_Paulo" > /usr/local/etc/php/conf.d/timezone_sao_paulo.ini
 RUN echo "memory_limit = 1024M" > /usr/local/etc/php/conf.d/memory_limit.ini
 
+## COMPOSER
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+## PDO-SQLSRV (MSSQL) (Ubuntu 20.04)
+#RUN su
+RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+RUN curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+RUN apt-get update && apt-get upgrade -y
+RUN ACCEPT_EULA=Y apt-get install -y msodbcsql17
+RUN ACCEPT_EULA=Y apt-get install -y mssql-tools
+#RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+#RUN source ~/.bashrc
+RUN apt-get install -y unixodbc-dev
+RUN pecl config-set php_ini /usr/local/etc/php/conf.d/php.ini
+RUN pecl install sqlsrv
+RUN pecl install pdo_sqlsrv
+RUN printf "; priority=20\nextension=sqlsrv.so\n" > /usr/local/etc/php/conf.d/sqlsrv.ini
+RUN printf "; priority=30\nextension=pdo_sqlsrv.so\n" > /usr/local/etc/php/conf.d/pdo_sqlsrv.ini
+#RUN phpenmod sqlsrv pdo_sqlsrv
+
+## EXTRAS
 RUN apt install nano
 RUN apt install wget -y
 
