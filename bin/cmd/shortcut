@@ -1,0 +1,78 @@
+#!/bin/bash
+
+##############################################################################################
+#
+# DESCRIPTION:
+# AUTHOR: JEREELTON TEIXEIRA
+#
+##############################################################################################
+
+if [[ $1 == "-r" ]]; then
+
+    ## Cmd
+    sudo unlink /usr/local/bin/__docker_ps
+    sudo unlink /usr/local/bin/__docker_allow
+    sudo unlink /usr/local/bin/__docker_exec
+    sudo unlink /usr/local/bin/__docker_down
+    sudo unlink /usr/local/bin/__docker_build
+    sudo unlink /usr/local/bin/__docker_up
+    sudo unlink /usr/local/bin/__docker_off
+    sudo unlink /usr/local/bin/__docker_format
+    sudo unlink /usr/local/bin/__docker_shortcut
+    sudo unlink /usr/local/bin/__docker_disk
+    sudo unlink /usr/local/bin/__docker_prune
+    ##Env
+#    sudo unlink /usr/local/bin/_dockerized_configure
+
+    sudo unlink /usr/local/bin/_prepare_projects
+    sudo unlink /usr/local/bin/_prepare_resources
+    sudo unlink /usr/local/bin/_prepare_settings
+    sudo unlink /usr/local/bin/_dockerized_web
+
+    sudo unlink /usr/local/bin/_dockerized_install
+    sudo unlink /usr/local/bin/_dockerized_refresh
+    sudo unlink /usr/local/bin/_dockerized_start
+    sudo unlink /usr/local/bin/_dockerized_stop
+    sudo unlink /usr/local/bin/_dockerized_status
+    sudo unlink /usr/local/bin/_dockerized_restart
+    sudo unlink /usr/local/bin/_dockerized_exec
+    sudo unlink /usr/local/bin/_dockerized_uninstall
+    sudo unlink /usr/local/bin/_dockerized_repare
+
+    echo "Unlink shortcut is done !"
+
+else
+
+    ## Cmd
+    sudo ln -s "$PWD/bin/cmd/ps" /usr/local/bin/__docker_ps
+    sudo ln -s "$PWD/bin/cmd/allowed" /usr/local/bin/__docker_allow
+    sudo ln -s "$PWD/bin/cmd/exec" /usr/local/bin/__docker_exec
+    sudo ln -s "$PWD/bin/cmd/down" /usr/local/bin/__docker_down
+    sudo ln -s "$PWD/bin/cmd/build" /usr/local/bin/__docker_build
+    sudo ln -s "$PWD/bin/cmd/up" /usr/local/bin/__docker_up
+    sudo ln -s "$PWD/bin/cmd/off" /usr/local/bin/__docker_off
+    sudo ln -s "$PWD/bin/cmd/format" /usr/local/bin/__docker_format
+    sudo ln -s "$PWD/bin/cmd/shortcut" /usr/local/bin/__docker_shortcut
+    sudo ln -s "$PWD/bin/cmd/disk" /usr/local/bin/__docker_disk
+    sudo ln -s "$PWD/bin/cmd/prune" /usr/local/bin/__docker_prune
+    ## Env
+#    sudo ln -s "$PWD/bin/env/env_config" /usr/local/bin/_dockerized_configure
+
+    sudo ln -s "$PWD/bin/env/env_projects" /usr/local/bin/_prepare_projects
+    sudo ln -s "$PWD/bin/env/env_resources" /usr/local/bin/_prepare_resources
+    sudo ln -s "$PWD/bin/env/env_settings" /usr/local/bin/_prepare_settings
+    sudo ln -s "$PWD/bin/env/env_web" /usr/local/bin/_dockerized_web
+
+    sudo ln -s "$PWD/bin/env/env_install" /usr/local/bin/_dockerized_install
+    sudo ln -s "$PWD/bin/env/env_refresh" /usr/local/bin/_dockerized_refresh
+    sudo ln -s "$PWD/bin/env/env_start" /usr/local/bin/_dockerized_start
+    sudo ln -s "$PWD/bin/env/env_stop" /usr/local/bin/_dockerized_stop
+    sudo ln -s "$PWD/bin/env/env_status" /usr/local/bin/_dockerized_status
+    sudo ln -s "$PWD/bin/env/env_restart" /usr/local/bin/_dockerized_restart
+    sudo ln -s "$PWD/bin/env/env_exec" /usr/local/bin/_dockerized_exec
+    sudo ln -s "$PWD/bin/env/env_uninstall" /usr/local/bin/_dockerized_uninstall
+    sudo ln -s "$PWD/bin/env/env_repare" /usr/local/bin/_dockerized_repare
+
+    echo "Shortcut is done !"
+
+fi

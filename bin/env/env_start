@@ -1,0 +1,19 @@
+#!/bin/bash
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+DOCKERIZED_WEB_PATH="${PWD}/web/"
+
+cd "${DOCKERIZED_WEB_PATH}"
+docker-compose start
+
+IP_POSSIBLE=$(ip addr | grep "inet" | grep "dynamic" | awk '{print $2}' | cut -f1 -d'/')
+
+echo "-----------------------------------------------------------------------------------------------"
+echo "Dockerized Web is Up now !"
+echo "-----------------------------------------------------------------------------------------------"
+echo "You can be accessed the configuration services in:"
+echo "Local IP: http://localhost:31800, http://127.0.0.1:31800, http://${IP_POSSIBLE}:31800"
+echo "Remote IP: http://192.168.1.100:31800 (SAMPLE REMOTE IP)"
+echo "Local Service Name: http://dockerized_web:31800 (IF CONFIGURED)"
+echo "-----------------------------------------------------------------------------------------------"

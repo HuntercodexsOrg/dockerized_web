@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Check Docker Compose YML, this file is mandatory to up services
+if [[ ! -e docker-compose.yml ]]; then
+    echo "Missing docker-compose.yml"
+    exit
+fi
+
+echo "[INFO] Are you that apply prune on docker ?"
+echo "Please type yes or no and Press [Enter]: "
+read  OP
+
+if [[ $OP == "yes" ]]; then
+    docker system prune --force
+    echo "Prune is done"
+else
+    echo "Skipping prune..."
+fi
+
+exit

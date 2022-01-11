@@ -1,0 +1,446 @@
+#!/bin/bash
+
+#################################################################################################
+#
+# DESCRIPTION: INSTALL DOCKERIZED WEB
+# AUTHOR: JEREELTON TEIXEIRA
+#
+#-----------------------------------------------------------------------------------------------
+#
+# [COMO USAR]
+#
+# Comando: ./dockerized --web
+# Objetivo: Configurar os serviços pela web ou manualmente nos arquivos .conf, caso não seja feito
+# pela web, os arquivos .conf contidos em ./projects/configurations/services deverão ser alterados
+# manualmente
+#
+# Comando: ./dockerized --install
+# Objetivo: Instalar o ambiente após realizar todas as configurações necessárias citadas no passo
+# anterior (--prepare)
+#
+# Comando: ./dockerized --refresh
+# Objetivo: Atualizar o ambiente cm as alterações feitas nos arquivos de configurações, seja para
+# atualização, remoção ou adição de serviço e recurso
+#
+# Comando: ./dockerized --start
+# Objetivo: Iniciar todos os serviços de dockerized web
+#
+# Comando: ./dockerized --stop
+# Objetivo: Interromper todos os serviços de dockerized web
+#
+# Comando: ./dockerized --status
+# Objetivo: Verificar status de todos os serviços de dockerized web
+#
+# Comando: ./dockerized --restart
+# Objetivo: Reiniciar todos os serviços de dockerized web
+#
+# Comando: ./dockerized --exec <service_name>
+# Objetivo: Acessar o container de algum serviço
+#
+# Comando: ./dockerized --uninstall
+# Objetivo: Remover todos os recursos do ambiente dockerized instalado, fazendo backup das
+# configurações e principalmente dos projetos que estão rodando no ambiente atual
+#
+#################################################################################################
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+COMMANDS=",--web,--install,--refresh,--start,--stop,--status,--restart,--exec,--uninstall,--help,--repare,"
+COMMAND1="$1"
+COMMAND2="$2"
+
+function help {
+    echo -e "${BACK_BLACK_COLOR}"
+    echo -e "
+                                                                                                           .
+    ${YELLOW_TEXT_COLOR}DOCKERIZED HELPER${COLOR_CLOSE}${BACK_BLACK_COLOR}                                                                                      .
+                                                                                                           .
+    Command: ./dockerized --web                                                                            .
+    Objective: Configure the services via the web or manually in the .conf files, if not done              .
+    via the web, the .conf files contained in ./projects/configurations/services must be changed           .
+    manually                                                                                               .
+                                                                                                           .
+    Command: ./dockerized --install                                                                        .
+    Objective: Install the environment after performing all the necessary settings mentioned in step       .
+    previous (--prepare)                                                                                   .
+                                                                                                           .
+    Command: ./dockerized --refresh                                                                        .
+    Objective: Update the environment with changes made to the configuration files, whether for            .
+    update, removal or addition of service and feature                                                     .
+                                                                                                           .
+    Command: ./dockerized --start                                                                          .
+    Objective: Start all services for dockerized_web                                                       .
+                                                                                                           .
+    Command: ./dockerized --stop                                                                           .
+    Objective: Stop all services for dockerized_web                                                        .
+                                                                                                           .
+    Command: ./dockerized --status                                                                         .
+    Objective: Check all services status for dockerized_web                                                .
+                                                                                                           .
+    Command: ./dockerized --restart                                                                        .
+    Objective: Restart all services on dockerized_web                                                      .
+                                                                                                           .
+    Command: ./dockerized --exec <service_name>                                                            .
+    Objective: Execute any container service                                                               .
+                                                                                                           .
+    Command: ./dockerized --uninstall                                                                      .
+    Objective: Remove all features from the installed dockerized environment by backing up the             .
+    settings and especially for projects that are running in the current environment                       .
+                                                                                                           ."
+    echo -e "${COLOR_CLOSE}"
+
+    exit
+}
+
+function run_initial_message {
+    echo -e "${YELLOW_TEXT_COLOR}"
+    echo -e ""
+    echo -e " [WARNING] The process installation should be executed by super user (sudo/root)"
+    echo -e " [WARNING] Your password may be asked for at least once during the installation process !"
+    echo -e "${COLOR_CLOSE}"
+}
+
+function run_checkin {
+    echo -ne "DOCKERIZED CHECKIN (please wait) -"
+
+    #Git installed ?
+    CHECKIN1=$(dpkg -l | grep git)
+    CHECKIN2=$(builtin type -P git)
+    apt show git >> /dev/null 2>&1
+    CHECKIN3=$?
+    if [[ $CHECKIN1 == "" && $CHECKIN2 == "" && $CHECKIN3 != "0" ]];
+    then
+        echo -e "${RED_TEXT_COLOR} [ERROR] ${COLOR_CLOSE}"
+        echo -e "The git is not installed in your system !"
+        exit
+    fi
+
+    #Docker installed ?
+    CHECKIN1=$(dpkg -l | grep docker)
+    CHECKIN2=$(builtin type -P docker)
+    apt show docker >> /dev/null 2>&1
+    CHECKIN3=$?
+    if [[ $CHECKIN1 == "" && $CHECKIN2 == "" && $CHECKIN3 != "0" ]];
+    then
+        echo -e "${RED_TEXT_COLOR} [ERROR] ${COLOR_CLOSE}"
+        echo -e "The docker is not installed in your system !"
+        exit
+    fi
+
+    #Docker Compose installed ?
+    CHECKIN1=$(dpkg -l | grep docker-compose)
+    CHECKIN2=$(builtin type -P docker-compose)
+    apt show docker-compose >> /dev/null 2>&1
+    CHECKIN3=$?
+    if [[ $CHECKIN1 == "" && $CHECKIN2 == "" && $CHECKIN3 != "0" ]];
+    then
+        echo -e "${RED_TEXT_COLOR} [ERROR] ${COLOR_CLOSE}"
+        echo -e "The docker-compose is not installed in your system !"
+        exit
+    fi
+
+    if ! echo "${COMMANDS}" | grep ",${COMMAND1}," >> /dev/null 2>&1
+    then
+        echo -e "${RED_TEXT_COLOR} [ERROR] ${COLOR_CLOSE}"
+        echo -e "Invalid Operation to install dockerized !"
+        echo -e "Use ./dockerized --help for more details"
+        exit
+    fi
+
+    echo -ne "${GREEN_TEXT_COLOR} OK ${COLOR_CLOSE}\n"
+
+}
+
+function run_web {
+    echo "WEB FUNCTION IS RUNNING..."
+
+    if ! ls .backup >> /dev/null 2>&1
+    then
+        mkdir -p .backup
+    fi
+
+    ./bin/cmd/allowed -y
+    ./bin/cmd/shortcut -r
+    ./bin/cmd/shortcut
+    sleep 2
+
+    __docker_allow -y
+    sleep 2
+
+    _prepare_projects
+    _prepare_resources
+    _prepare_settings
+    _dockerized_web
+
+    __docker_allow -y
+    sleep 2
+
+}
+
+function run_install {
+    echo "INSTALL FUNCTION IS RUNNING..."
+    _dockerized_install
+    sleep 2
+}
+
+function run_refresh {
+    echo "REFRESH FUNCTION IS RUNNING..."
+    _dockerized_refresh
+    sleep 2
+}
+
+function run_start {
+    echo "START FUNCTION IS RUNNING..."
+    _dockerized_start
+    sleep 2
+}
+
+function run_stop {
+    echo "STOP FUNCTION IS RUNNING..."
+    _dockerized_stop
+    sleep 2
+}
+
+function run_status {
+    echo "STATUS FUNCTION IS RUNNING..."
+    _dockerized_status
+    sleep 2
+}
+
+function run_restart {
+    echo "RESTART FUNCTION IS RUNNING..."
+    _dockerized_restart
+    sleep 2
+}
+
+function run_exec {
+    echo "EXEC FUNCTION IS RUNNING..."
+    _dockerized_exec "${COMMAND2}"
+    sleep 2
+}
+
+function run_repare {
+    echo "REPARE FUNCTION IS RUNNING..."
+    source ./bin/env/env_repare
+}
+
+function run_uninstall {
+    echo "UNINSTALL FUNCTION IS RUNNING..."
+    _dockerized_uninstall
+    sleep 2
+}
+
+source ./bin/colours
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--help" ]];
+then
+    help
+fi
+
+run_checkin
+
+#-----------------------------------------------------------------------------------------------
+#WEB CONFIGURATIONS PROCESS
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--web" ]];
+then
+
+    run_initial_message
+
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on WEB resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_web
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}WEB finished...${COLOR_CLOSE}"
+    echo ""
+
+    echo -e ""
+    echo -e ""
+    echo -e "${CYAN_TEXT_COLOR}"
+    echo -e "Now you can make the necessary changes on dockerized web configurations for each service that "
+    echo -e "will be created, this can be made through of the dockerized_web (browser) or manually in the files "
+    echo -e "contained into path ./settings..."
+    echo -e "${BACK_RED_COLOR}"
+    echo -e "[NOTE] Is recommended that the setup will be made by web browser with the Dockerized Web App !"
+    echo -e "${COLOR_CLOSE}"
+    echo -e "${COLOR_CLOSE}"
+    echo -e ""
+    echo -e ""
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#INSTALL
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--install" ]];
+then
+
+    run_initial_message
+
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on INSTALL resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_install
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}INSTALL finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#REFRESH
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--refresh" ]];
+then
+
+    run_initial_message
+
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on REFRESH resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_refresh
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}REFRESH finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#START
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--start" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on START resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_start
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}START finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#STOP
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--stop" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on STOP resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_stop
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}STOP finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#STATUS
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--status" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on STATUS resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_status
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}STATUS finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#RESTART
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--restart" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on RESTART resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_restart
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}RESTART finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#EXEC
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--exec" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on EXEC resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_exec
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}EXEC finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#REPARE
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--repare" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on REPARE resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_repare
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}REPARE finished...${COLOR_CLOSE}"
+    echo ""
+fi
+
+#-----------------------------------------------------------------------------------------------
+#UNINSTALL
+#-----------------------------------------------------------------------------------------------
+
+if [[ "${COMMAND1}" == "--uninstall" ]];
+then
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR}"
+    echo -e "Working on UNINSTALL resource now... please wait..."
+    echo -e "${COLOR_CLOSE}"
+
+    run_uninstall
+
+    echo ""
+    echo "-----------------------------------------------------------------------------------------------"
+    echo -e "${GREEN_TEXT_COLOR}UNINSTALL finished...${COLOR_CLOSE}"
+    echo ""
+fi

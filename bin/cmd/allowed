@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ $1 == "-y" ]]; then
+    OP="yes"
+else
+    echo "[WARNING] Allowed all permissions on folders nobody:nogroup and 777"
+    echo "Continue? Please type yes or no and Press [Enter]: "
+    read  OP
+fi
+
+if [[ $OP == "yes" ]]; then
+
+    sudo chmod 777 * -R
+    sudo chmod 777 .* -R
+    sudo chown nobody:nogroup * -R
+    sudo chown nobody:nogroup .* -R
+
+fi
+
+echo "Allowed Finished"
+exit

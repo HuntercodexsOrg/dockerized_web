@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [[ ! -e docker-compose.yml ]]; then
+    echo "Missing docker-compose.yml"
+    exit
+fi
+
+echo ""
+echo "Docker"
+echo "-------------------------------------------------------------------------"
+docker ps
+
+echo ""
+echo ""
+echo "*************************************************************************"
+
+echo ""
+echo "Docker Compose"
+echo "-------------------------------------------------------------------------"
+docker-compose ps
+
+echo "PS Finished"
+exit

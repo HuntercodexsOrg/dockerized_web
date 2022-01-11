@@ -1,0 +1,67 @@
+#!/bin/bash
+
+##############################################################################################
+#
+# DESCRIPTION:
+# AUTHOR: JEREELTON TEIXEIRA
+#
+##############################################################################################
+
+source ./bin/colours
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN
+#-----------------------------------------------------------------------------------------------
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+if [[ -e settings || -e docker-compose.yml ]]; then
+
+    echo -e "${YELLOW_TEXT_COLOR}"
+    echo -e " [WARNING] The settings already is done !"
+    echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e "${COLOR_CLOSE}"
+    echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
+    read -n1 OP
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE SETTINGS FOLDER
+#-----------------------------------------------------------------------------------------------
+
+if [[ -e settings ]]; then
+    mv -v settings .backup/settings_${DATE_NOW}
+fi
+
+mkdir -p settings
+sudo chmod 777 settings
+sudo chown nobody:nogroup settings
+
+mkdir -p settings/docker
+sudo chmod 777 settings/docker
+sudo chown nobody:nogroup settings/docker
+
+mkdir -p settings/nginx
+sudo chmod 777 settings/nginx
+sudo chown nobody:nogroup settings/nginx
+
+mkdir -p settings/services
+sudo chmod 777 settings/services
+sudo chown nobody:nogroup settings/services
+
+cp -rfv base/config/templates/configuration/*.tpl settings/
+cp -rfv base/config/templates/nginx/*.tpl settings/nginx/
+
+touch settings/docker/networks.txt
+sudo chmod 777 settings/docker/networks.txt
+sudo chown nobody:nogroup settings/docker/networks.txt
+
+#-----------------------------------------------------------------------------------------------
+#FINISH PROCESS
+#-----------------------------------------------------------------------------------------------
+
+echo ""
+echo -e "${BACK_GREEN_COLOR} SETTINGS is done ! ${COLOR_CLOSE}"
+echo "-----------------------------------------------------------------------------------------------"
+echo ""

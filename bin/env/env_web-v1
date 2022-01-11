@@ -1,0 +1,129 @@
+#!/bin/bash
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+DOCKERIZED_PATH="${PWD}"
+DOCKERIZED_CONF_PATH="${DOCKERIZED_PATH}/conf/dockerized_web"
+DOCKERIZED_WEB_PATH="${DOCKERIZED_PATH}/projects/dockerized_web"
+
+if ls ${DOCKERIZED_WEB_PATH} >> /dev/null 2>&1
+then
+    mv ${DOCKERIZED_WEB_PATH} "${DOCKERIZED_WEB_PATH}_${DATE_NOW}"
+fi
+
+#-----------------------------------------------------------------------------------------------
+#NEW DOCKERIZED WEB
+#-----------------------------------------------------------------------------------------------
+
+cp -rfv "${DOCKERIZED_CONF_PATH}" "${DOCKERIZED_WEB_PATH}"
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN - CONFIGURATION/PREPARE IS OK ?
+#-----------------------------------------------------------------------------------------------
+
+CONF="${DOCKERIZED_PATH}/projects/configurations"
+SERVICES="${DOCKERIZED_PATH}/projects/configurations/services"
+
+if !ls ${CONF} >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing or Broken Configuration Step !"
+    echo "[ERROR] Please run ./dockerized --prepare [--web] !"
+    exit
+fi
+
+if !ls ${SERVICES} >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing or Broken Configuration Step !"
+    echo "[ERROR] Please run ./dockerized --prepare [--web] !"
+    exit
+fi
+
+if !ls ${CONF}/*.conf >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing or Broken Configuration Step !"
+    echo "[ERROR] Please run ./dockerized --prepare [--web] !"
+    exit
+fi
+
+if !ls ${SERVICES}/*.conf >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing or Broken Configuration Step !"
+    echo "[ERROR] Please run ./dockerized --prepare [--web] !"
+    exit
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN - APP INTEGRITY IS OK ?
+#-----------------------------------------------------------------------------------------------
+
+if ! ls ${DOCKERIZED_WEB_PATH}/app >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing DOCKERIZED_PATH/app !"
+    exit
+fi
+
+if ! ls ${DOCKERIZED_WEB_PATH}/docker-compose.yml >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing docker-compose.yml for dockerized_web !"
+    exit
+fi
+
+if ! ls ${DOCKERIZED_WEB_PATH}/dockerized_web.dockerfile >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing dockerized_web.dockerfile for dockerized_web !"
+    exit
+fi
+
+if ! ls ${DOCKERIZED_WEB_PATH}/dockerized_web.app.conf >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing dockerized_web.app.conf for dockerized_web !"
+    exit
+fi
+
+if ! ls ${DOCKERIZED_WEB_PATH}/dockerized_web.nginx.conf >> /dev/null 2>&1
+then
+    echo "[ERROR] Missing dockerized_web.nginx.conf for dockerized_web !"
+    exit
+fi
+
+#-----------------------------------------------------------------------------------------------
+#PRESENTATION
+#-----------------------------------------------------------------------------------------------
+
+cd "${DOCKERIZED_WEB_PATH}/"
+
+echo "Directory List:"
+pwd
+ls -ltr *
+echo "Everything fine!"
+echo "-----------------------------------------------------------------------------------------------"
+echo "Docker Compose will be run now, continue ?"
+echo "Press [Enter] to yes, [Ctrl+C] to cancel: "
+read OP
+
+#-----------------------------------------------------------------------------------------------
+#RUN
+#-----------------------------------------------------------------------------------------------
+
+docker network rm "dockerized_web_31800"
+docker network create "dockerized_web_31800"
+sleep 2
+docker-compose up -d
+
+if [[ $? != 0 ]]; then
+    echo "[ERROR] Docker Compose found an error during web installation..."
+    exit
+fi
+
+#-----------------------------------------------------------------------------------------------
+#FINISHED
+#-----------------------------------------------------------------------------------------------
+
+echo "-----------------------------------------------------------------------------------------------"
+echo "Dockerized Web is done !"
+echo "-----------------------------------------------------------------------------------------------"
+echo "You can be accessed the configuration services in:"
+echo "Local IP: http://localhost:31800, http://127.0.0.1:31800"
+echo "Remote IP: http://192.168.15.13:31800 (SAMPLE)"
+echo "Local Service Name: http://dockerized_web:31800 (IF CONFIGURED)"
+echo "-----------------------------------------------------------------------------------------------"

@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# Check Docker Compose YML, this file is mandatory to up services
+if [[ ! -e docker-compose.yml ]]; then
+    echo "Missing docker-compose.yml"
+    exit
+fi
+
+function help {
+
+    echo ""
+    echo "# [UP HELP] *************************************************************************"
+    echo "# Use:"
+    echo "# ./up -u <service_name> - To uniq service up"
+    echo "# ./up -a                - To automatic services up"
+    echo "# ./up -i                - To interactive services(service by service: one by one)"
+    echo "# -----------------------------------------------------------------------------------"
+    echo ""
+
+    exit
+}
+
+function uniq {
+
+    echo "[ UNIQ UP ]"
+    docker-compose stop ${CMD2}
+    docker-compose up -d ${CMD2}
+
+}
+
+function automatic {
+
+    echo "[ AUTOMATIC UP ]"
+    docker-compose stop
+    docker-compose up -d
+
+}
+
+function interactive {
+
+    echo "[ INTERACTIVE UP ]"
+    SERVICES_ARRAY=('"'$(echo $SERVICES)'"')
+
+    for ((i = 0; i < ${#SERVICES_ARRAY[@]}; i++)); do
+        SERVICE=$(echo "${SERVICES_ARRAY[$i]}" | sed -e 's/"//g')
+
+        echo "-----------------------------------------------------------------------------"
+        echo "Up ${SERVICE} now, please type yes/no and press [Enter] ?"
+        read OPSERVICE
+
+        if [[ $OPSERVICE == "yes" ]]; then
+            echo "Please Wait, WORKING ON >>>> [${SERVICE}]"
+            docker-compose stop ${SERVICE}
+            docker-compose up -d ${SERVICE}
+        else
+            echo "Skipping..."
+        fi
+
+    done
+
+}
+
+CMD1=$1
+CMD2=$2
+SERVICES=""
+
+if [[ $CMD1 != "-h" && $CMD1 != "-u" && $CMD1 != "-i" && $CMD1 != "-a" ]]; then
+    echo "[ERROR] Invalid command to up services, use ./up -h to help"
+    exit
+fi
+
+if [[ $CMD1 == '-h' ]]; then
+    help
+fi
+
+if [[ $CMD1 == '-u' ]]; then
+    if [[ ! $CMD2 || $CMD2 == '' ]]; then
+        echo "[ERROR] Missing service name to uniq service up..."
+        exit
+    fi
+fi
+
+if [[ $CMD1 == '-i' ]]; then
+    SERVICES=$(grep "container_name" "docker-compose.yml" | cut -d ":" -f2 | sed -r 's/ //g')
+fi
+
+if [[ $CMD1 == "-u" ]]; then
+    uniq
+fi
+
+if [[ $CMD1 == '-a' ]]; then
+    automatic
+fi
+
+if [[ $CMD1 == "-i" ]]; then
+    interactive
+fi
+
+echo "Up Finished"
+exit

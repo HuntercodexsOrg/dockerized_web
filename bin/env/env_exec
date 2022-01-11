@@ -1,0 +1,13 @@
+#!/bin/bash
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+DOCKERIZED_WEB_PATH="${PWD}/web/"
+
+if [[ "${1}" == "" ]];
+then
+    echo "[ERROR] Missing service/container name !"
+else
+    cd "${DOCKERIZED_WEB_PATH}"
+    docker exec -it "${1}" /bin/bash
+fi

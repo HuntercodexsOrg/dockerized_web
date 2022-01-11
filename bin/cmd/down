@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Check Docker Compose YML, this file is mandatory to up services
+if [[ ! -e docker-compose.yml ]]; then
+    echo "Missing docker-compose.yml"
+    exit
+fi
+
+echo "[INFO] Down all services ?"
+echo "Please type yes or no and Press [Enter]: "
+read  OP
+
+if [[ $OP == "yes" ]]; then
+    docker-compose stop
+    docker-compose down
+    docker system prune --force
+fi
+
+echo "Down Finished"
+exit

@@ -1,0 +1,71 @@
+#!/bin/bash
+
+###########################################################################################################
+# [Fonte]
+# https://www.oracle.com/br/technical-resources/articles/database-performance/oracle-db19c-com-docker.html
+###########################################################################################################
+
+echo "**************************************************************************************************"
+echo "Welcome to Oracle Builder!"
+echo "**************************************************************************************************"
+echo "Continue ? Press [Enter] to continue, [Ctrl+C] to cancel: "
+
+mkdir -p ./projects/oracle/oracleData
+chmod 777 ./projects/oracle/oracleData
+chown nobody:nogroup ./projects/oracle/oracleData
+
+# Current Folder Content
+# LINUX.X64_193000_db_home.zip (Required, this file should be downloaded before builder)
+cd ./projects/oracle/oracleData/
+
+if ! ls docker-images/
+then
+    git clone https://github.com/oracle/docker-images.git
+else
+    echo "[Skipping] https://github.com/oracle/docker-images.git already exists !"
+fi
+
+if ! ls LINUX.X64_193000_db_home.zip
+then
+    echo "[ERROR] Missing file: LINUX.X64_193000_db_home.zip"
+    exit
+fi
+
+cp -rfv LINUX.X64_193000_db_home.zip docker-images/OracleDatabase/SingleInstance/dockerfiles/19.3.0/
+
+if ! ls docker-images/OracleDatabase/SingleInstance/dockerfiles/19.3.0/LINUX.X64_193000_db_home.zip
+then
+    echo "[ERROR] Copy error to file: LINUX.X64_193000_db_home.zip"
+    exit
+fi
+
+cd docker-images/OracleDatabase/SingleInstance/dockerfiles/
+
+ls -ltr
+
+./buildContainerImage.sh -v 19.3.0 -e
+
+rm -rfv 19.3.0/LINUX.X64_193000_db_home.zip
+
+## COMMANDS
+#docker run --name oracle19c -p 1521:1521 -p 5500:5500 -v projects:/opt/oracle/oradata oracle/database:19.3.0-ee
+docker exec -it oracle19c ./setPassword.sh myPasswordSecurity
+#docker stop oracle19c
+#docker start oracle19c
+#docker exec -it oracle19c /bin/bash
+#docker exec -ti 067b6bde0f93 sqlplus system/myPasswordSecurity@orclpdb1
+#sqlplus sys/myPasswordSecurity@ORCLCDB as sysdba
+#sqlplus sys/myPasswordSecurity@ORCLPDB1 as sysdba
+#sqlplus devel/myPasswordSecurity@ORCLPDB1
+#ORCLPDB1.localdomain
+
+## DATABASE
+#CREATE USER DEVEL IDENTIFIED BY myPasswordSecurity;
+#GRANT CREATE SESSION, CREATE TABLE TO devel;
+#ALTER USER devel QUOTA 50m ON SYSTEM;
+#CREATE SMALLFILE TABLESPACE USERS DATAFILE '/u01/app/oracle/oradata/ORCL/users.dbf' SIZE 10G;
+#ALTER DATABASE DEFAULT TABLESPACE USERS;
+#SELECT * FROM ALL_USERS au;
+#SELECT * FROM ALL_USERS au WHERE USERNAME = 'DEVEL';
+
+echo "Bye..."

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+##############################################################################################
+#
+# DESCRIPTION:
+# AUTHOR: JEREELTON TEIXEIRA
+#
+##############################################################################################
+
+source ./bin/colours
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN
+#-----------------------------------------------------------------------------------------------
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+if [[ -e projects || -e docker-compose.yml ]]; then
+
+    echo -e "${YELLOW_TEXT_COLOR}"
+    echo -e " [WARNING] The projects already is done !"
+    echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e "${COLOR_CLOSE}"
+    echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
+    read -n1 OP
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS FOLDER (WHERE THE PROJECTS SHOULD BE STAY)
+#-----------------------------------------------------------------------------------------------
+
+if [[ -e projects ]]; then
+    mv -v projects .backup/projects_${DATE_NOW}
+fi
+
+mkdir -p projects
+sudo chmod 777 projects
+sudo chown nobody:nogroup projects
+
+#-----------------------------------------------------------------------------------------------
+#FINISH PROCESS
+#-----------------------------------------------------------------------------------------------
+
+echo ""
+echo -e "${BACK_GREEN_COLOR} PROJECTS is done ! ${COLOR_CLOSE}"
+echo "-----------------------------------------------------------------------------------------------"
+echo ""

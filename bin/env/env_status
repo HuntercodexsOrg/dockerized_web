@@ -1,0 +1,8 @@
+#!/bin/bash
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+DOCKERIZED_WEB_PATH="${PWD}/web/"
+
+cd "${DOCKERIZED_WEB_PATH}"
+docker-compose ps

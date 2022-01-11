@@ -1,0 +1,68 @@
+#!/bin/bash
+
+##############################################################################################
+#
+# DESCRIPTION:
+# AUTHOR: JEREELTON TEIXEIRA
+#
+##############################################################################################
+
+source ./bin/colours
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN
+#-----------------------------------------------------------------------------------------------
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+if [[ -e resources || -e docker-compose.yml ]]; then
+
+    echo -e "${YELLOW_TEXT_COLOR}"
+    echo -e " [WARNING] The resources already is done !"
+    echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e "${COLOR_CLOSE}"
+    echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
+    read -n1 OP
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE RESOURCES FOLDER
+#-----------------------------------------------------------------------------------------------
+
+if [[ -e resources ]]; then
+    mv -v resources .backup/resources_${DATE_NOW}
+else
+    echo "Skipping resources (not found)..."
+fi
+
+mkdir -p resources
+sudo chmod 777 resources
+sudo chown nobody:nogroup resources
+
+#RESOURCES
+touch resources/available.txt
+sudo chmod 777 resources/available.txt
+sudo chown nobody:nogroup resources/available.txt
+
+res=$(ls base/source | awk '{print $1}' | grep -v "php" | xargs -i echo {})
+res_available=$(echo $res | sed -e 's/ /,/g')
+echo "${res_available}" > resources/available.txt
+
+#PHP VERSION
+touch resources/php_available.txt
+sudo chmod 777 resources/php_available.txt
+sudo chown nobody:nogroup resources/php_available.txt
+
+res=$(ls base/source/php | awk '{print $1}' | xargs -i echo {})
+php_version=$(echo $res | sed -e 's/ /,/g')
+echo "${php_version}" > resources/php_available.txt
+
+#-----------------------------------------------------------------------------------------------
+#FINISH PROCESS
+#-----------------------------------------------------------------------------------------------
+
+echo ""
+echo -e "${BACK_GREEN_COLOR} RESOURCES is done ! ${COLOR_CLOSE}"
+echo "-----------------------------------------------------------------------------------------------"
+echo ""

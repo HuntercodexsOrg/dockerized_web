@@ -1,0 +1,9 @@
+#!/bin/bash
+
+sudo unlink /usr/local/bin/*__docker_* >> /dev/null 2>&1
+sudo unlink /usr/local/bin/*_dockerized_* >> /dev/null 2>&1
+
+./bin/cmd/allowed -y
+./bin/cmd/shortcut -r
+./bin/cmd/shortcut
+./bin/cmd/allowed -y

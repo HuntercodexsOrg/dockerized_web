@@ -1,0 +1,59 @@
+#!/bin/bash
+
+echo ""
+echo "FORMAT DOCKER CONTENT"
+echo ""
+
+echo "****************************************************************************************"
+echo "[ C O N T A I N E R S ]"
+echo ""
+docker container ls -a
+echo "----------------------------------------------------------------------------------------"
+echo "[ I M A G E N S ]"
+echo ""
+docker images
+echo "----------------------------------------------------------------------------------------"
+echo "[ V O L U M E S ]"
+echo ""
+docker volume ls
+echo "----------------------------------------------------------------------------------------"
+echo "[ N E T W O R K S ]"
+echo ""
+NETWORKS_LIST=$(cat settings/docker/networks.txt | sed -e 's/;/\|/g' | sed -e 's/|$//g')
+if ! docker network ls | egrep "${NETWORKS_LIST}"
+then
+    docker network ls
+fi
+NETWORKS_ARRAY=($(cat settings/docker/networks.txt | sed -e 's/;/ /g' | sed -e 's/|$//g'))
+echo "****************************************************************************************"
+
+echo ""
+echo "----------------------------------------------------------------------------------------"
+echo "[WARNING] This process will be format all data from docker in this machine !"
+echo "Do you want really continue (This operation is not reversible)?"
+echo "Please type yes or no and Press [Enter]: "
+read  OP
+
+if [[ $OP == "yes" ]]; then
+    echo "Format is starting... please wait..."
+
+    docker container rm $(docker container ls -a -q)
+    docker container rm --force $(docker container ls -a -q)
+    docker images rm --force $(docker images ls -a -q)
+    docker images rm $(docker images ls -a -q)
+    docker volume rm $(docker volume ls -q)
+    docker image rm $(docker image ls -a -q)
+    docker rmi $(docker image ls -a -q)
+    docker rmi --force $(docker images -q)
+
+    for ((i = 0; i < ${#NETWORKS_ARRAY[@]}; i++)); do
+        NETWORK=$(echo "${NETWORKS_ARRAY[$i]}")
+        docker network rm ${NETWORK}
+    done
+
+else
+    echo "Skipping..."
+fi
+
+echo "Format Finished"
+exit

@@ -1,12 +1,17 @@
+.backup/
+.idea/
+.log/
+.old/
 projects/
+resources/
+settings/
+web/
 old/
 tmp/
 tmp_env/
 trash/
 backup/
 bkp/
-.idea/
-.log/
 conf/nginx/*bkp*
 conf/nginx/*.conf*
 *.log
@@ -20,4 +25,6 @@ uninstall.txt
 *docker-compose.yml*
 *.env
 *configuration.conf
-.configure
+.conf
+.projects
+tasks.inf

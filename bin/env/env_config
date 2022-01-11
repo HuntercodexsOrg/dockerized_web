@@ -1,0 +1,611 @@
+#!/bin/bash
+
+##############################################################################################
+#
+# DESCRIPTION: GENERATE THE .conf FILE AND PREPARE THE ENVIRONMENT TO FINAL DATA CREATE
+# AUTHOR: JEREELTON TEIXEIRA
+# STATUS: [DONE]
+#
+##############################################################################################
+
+source ./bin/colours
+
+#-----------------------------------------------------------------------------------------------
+#CHECKIN
+#-----------------------------------------------------------------------------------------------
+
+DATE_NOW=$(date +"%d%m%y%H%m%s")
+
+if [[ -e settings || -e docker-compose.yml ]]; then
+
+    echo -e "${YELLOW_TEXT_COLOR}"
+    echo -e " [WARNING] The settings already is done !"
+    echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e "${COLOR_CLOSE}"
+    echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
+    read -n1 OP
+
+else
+
+    echo -e "${YELLOW_TEXT_COLOR}"
+    echo -e " [WARNING] The initial settings is not exists !"
+    echo -e " [WARNING] Would you like create now (this is mandatory) ?"
+    echo -e "${COLOR_CLOSE}"
+    echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
+    read -n1 OP
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#DATA PREPARE
+#-----------------------------------------------------------------------------------------------
+
+echo -e "${BACK_BLUE_COLOR}"
+echo -e "                                                                                    "
+echo -e " Please, type all information bellow . . .                                          "
+echo -e "                                                                                    "
+echo -e "${COLOR_CLOSE}"
+
+CONFIGURATION_SETUP=""
+while [[ ${CONFIGURATION_SETUP} != "true" ]] && [[ ${CONFIGURATION_SETUP} != "false" ]];
+do
+    echo -ne "CONFIGURATION_SETUP ${CYAN_TEXT_COLOR}[text: [true|false]]${COLOR_CLOSE}: "
+    read CONFIGURATION_SETUP
+done
+
+SERVICES_QTY=""
+while [[ $(echo ${SERVICES_QTY} | sed -e 's/[^0-9]//g') == "" ]];
+do
+    echo -ne "SERVICES_QTY ${CYAN_TEXT_COLOR}[integer: [n]]${COLOR_CLOSE}: "
+    read SERVICES_QTY
+done
+
+DOCKER_EXTRA_IMAGES=""
+while [[ ${DOCKER_EXTRA_IMAGES} == "" ]];
+do
+    echo -ne "DOCKER_EXTRA_IMAGES ${CYAN_TEXT_COLOR}[all, list: [extra1, extra2...]]${COLOR_CLOSE}: "
+    read DOCKER_EXTRA_IMAGES
+
+    if [[ ${DOCKER_EXTRA_IMAGES} == "all" ]];
+    then
+        DOCKER_EXTRA_IMAGES="php-fpm, mysql, mssql, postgres, oracle, mongo, mongo_express, redis, sqlite3, firebird"
+        echo -e "=> ${BLACK_SILVER_TEXT_COLOR}${DOCKER_EXTRA_IMAGES}${COLOR_CLOSE}"
+    fi
+done
+
+VERSION_DOCKER_COMPOSE=""
+while [[ ${VERSION_DOCKER_COMPOSE} == "" ]];
+do
+    echo -ne "VERSION_DOCKER_COMPOSE ${CYAN_TEXT_COLOR}[float: [n.m]]${COLOR_CLOSE}: "
+    read VERSION_DOCKER_COMPOSE
+done
+
+NETWORK_GATEWAY=""
+while [[ ${NETWORK_GATEWAY} == "" ]];
+do
+    echo -ne "NETWORK_GATEWAY ${CYAN_TEXT_COLOR}[text: [network_name]]${COLOR_CLOSE}: "
+    read NETWORK_GATEWAY
+done
+
+READ_PROJECT=""
+GIT_PROJECT=""
+while [[ 1 == 1 ]];
+do
+    echo -ne "GIT_PROJECT ${CYAN_TEXT_COLOR}[text: [git-user[@/]git-project]]${COLOR_CLOSE}: "
+    read READ_PROJECT
+
+    if [[ "${READ_PROJECT}" == "" ]]; then
+        break
+    fi
+
+    if echo ${READ_PROJECT} | grep "@" >> /dev/null 2>&1
+    then
+        _USER_=$(echo ${READ_PROJECT} | cut -d "@" -f1)
+        PROJECT=$(echo ${READ_PROJECT} | cut -d "@" -f2)
+        READER_PROJECT="GIT_PROJECT = ${_USER_}:{{{GITHUB_TOKEN}}}@${PROJECT}"
+
+        if [[ ! -e .gpass ]];
+        then
+            touch .gpass
+            sudo chmod 777 .gpass
+            sudo chown nobody:nogroup .gpass
+        fi
+
+        echo "${_USER_}@${PROJECT}:_SECRET_" >> .gpass
+
+    fi
+
+    if echo ${READ_PROJECT} | grep "/" >> /dev/null 2>&1
+    then
+        _READER_=$(echo ${READ_PROJECT} | sed -e 's/\//\\\//g')
+        READER_PROJECT="GIT_PROJECT = github.com\/${_READER_}"
+    fi
+
+    GIT_PROJECT="${GIT_PROJECT}${READER_PROJECT}\n"
+
+done
+
+NGINX_CONFIGURE=""
+while [[ ${NGINX_CONFIGURE} != "true" ]] && [[ ${NGINX_CONFIGURE} != "false" ]];
+do
+    echo -ne "NGINX_CONFIGURE ${CYAN_TEXT_COLOR}[text: [true|false]]${COLOR_CLOSE}: "
+    read NGINX_CONFIGURE
+done
+
+RESOURCES_DOCKERIZED=""
+while [[ ${RESOURCES_DOCKERIZED} == "" ]];
+do
+    echo -ne "RESOURCES_DOCKERIZED ${CYAN_TEXT_COLOR}[all, list: [resource1, resource2...]]${COLOR_CLOSE}: "
+    read RESOURCES_DOCKERIZED
+
+    if [[ ${RESOURCES_DOCKERIZED} == "all" ]];
+    then
+        RESOURCES_DOCKERIZED="nginx, supervisor, php-fpm, mongodb, mssql, mysql, oracle, pgsql, redis, sqlite3, firebird"
+        echo -e "=> ${BLACK_SILVER_TEXT_COLOR}${RESOURCES_DOCKERIZED}${COLOR_CLOSE}"
+    fi
+done
+
+echo -e "${YELLOW_TEXT_COLOR}"
+echo -e " [WARNING] Are you sure to configure the dockerized for web projects ?"
+echo -e "${COLOR_CLOSE}"
+echo " Continue ? Press [Enter] = Yes, or press [Ctrl+C] = No"
+read -n1 OP
+
+#-----------------------------------------------------------------------------------------------
+#DEFAULT RESOURCES DOCKERIZED
+#nginx, supervisor, php, py, nodejs, mongodb, mssql, mysql, oracle, pgsql, redis, sqlite3
+#-----------------------------------------------------------------------------------------------
+
+NGINX_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'nginx')
+SUPERVISOR_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'supervisor')
+PHP_V_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'php-fpm')
+MYSQL_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'mysql')
+MSSQL_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'mssql')
+PGSQL_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'pgsql')
+REDIS_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'redis')
+SQLITE3_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'sqlite3')
+MONGODB_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'mongodb')
+ORACLE_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'oracle')
+FIREBIRD_RESOURCE=$(echo ${RESOURCES_DOCKERIZED} | grep -o 'firebird')
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS FOLDER (WHERE THE PROJECTS ARE PLACED)
+#-----------------------------------------------------------------------------------------------
+
+if [[ ! -e projects ]]; then
+    mkdir -p projects
+fi
+
+sudo chmod 777 projects
+sudo chown nobody:nogroup projects
+
+#-----------------------------------------------------------------------------------------------
+#START HANDLER CONFIGURATION
+#-----------------------------------------------------------------------------------------------
+
+TEMPLATES_DIR=./conf/templates/configuration
+SERVICES_DIR=./projects/configurations/services
+
+if [[ -e projects/configurations ]]; then
+    mv -v projects/configurations "projects/configurations_${DATE_NOW}"
+fi
+
+mkdir -p projects/configurations
+mkdir -p projects/configurations/services
+
+sudo chmod 777 projects/configurations
+sudo chown nobody:nogroup projects/configurations
+
+sudo chmod 777 projects/configurations/services
+sudo chown nobody:nogroup projects/configurations/services
+
+#-----------------------------------------------------------------------------------------------
+#CONTENT CREATOR: HEADER
+#-----------------------------------------------------------------------------------------------
+
+echo -e "${YELLOW_TEXT_COLOR}"
+echo -e "                                                                                               "
+echo -e " HEADER CONFIGURATION                                                                          "
+echo -e "-----------------------------------------------------------------------------------------------"
+echo -e "${COLOR_CLOSE}"
+
+HEADER_FILE="./projects/configurations/header_configuration.conf"
+
+cp -rfv "${TEMPLATES_DIR}/v1/header_configuration.tpl" ${HEADER_FILE}
+
+sed -i "s/{{{CONFIGURATION_SETUP}}}/${CONFIGURATION_SETUP}/g" ${HEADER_FILE}
+sed -i "s/{{{SERVICES_QTY}}}/${SERVICES_QTY}/g" ${HEADER_FILE}
+sed -i "s/{{{DOCKER_EXTRA_IMAGES}}}/${DOCKER_EXTRA_IMAGES}/g" ${HEADER_FILE}
+sed -i "s/{{{RESOURCES_DOCKERIZED}}}/${RESOURCES_DOCKERIZED}/g" ${HEADER_FILE}
+sed -i "s/{{{VERSION_DOCKER_COMPOSE}}}/${VERSION_DOCKER_COMPOSE}/g" ${HEADER_FILE}
+sed -i "s/{{{NETWORK_GATEWAY}}}/${NETWORK_GATEWAY}/g" ${HEADER_FILE}
+sed -i "s/{{{GIT_PROJECT}}}/${GIT_PROJECT}/g" ${HEADER_FILE}
+
+#-----------------------------------------------------------------------------------------------
+#CONTENT CREATOR: BODY (SERVICES)
+#-----------------------------------------------------------------------------------------------
+
+echo -e "${YELLOW_TEXT_COLOR}"
+echo -e "                                                                                               "
+echo -e " SERVICES CONFIGURATION                                                                        "
+echo -e "-----------------------------------------------------------------------------------------------"
+echo -e "${COLOR_CLOSE}"
+
+cp -rfv "${TEMPLATES_DIR}/v1/services_configuration.tpl" ${SERVICES_DIR}/services_configuration.conf
+
+PROJECTS_ARRAY=($(echo ${GIT_PROJECT} | sed -e 's/ //g' | sed -e 's/\\n/ /g'))
+
+for ((i = 0; i < ${#PROJECTS_ARRAY[@]}; i++)); do
+    GITHUB_PROJECT=$(echo "${PROJECTS_ARRAY[$i]}")
+
+    if echo $GITHUB_PROJECT | grep "@" >> /dev/null 2>&1
+    then
+        SERVICE_NAME=$(echo ${GITHUB_PROJECT} | cut -d "@" -f2)
+    else
+        SERVICE_NAME=$(echo ${GITHUB_PROJECT} | cut -d "/" -f3 | sed -e 's/\.git//g')
+    fi
+
+    echo -ne "${BACK_BLUE_COLOR} WORKING ON SERVICE: ${COLOR_CLOSE} ${SERVICE_NAME} -"
+
+    SERVICE_FILE="${SERVICES_DIR}/${i}_${SERVICE_NAME}.conf"
+
+    cat "${SERVICES_DIR}/services_configuration.conf" >> ${SERVICE_FILE}
+
+    sed -i "s/{{{MANDATORY: SERVICE_NUMBER}}}/${i}/g" ${SERVICE_FILE}
+    sed -i "s/{{{MANDATORY: SERVICE_NAME}}}/${SERVICE_NAME}/g" ${SERVICE_FILE}
+    sed -i "s/{{{MANDATORY: NETWORK_GATEWAY}}}/${NETWORK_GATEWAY}/g" ${SERVICE_FILE}
+
+    echo -ne "${GREEN_TEXT_COLOR} OK ${COLOR_CLOSE}\n"
+
+done
+
+#-----------------------------------------------------------------------------------------------
+#CONTENT CREATOR: BODY (PHP, AND EXTRAS IMAGES)
+#-----------------------------------------------------------------------------------------------
+
+echo -e "${YELLOW_TEXT_COLOR}"
+echo -e "                                                                                               "
+echo -e " PHP AND EXTRAS CONFIGURATION                                                                  "
+echo -e "-----------------------------------------------------------------------------------------------"
+echo -e "${COLOR_CLOSE}"
+
+cp -rfv "${TEMPLATES_DIR}/v1/php_configuration.tpl" ${SERVICES_DIR}/php_configuration.conf
+cp -rfv "${TEMPLATES_DIR}/v1/extras_configuration.tpl" ${SERVICES_DIR}/extras_configuration.conf
+
+EXTRAS_ARRAY=($(echo $DOCKER_EXTRA_IMAGES | sed -e 's/,/ /g'))
+SERVICE_NUMBER_CURRENT=${#PROJECTS_ARRAY[@]}
+
+for ((i = 0; i < ${#EXTRAS_ARRAY[@]}; i++)); do
+    EXTRA_IMAGE=$(echo "${EXTRAS_ARRAY[$i]}")
+
+    echo -ne "${BACK_BLUE_COLOR} WORKING ON DOCKER EXTRA IMAGE: ${COLOR_CLOSE} ${EXTRA_IMAGE} -"
+
+    #SUM SERVICE_QTY WITH CURRENT SERVICE_NUMBER
+    CURRENT=$(expr ${i} + ${SERVICE_NUMBER_CURRENT})
+
+    if [[ ${EXTRA_IMAGE} =~ "php_" ]]; then
+
+        PHP_FILE="${SERVICES_DIR}/${CURRENT}_${EXTRA_IMAGE}.conf"
+
+        cat ${SERVICES_DIR}/php_configuration.conf >> ${PHP_FILE}
+
+        # PHP IMAGES
+        sed -i "s/{{{MANDATORY: SERVICE_NUMBER}}}/${CURRENT}/g" ${PHP_FILE}
+        sed -i "s/{{{MANDATORY: SERVICE_NAME}}}/${EXTRA_IMAGE}/g" ${PHP_FILE}
+        sed -i "s/{{{MANDATORY: NETWORK_GATEWAY}}}/${NETWORK_GATEWAY}/g" ${PHP_FILE}
+
+    else
+
+        EXTRAS_FILE="${SERVICES_DIR}/${CURRENT}_${EXTRA_IMAGE}.conf"
+
+        cat ${SERVICES_DIR}/extras_configuration.conf >> ${EXTRAS_FILE}
+
+        # EXTRAS IMAGES
+        sed -i "s/{{{MANDATORY: SERVICE_NUMBER}}}/${CURRENT}/g" ${EXTRAS_FILE}
+        sed -i "s/{{{MANDATORY: SERVICE_NAME}}}/${EXTRA_IMAGE}/g" ${EXTRAS_FILE}
+        sed -i "s/{{{MANDATORY: NETWORK_GATEWAY}}}/${NETWORK_GATEWAY}/g" ${EXTRAS_FILE}
+
+    fi
+
+    echo -ne "${GREEN_TEXT_COLOR} OK ${COLOR_CLOSE}\n"
+
+done
+
+#-----------------------------------------------------------------------------------------------
+#CONTENT CREATOR: FOOTER
+#-----------------------------------------------------------------------------------------------
+
+echo -e "${YELLOW_TEXT_COLOR}"
+echo -e "                                                                                               "
+echo -e " FOOTER CONFIGURATION                                                                          "
+echo -e "-----------------------------------------------------------------------------------------------"
+echo -e "${COLOR_CLOSE}"
+
+FOOTER_FILE="./projects/configurations/footer_configuration.conf"
+
+cp -rfv "${TEMPLATES_DIR}/v1/footer_configuration.tpl" ${FOOTER_FILE}
+
+#-----------------------------------------------------------------------------------------------
+#CONTENT CREATOR: FINISHED
+#-----------------------------------------------------------------------------------------------
+
+mv "${SERVICES_DIR}/php_configuration.conf" "${SERVICES_DIR}/../php_configuration.conf.lock"
+mv "${SERVICES_DIR}/extras_configuration.conf" "${SERVICES_DIR}/../extras_configuration.conf.lock"
+mv "${SERVICES_DIR}/services_configuration.conf" "${SERVICES_DIR}/../services_configuration.conf.lock"
+
+sudo chmod 777 ./projects/configurations -R
+sudo chown nobody:nogroup ./projects/configurations -R
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: NGINX
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${NGINX_RESOURCE} == "nginx" ]]; then
+
+    if [[ -e projects/nginx ]]; then
+        mv -v projects/nginx "projects/nginx_${DATE_NOW}"
+    fi
+
+    mkdir -p projects/nginx
+    sudo chmod 777 projects/nginx
+    sudo chown nobody:nogroup projects/nginx
+
+    for ((i = 0; i < ${#PROJECTS_ARRAY[@]}; i++));
+    do
+        GITHUB_PROJECT=$(echo "${PROJECTS_ARRAY[$i]}")
+
+        if echo $GITHUB_PROJECT | grep "@" >> /dev/null 2>&1
+        then
+            PROJECT_NAME=$(echo ${GITHUB_PROJECT} | cut -d "@" -f2)
+        else
+            PROJECT_NAME=$(echo ${GITHUB_PROJECT} | cut -d "/" -f3 | sed -e 's/\.git//g')
+        fi
+
+        echo -e "${YELLOW_TEXT_COLOR}"
+        echo -e "                                                                                               "
+        echo -e " NGINX TO ${PROJECT_NAME} "
+        echo -e "-----------------------------------------------------------------------------------------------"
+        echo -e "${COLOR_CLOSE}"
+
+        #APP
+        ################################################################################
+        cp -v "conf/templates/nginx/app.tpl" "projects/nginx/${PROJECT_NAME}.app.conf"
+
+        #NGINX
+        ################################################################################
+        cp -v "conf/templates/nginx/nginx.tpl" "projects/nginx/${PROJECT_NAME}.nginx.conf"
+
+        #NGINX72
+        ################################################################################
+        cp -v "conf/templates/nginx/nginx72.tpl" "projects/nginx/${PROJECT_NAME}.nginx72.conf"
+
+        #NGINX72RESTFULL
+        ################################################################################
+        cp -v "conf/templates/nginx/nginx72-restful.tpl" "projects/nginx/${PROJECT_NAME}.nginx72-restful.conf"
+
+        #UPDATE PERMISSIONS TO NGINX FILES
+        sudo chmod 777 projects/nginx/*.conf
+        sudo chown nobody:nogroup projects/nginx/*.conf
+
+    done
+else
+    echo "Skipping Nginx Configuration..."
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: SUPERVISOR
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${SUPERVISOR_RESOURCE} == "supervisor" ]];
+then
+
+    if [[ -e projects/supervisor ]]; then
+        mv -v projects/supervisor "projects/supervisor_${DATE_NOW}"
+    fi
+
+    for ((i = 0; i < ${#PROJECTS_ARRAY[@]}; i++));
+    do
+        GITHUB_PROJECT=$(echo "${PROJECTS_ARRAY[$i]}")
+
+        if echo $GITHUB_PROJECT | grep "@" >> /dev/null 2>&1
+        then
+            PROJECT_NAME=$(echo ${GITHUB_PROJECT} | cut -d "@" -f2)
+        else
+            PROJECT_NAME=$(echo ${GITHUB_PROJECT} | cut -d "/" -f3 | sed -e 's/\.git//g')
+        fi
+
+        echo -e "${YELLOW_TEXT_COLOR}"
+        echo -e "                                                                                               "
+        echo -e " SUPERVISOR TO ${PROJECT_NAME} "
+        echo -e "-----------------------------------------------------------------------------------------------"
+        echo -e "${COLOR_CLOSE}"
+
+        cp -v "conf/templates/supervisor/supervisor.tpl" "projects/nginx/${PROJECT_NAME}.supervisor.conf"
+
+    done
+fi
+
+echo -e "${YELLOW_TEXT_COLOR}"
+echo -e "                                                                                               "
+echo -e " RESOURCES DOCKERIZED "
+echo -e "-----------------------------------------------------------------------------------------------"
+echo -e "${COLOR_CLOSE}"
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: PHP
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${PHP_V_RESOURCE} =~ "php-fpm" ]];
+then
+    mkdir -p "projects/php"
+    sudo chmod 777 "projects/php"
+    sudo chown nobody:nogroup projects/php
+    cp -rf "conf/php/"* "projects/php/"
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "PHP Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: REDIS
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${REDIS_RESOURCE} == "redis" ]];
+then
+    mkdir -p projects/redis
+    sudo chmod 777 projects/redis
+    sudo chown nobody:nogroup projects/redis
+    cp -rf conf/redis/* projects/redis/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "Redis Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: MYSQL
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${MYSQL_RESOURCE} == "mysql" ]];
+then
+    mkdir -p projects/mysql
+    sudo chmod 777 projects/mysql
+    sudo chown nobody:nogroup projects/mysql
+    cp -rf conf/mysql/* projects/mysql/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "MySQL Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: MSSQL
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${MSSQL_RESOURCE} == "mssql" ]];
+then
+    mkdir -p projects/mssql
+    sudo chmod 777 projects/mssql
+    sudo chown nobody:nogroup projects/mssql
+    cp -rf conf/mssql/* projects/mssql/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "MsSQL Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: POSTGRES
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${PGSQL_RESOURCE} == "pgsql" ]];
+then
+    mkdir -p projects/pgsql
+    sudo chmod 777 projects/pgsql
+    sudo chown nobody:nogroup projects/pgsql
+    cp -rf conf/pgsql/* projects/pgsql/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "Postgres Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: MONGODB
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${MONGODB_RESOURCE} == "mongodb" ]];
+then
+    mkdir -p projects/mongodb
+    sudo chmod 777 projects/mongodb
+    sudo chown nobody:nogroup projects/mongodb
+    cp -rf conf/mongodb/* projects/mongodb/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "MongoDB Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: SQLITE3
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${SQLITE3_RESOURCE} == "sqlite3" ]];
+then
+    mkdir -p projects/sqlite3
+    sudo chmod 777 projects/sqlite3
+    sudo chown nobody:nogroup projects/sqlite3
+    cp -rf conf/sqlite3/* projects/sqlite3/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "Sqlite3 Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: ORACLE
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${ORACLE_RESOURCE} == "oracle" ]];
+then
+    mkdir -p projects/oracle
+    sudo chmod 777 projects/oracle
+    sudo chown nobody:nogroup projects/oracle
+    cp -rf conf/oracle/* projects/oracle/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "Oracle Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#CREATE PROJECTS RESOURCES DOCKERIZED: FIREBIRD
+#-----------------------------------------------------------------------------------------------
+
+if [[ ${FIREBIRD_RESOURCE} == "firebird" ]];
+then
+    mkdir -p projects/firebird
+    sudo chmod 777 projects/firebird
+    sudo chown nobody:nogroup projects/firebird
+    cp -rf conf/firebird/* projects/firebird/
+
+    echo -e "${GREEN_TEXT_COLOR}"
+    echo -e "Firebird Files copied..."
+    echo -e "${COLOR_CLOSE}"
+    echo -e "-----------------------------------------------------------------------------------------------"
+
+fi
+
+#-----------------------------------------------------------------------------------------------
+#FINISH PROCESS
+#-----------------------------------------------------------------------------------------------
+
+echo ""
+echo -e "${BACK_GREEN_COLOR} CONFIGURATION is done ! ${COLOR_CLOSE}"
+echo "-----------------------------------------------------------------------------------------------"
+echo "Now you can configure the files *.conf to set all features for dockerfile run "
+echo "After changes all the files configurations .conf, please run:"
+echo ""
+echo -e "${GREEN_TEXT_COLOR} ./dockerized --install ${COLOR_CLOSE}"
+echo ""
+echo "to continue installation dockerized in your machine !"
+echo "-----------------------------------------------------------------------------------------------"
+echo -e "${BACK_NARROW_COLOR} Let's go ! ${COLOR_CLOSE}"
+echo ""
