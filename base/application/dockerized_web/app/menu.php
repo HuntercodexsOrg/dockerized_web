@@ -1,76 +1,67 @@
+<?php
+$content        = $_GET['content'] ?? "";
+$setup          = $_GET['content'] == 'setup' ? 'active': 'no-active' ;
+$configurations = $_GET['content'] == 'configurations' ? 'active': 'no-active' ;
+$nginx          = $_GET['content'] == 'nginx' ? 'active': 'no-active' ;
+$apache         = $_GET['content'] == 'apache' ? 'active': 'no-active' ;
+$tomcat         = $_GET['content'] == 'tomcat' ? 'active': 'no-active' ;
+$supervisor     = $_GET['content'] == 'supervisor' ? 'active': 'no-active' ;
+$documentation  = $_GET['content'] == 'documentation' ? 'active': 'no-active' ;
+
+$configuration_display = Dockerized\Reader::readerSetup('CONFIGURATION_SETUP');
+$nginx_display         = Dockerized\Reader::readerSetup('NGINX_SETUP');
+$apache_display        = Dockerized\Reader::readerSetup('APACHE_SETUP');
+$tomcat_display        = Dockerized\Reader::readerSetup('TOMCAT_SETUP');
+$supervisor_display    = Dockerized\Reader::readerSetup('SUPERVISOR_SETUP');
+?>
+
 <div id="div-menu-top">
     <!--MENU TOP-->
     <ul id="ul-menu-top">
         <li>
-            <a>
+            <a class="<?=$setup;?>" id="a-setup" href="?content=setup">
                 Setup
             </a>
         </li>
-        <li>
-            <a>
-                Configurations
+        <li <?=$configuration_display;?>>
+            <a class="<?=$configurations;?>" id="a-configurations" href="?content=configurations">
+                Config
             </a>
         </li>
-        <li>
-            <a>
+        <li <?=$nginx_display;?>>
+            <a class="<?=$nginx;?>" id="a-nginx" href="?content=nginx">
                 Nginx
             </a>
         </li>
+        <li <?=$apache_display;?>>
+            <a class="<?=$apache;?>" id="a-apache" href="?content=apache">
+                Apache
+            </a>
+        </li>
+        <li <?=$supervisor_display;?>>
+            <a class="<?=$supervisor;?>" id="a-supervisor" href="?content=supervisor">
+                Supervisor
+            </a>
+        </li>
+        <li <?=$tomcat_display;?>>
+            <a class="<?=$tomcat;?>" id="a-tomcat" href="?content=tomcat">
+                Tomcat
+            </a>
+        </li>
         <li>
-            <a>Documentation</a>
+            <a class="<?=$documentation;?>" id="a-documentation" href="?content=documentation">
+                About
+            </a>
         </li>
     </ul>
 </div>
 
-<div class="clear-fix"></div>
-
 <div id="div-menu-itens">
 
-    <!--MENU ITENS: CONFIGURATIONS-->
-    <ul id="ul-menu-itens--configurations">
-
-        <?php
-
-        $conf_dir1 = glob("/data/dockerized_web/setup/*.tpl", GLOB_BRACE);
-        $conf_dir2 = glob("/data/dockerized_web/setup/services/*.tpl", GLOB_BRACE);
-
-        $configs = array_merge($conf_dir1, $conf_dir2);
-
-        foreach ($configs as $config) {
-            $file_path = $config;
-            $config_name = basename($config);
-            echo "
-                <li>
-                    <a>
-                        {$config_name}
-                    </a>
-                </li>";
-        }
-
-        ?>
-
-    </ul>
-
-    <!--MENU ITENS: NGINX-->
-    <ul id="ul-menu-itens--nginx">
-
-        <?php
-
-        $configs = glob("/data/dockerized_web/setup/nginx/*.tpl", GLOB_BRACE);
-
-        foreach ($configs as $config) {
-            $file_path = $config;
-            $config_name = basename($config);
-            echo "
-                <li>
-                    <a>
-                        {$config_name}
-                    </a>
-                </li>";
-        }
-
-        ?>
-
-    </ul>
+    <?php
+    $content = $_GET['content'] ?? "welcome";
+    $include = "src/{$content}_menu.php";
+    include($include);
+    ?>
 
 </div>

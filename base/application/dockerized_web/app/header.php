@@ -1,6 +1,8 @@
 <div id="div-header">
     <h1>
-        Dockerized Web
+        <a href="/">Dockerized Web</a>
         <small>huntercodexs</small>
     </h1>
+    <div id="div-icon-hamburger">
+    </div>
 </div>
