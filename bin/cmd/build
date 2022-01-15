@@ -1,19 +1,24 @@
 #!/bin/bash
 
-# Check Docker Compose YML, this file is mandatory to build and up all services
-if [[ ! -e docker-compose.yml ]]; then
-    echo "Missing docker-compose.yml"
-    exit
-fi
+source ./bin/colours
+
+CMD1=$1
+CMD2=$2
+SERVICES=""
+DOCKER_LOGIN=""
+NO_CACHE=""
+
+CURRENT_PATH="${PWD}"
+STATUS=0
 
 function help {
 
     echo ""
     echo "# [Build HELP] **********************************************************************"
     echo "# Use:"
-    echo "# ./build -u <service_name> - To uniq build service"
-    echo "# ./build -a                - To automatic build services"
-    echo "# ./build -i                - To interactive build services(service by service: one by one)"
+    echo "# -u <service_name> - To uniq build service"
+    echo "# -a                - To automatic build services"
+    echo "# -i                - To interactive build services(service by service: one by one)"
     echo "# -----------------------------------------------------------------------------------"
     echo ""
 
@@ -70,85 +75,97 @@ function interactive {
 
 }
 
-CMD1=$1
-CMD2=$2
-SERVICES=""
-DOCKER_LOGIN=""
-NO_CACHE=""
+function _runner {
 
-# CHECK-IN
+    # CHECK-IN
 
-if [[ $CMD1 != "-h" && $CMD1 != "-u" && $CMD1 != "-i" && $CMD1 != "-a" ]]; then
-    echo "[ERROR] Invalid command to build services, use ./build -h to help"
-    exit
-fi
-
-if [[ $CMD1 == '-h' ]]; then
-    help
-fi
-
-if [[ $CMD1 == '-u' ]]; then
-    if [[ ! $CMD2 || $CMD2 == '' ]]; then
-        echo "[ERROR] Missing service name to uniq service build..."
+    if [[ $CMD1 != "-h" && $CMD1 != "-u" && $CMD1 != "-i" && $CMD1 != "-a" ]]; then
+        echo "[ERROR] Invalid command to build services, use -h to help"
         exit
     fi
-fi
 
-# PREPARE
-
-if [[ $CMD1 == '-i' ]]; then
-    SERVICES=$(grep "container_name" "docker-compose.yml" | cut -d ":" -f2 | sed -r 's/ //g')
-fi
-
-echo ""
-echo "---------------------------------------------------------------------------------"
-echo "Set --no-cache to create a new container ?"
-echo "Please type yes or no and Press [Enter]: "
-read  OPCACHE
-echo ""
-
-if [[ $OPCACHE == "yes" ]]; then
-    NO_CACHE="--no-cache"
-fi
-
-# RUN
-
-if [[ $CMD1 == "-u" ]]; then
-    uniq
-fi
-
-if [[ $CMD1 == '-a' ]]; then
-    # [DOCKER LOGIN]
-    echo ""
-    echo "------------------------------------------------------------------------------"
-    echo "[NOTE] The login on docker hub is mandatory to private docker images, so if you"
-    echo "want use the private images make a login bellow ! Keep calm this operation is"
-    echo "not visible on current or others process..."
-    echo "------------------------------------------------------------------------------"
-    echo "Do you want make Login on Docker Hub ?"
-    echo ""
-    echo "Please type yes or no and Press [Enter]: "
-    read  OP
-
-    if [[ $OP == "yes" ]]; then
-        docker login
-        DOCKER_LOGIN=1
+    if [[ $CMD1 == '-h' ]]; then
+        help
     fi
-    echo "------------------------------------------------------------------------------"
 
-    automatic
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR} [WANING] Build will be run...${COLOR_CLOSE}"
+    echo -ne "Continue? "
+    read RESP
+
+    if [[ $CMD1 == '-u' ]]; then
+        if [[ ! $CMD2 || $CMD2 == '' ]]; then
+            echo "[ERROR] Missing service name to uniq service build..."
+            exit
+        fi
+    fi
+
+    # PREPARE
+
+    if [[ $CMD1 == '-i' ]]; then
+        SERVICES=$(grep "container_name" "docker-compose.yml" | cut -d ":" -f2 | sed -r 's/ //g')
+    fi
+
+    echo ""
+    echo "---------------------------------------------------------------------------------"
+    echo "Set --no-cache to create a new container ?"
+    echo "Please type yes or no and Press [Enter]: "
+    read  OPCACHE
+    echo ""
+
+    if [[ $OPCACHE == "yes" ]]; then
+        NO_CACHE="--no-cache"
+    fi
+
+    # RUN
+
+    if [[ $CMD1 == "-u" ]]; then
+        uniq
+    fi
+
+    if [[ $CMD1 == '-a' ]]; then
+        # [DOCKER LOGIN]
+        echo ""
+        echo "------------------------------------------------------------------------------"
+        echo "[NOTE] The login on docker hub is mandatory to private docker images, so if you"
+        echo "want use the private images make a login bellow ! Keep calm this operation is"
+        echo "not visible on current or others process..."
+        echo "------------------------------------------------------------------------------"
+        echo "Do you want make Login on Docker Hub ?"
+        echo ""
+        echo "Please type yes or no and Press [Enter]: "
+        read  OP
+
+        if [[ $OP == "yes" ]]; then
+            docker login
+            DOCKER_LOGIN=1
+        fi
+        echo "------------------------------------------------------------------------------"
+
+        automatic
+    fi
+
+    if [[ $CMD1 == "-i" ]]; then
+        interactive
+    fi
+
+    # [DOCKER LOGOUT]
+    if [[ ${DOCKER_LOGIN} == 1 ]]; then
+        echo "-----------------------------------------------------------------------------"
+        echo "DOCKER LOGOUT..."
+        docker logout
+        echo "-----------------------------------------------------------------------------"
+    fi
+}
+
+if [[ -e "${CURRENT_PATH}/docker-compose.yml" ]]; then
+    cd "${CURRENT_PATH}/"
+    STATUS=1
+    _runner
 fi
 
-if [[ $CMD1 == "-i" ]]; then
-    interactive
-fi
-
-# [DOCKER LOGOUT]
-if [[ ${DOCKER_LOGIN} == 1 ]]; then
-    echo "-----------------------------------------------------------------------------"
-    echo "DOCKER LOGOUT..."
-    docker logout
-    echo "-----------------------------------------------------------------------------"
+if [[ ${STATUS} == 0 ]]; then
+    echo "Missing docker-compose.yml"
+    exit
 fi
 
 echo "Builder Finished"

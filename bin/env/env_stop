@@ -1,8 +1,41 @@
 #!/bin/bash
 
 DATE_NOW=$(date +"%d%m%y%H%m%s")
-
+PROJECTS_STOP=$1
+DATE_NOW=$(date +"%d%m%y%H%m%s")
 DOCKERIZED_WEB_PATH="${PWD}/web/"
 
-cd "${DOCKERIZED_WEB_PATH}"
-docker-compose stop
+function _projects {
+    echo ""
+    echo "Dockerized will be stop services by docker-compose, please wait"
+    echo ""
+
+    docker-compose stop
+
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "Dockerized Web say: Stop projects is done!"
+    echo "-----------------------------------------------------------------------------------------------"
+    exit
+}
+
+function _web {
+    cd "${DOCKERIZED_WEB_PATH}"
+
+    docker-compose stop
+
+    #TODO: desligar serviço java do dockerized
+    #java -jar dockerized-web-api.jar
+
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "Dockerized Web say: Stop web is done!"
+    echo "-----------------------------------------------------------------------------------------------"
+    exit
+
+}
+
+if [[ ${PROJECTS_UP} == "projects" ]]; then
+    _projects
+else
+    _web
+fi
+

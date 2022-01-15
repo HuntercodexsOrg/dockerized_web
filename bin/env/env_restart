@@ -1,8 +1,40 @@
 #!/bin/bash
 
 DATE_NOW=$(date +"%d%m%y%H%m%s")
-
+PROJECTS_STOP=$1
+DATE_NOW=$(date +"%d%m%y%H%m%s")
 DOCKERIZED_WEB_PATH="${PWD}/web/"
 
-cd "${DOCKERIZED_WEB_PATH}"
-docker-compose restart
+function _projects {
+    echo ""
+    echo "Dockerized will be restart services by docker-compose, please wait"
+    echo ""
+
+    docker-compose restart
+
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "Dockerized Web say: Restart projects is done!"
+    echo "-----------------------------------------------------------------------------------------------"
+    exit
+}
+
+function _web {
+    cd "${DOCKERIZED_WEB_PATH}"
+
+    docker-compose restart
+
+    #TODO: reiniciar serviço java do dockerized se necessario
+    #java -jar dockerized-web-api.jar
+
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "Dockerized Web say: Restart web is done!"
+    echo "-----------------------------------------------------------------------------------------------"
+    exit
+
+}
+
+if [[ ${PROJECTS_UP} == "projects" ]]; then
+    _projects
+else
+    _web
+fi

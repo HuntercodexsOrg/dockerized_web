@@ -1,19 +1,47 @@
 #!/bin/bash
 
-# Check Docker Compose YML, this file is mandatory to up services
-if [[ ! -e docker-compose.yml ]]; then
-    echo "Missing docker-compose.yml"
-    exit
+CURRENT_PATH="${PWD}"
+CONTAINER=$1
+STATUS=0
+
+function _down {
+    SOURCE=$1
+    echo "[INFO] Down all services ${SOURCE} ?"
+    echo "Please type yes or no and Press [Enter]: "
+    read  OP
+
+    if [[ $OP == "yes" ]]; then
+        docker-compose stop
+        docker-compose down
+        docker system prune --force
+    fi
+}
+
+if [[ -e "${CURRENT_PATH}/docker-compose.yml" ]]; then
+    if ! egrep "${CONTAINER}" "${CURRENT_PATH}/docker-compose.yml" >> /dev/null 2>&1
+    then
+        echo "[ERROR] Missing container name [${CONAINER}], abort"
+        exit
+    fi
+    cd "${CURRENT_PATH}/"
+    STATUS=1
+    _down "projects"
 fi
 
-echo "[INFO] Down all services ?"
-echo "Please type yes or no and Press [Enter]: "
-read  OP
+if [[ -e "${CURRENT_PATH}/web/docker-compose.yml" && "${STATUS}" == 0 ]]; then
+    if ! egrep "${CONTAINER}" "${CURRENT_PATH}/web/docker-compose.yml" >> /dev/null 2>&1
+    then
+        echo "[ERROR] Missing container name [${CONAINER}], abort"
+        exit
+    fi
+    cd "${CURRENT_PATH}/web/"
+    STATUS=1
+    _down "web"
+fi
 
-if [[ $OP == "yes" ]]; then
-    docker-compose stop
-    docker-compose down
-    docker system prune --force
+if [[ ${STATUS} == 0 ]]; then
+    echo "Missing docker-compose.yml"
+    exit
 fi
 
 echo "Down Finished"

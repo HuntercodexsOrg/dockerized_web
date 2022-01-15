@@ -1,25 +1,65 @@
 #!/bin/bash
 
+PROJECTS_UP=$1
 DATE_NOW=$(date +"%d%m%y%H%m%s")
-
 DOCKERIZED_WEB_PATH="${PWD}/web/"
 
-cd "${DOCKERIZED_WEB_PATH}"
-docker-compose start
+function _projects {
+    echo ""
+    echo "Dockerized will be up services by docker-compose, please wait"
+    echo ""
 
-#java -jar dockerized-web-api.jar
+    docker-compose start
 
-IP_POSSIBLE=$(ip addr | grep "inet" | grep "dynamic" | awk '{print $2}' | cut -f1 -d'/')
+    if [[ $? != 0 ]]; then
+        echo "[ERROR] Docker Compose found an error during web installation..."
+        return 500
+    fi
 
-if [[ ${IP_POSSIBLE} == "" ]]; then
-    IP_POSSIBLE="UNKNOWN"
+    exit
+}
+
+function _web {
+    cd "${DOCKERIZED_WEB_PATH}"
+
+    docker-compose start
+
+    if [[ $? != 0 ]]; then
+        echo "[ERROR] Docker Compose found an error during web installation..."
+        return 500
+    fi
+
+    #TODO: Subir serviço java do dockerized
+    #java -jar dockerized-web-api.jar
+
+    #-----------------------------------------------------------------------------------------------
+    #FINISHED
+    #-----------------------------------------------------------------------------------------------
+
+    IP_POSSIBLE_LOCAL_SERVER=$(ip addr | grep "inet" | grep "dynamic" | awk '{print $2}' | cut -f1 -d'/')
+    IP_POSSIBLE_SERVER=""
+    if [[ ${IP_POSSIBLE_LOCAL_SERVER} != "" ]]; then
+        IP_POSSIBLE_SERVER="http://${IP_POSSIBLE_LOCAL_SERVER}:31800"
+    fi
+
+    IP_POSSIBLE_REMOTE_ACCESS=$(who | grep "pts" | awk '{print $5}' | sed -e 's/[^0-9.]//g')
+    IP_POSSIBLE_REMOTE=""
+    if [[ ${IP_POSSIBLE_REMOTE_ACCESS} != "" ]]; then
+        IP_POSSIBLE_REMOTE="http://${IP_POSSIBLE_REMOTE_ACCESS}"
+    fi
+
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "Dockerized Web say: Everything fine !"
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "You can be accessed the configuration services in:"
+    echo "Local IP: http://localhost:31800, http://127.0.0.1:31800, ${IP_POSSIBLE_SERVER}"
+    echo "Remote IP: http://192.168.1.100:31800 (SAMPLE REMOTE IP), ${IP_POSSIBLE_REMOTE}"
+    echo "Local Service Name: http://dockerized_web:31800 (IF CONFIGURED ON SERVER/DNS)"
+    echo "-----------------------------------------------------------------------------------------------"
+}
+
+if [[ ${PROJECTS_UP} == "projects" ]]; then
+    _projects
+else
+    _web
 fi
-
-echo "-----------------------------------------------------------------------------------------------"
-echo "Dockerized Web is Up now !"
-echo "-----------------------------------------------------------------------------------------------"
-echo "You can be accessed the configuration services in:"
-echo "Local IP: http://localhost:31800, http://127.0.0.1:31800, http://${IP_POSSIBLE}:31800"
-echo "Remote IP: http://192.168.1.100:31800 (SAMPLE REMOTE IP)"
-echo "Local Service Name: http://dockerized_web:31800 (IF CONFIGURED)"
-echo "-----------------------------------------------------------------------------------------------"

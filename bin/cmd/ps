@@ -1,23 +1,51 @@
 #!/bin/bash
 
-if [[ ! -e docker-compose.yml ]]; then
+CURRENT_PATH="${PWD}"
+CONTAINER=$1
+STATUS=0
+
+function _ps {
+    echo ""
+    echo "Docker"
+    echo "-------------------------------------------------------------------------"
+    docker ps
+
+    echo ""
+    echo ""
+    echo "*************************************************************************"
+
+    echo ""
+    echo "Docker Compose"
+    echo "-------------------------------------------------------------------------"
+    docker-compose ps
+}
+
+if [[ -e "${CURRENT_PATH}/docker-compose.yml" ]]; then
+    if ! egrep "${CONTAINER}" "${CURRENT_PATH}/docker-compose.yml" >> /dev/null 2>&1
+    then
+        echo "[ERROR] Missing container name [${CONAINER}], abort"
+        exit
+    fi
+    cd "${CURRENT_PATH}/"
+    STATUS=1
+    _ps
+fi
+
+if [[ -e "${CURRENT_PATH}/web/docker-compose.yml" && "${STATUS}" == 0 ]]; then
+    if ! egrep "${CONTAINER}" "${CURRENT_PATH}/web/docker-compose.yml" >> /dev/null 2>&1
+    then
+        echo "[ERROR] Missing container name [${CONAINER}], abort"
+        exit
+    fi
+    cd "${CURRENT_PATH}/web/"
+    STATUS=1
+    _ps
+fi
+
+if [[ ${STATUS} == 0 ]]; then
     echo "Missing docker-compose.yml"
     exit
 fi
-
-echo ""
-echo "Docker"
-echo "-------------------------------------------------------------------------"
-docker ps
-
-echo ""
-echo ""
-echo "*************************************************************************"
-
-echo ""
-echo "Docker Compose"
-echo "-------------------------------------------------------------------------"
-docker-compose ps
 
 echo "PS Finished"
 exit

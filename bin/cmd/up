@@ -1,19 +1,22 @@
 #!/bin/bash
 
-# Check Docker Compose YML, this file is mandatory to up services
-if [[ ! -e docker-compose.yml ]]; then
-    echo "Missing docker-compose.yml"
-    exit
-fi
+source ./bin/colours
+
+CMD1=$1
+CMD2=$2
+SERVICES=""
+
+CURRENT_PATH="${PWD}"
+STATUS=0
 
 function help {
 
     echo ""
     echo "# [UP HELP] *************************************************************************"
     echo "# Use:"
-    echo "# ./up -u <service_name> - To uniq service up"
-    echo "# ./up -a                - To automatic services up"
-    echo "# ./up -i                - To interactive services(service by service: one by one)"
+    echo "# -u <service_name> - To uniq service up"
+    echo "# -a                - To automatic services up"
+    echo "# -i                - To interactive services(service by service: one by one)"
     echo "# -----------------------------------------------------------------------------------"
     echo ""
 
@@ -60,40 +63,60 @@ function interactive {
 
 }
 
-CMD1=$1
-CMD2=$2
-SERVICES=""
+function _runner {
 
-if [[ $CMD1 != "-h" && $CMD1 != "-u" && $CMD1 != "-i" && $CMD1 != "-a" ]]; then
-    echo "[ERROR] Invalid command to up services, use ./up -h to help"
-    exit
-fi
-
-if [[ $CMD1 == '-h' ]]; then
-    help
-fi
-
-if [[ $CMD1 == '-u' ]]; then
-    if [[ ! $CMD2 || $CMD2 == '' ]]; then
-        echo "[ERROR] Missing service name to uniq service up..."
+    if [[ $CMD1 != "-h" && $CMD1 != "-u" && $CMD1 != "-i" && $CMD1 != "-a" ]]; then
+        echo "[ERROR] Invalid command to up services, use -h to help"
         exit
     fi
+
+    if [[ $CMD1 == '-h' ]]; then
+        help
+    fi
+
+    echo -e "${PURPLE_CLEAR_TEXT_COLOR} [WANING] Will be Up the services...${COLOR_CLOSE}"
+    echo -ne "Continue? "
+    read RESP
+
+    if [[ $CMD1 == '-u' ]]; then
+        if [[ ! $CMD2 || $CMD2 == '' ]]; then
+            echo "[ERROR] Missing service name to uniq service up..."
+            exit
+        fi
+    fi
+
+    if [[ $CMD1 == '-i' ]]; then
+        SERVICES=$(grep "container_name" "docker-compose.yml" | cut -d ":" -f2 | sed -r 's/ //g')
+    fi
+
+    if [[ $CMD1 == "-u" ]]; then
+        uniq
+    fi
+
+    if [[ $CMD1 == '-a' ]]; then
+        automatic
+    fi
+
+    if [[ $CMD1 == "-i" ]]; then
+        interactive
+    fi
+}
+
+if [[ -e "${CURRENT_PATH}/docker-compose.yml" ]]; then
+    cd "${CURRENT_PATH}/"
+    STATUS=1
+    _runner
 fi
 
-if [[ $CMD1 == '-i' ]]; then
-    SERVICES=$(grep "container_name" "docker-compose.yml" | cut -d ":" -f2 | sed -r 's/ //g')
+if [[ -e "${CURRENT_PATH}/web/docker-compose.yml" ]]; then
+    cd "${CURRENT_PATH}/web/"
+    STATUS=1
+    _runner
 fi
 
-if [[ $CMD1 == "-u" ]]; then
-    uniq
-fi
-
-if [[ $CMD1 == '-a' ]]; then
-    automatic
-fi
-
-if [[ $CMD1 == "-i" ]]; then
-    interactive
+if [[ ${STATUS} == 0 ]]; then
+    echo "Missing docker-compose.yml"
+    exit
 fi
 
 echo "Up Finished"

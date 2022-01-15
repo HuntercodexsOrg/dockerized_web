@@ -107,17 +107,26 @@ read OP
 #RUN BY DOCKER COMPOSE
 #-----------------------------------------------------------------------------------------------
 
-cd ${DOCKERIZED_WEB_PATH}
+cd "${DOCKERIZED_WEB_PATH}/"
+
+docker network rm "web_default"
+docker network create "web_default"
+
+docker network rm "dockerized_web"
+docker network create "dockerized_web"
+
 docker network rm "dockerized_web_31800"
 docker network create "dockerized_web_31800"
-echo -ne "dockerized_web_31800;" >> settings/docker/networks.txt
+
 sleep 2
 docker-compose up -d
 
 if [[ $? != 0 ]]; then
     echo "[ERROR] Docker Compose found an error during web installation..."
-    exit
+    return 500
 fi
+
+#java -jar dockerized-web-api.jar
 
 #-----------------------------------------------------------------------------------------------
 #FINISHED

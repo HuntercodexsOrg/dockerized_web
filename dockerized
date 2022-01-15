@@ -48,6 +48,7 @@ COMMANDS=",--web,--install,--refresh,--start,--stop,--status,--restart,--exec,--
 COMMAND1="$1"
 COMMAND2="$2"
 JAVA_VERSION_EXPECTED="1.8.0"
+FILE_PROFILE="profile.txt"
 
 function help {
     echo -e "${BACK_BLACK_COLOR}"
@@ -208,6 +209,11 @@ function run_web {
     _prepare_settings
     _dockerized_web
 
+    if [[ $? == 500 ]]; then
+        echo -e "${RED_TEXT_COLOR}WEB failed...${COLOR_CLOSE}"
+        exit
+    fi
+
     _dockerized_allow -y
     sleep 2
 
@@ -268,8 +274,15 @@ function run_uninstall {
 
 source ./bin/colours
 
+#Properties File
+touch "${FILE_PROFILE}"
+sudo chmod 777 "${FILE_PROFILE}"
+sudo chown nobody:nogroup "${FILE_PROFILE}"
+
+echo "CURRENT_PATH=${PWD};" >> "${FILE_PROFILE}" 2>&1
+
 #-----------------------------------------------------------------------------------------------
-#CHECKIN
+#CHECKIN AND HELP [DONE]
 #-----------------------------------------------------------------------------------------------
 
 if [[ "${COMMAND1}" == "--help" ]];
@@ -280,7 +293,7 @@ fi
 run_checkin
 
 #-----------------------------------------------------------------------------------------------
-#WEB CONFIGURATIONS PROCESS
+#WEB CONFIGURATIONS PROCESS - [DONE]
 #-----------------------------------------------------------------------------------------------
 
 if [[ "${COMMAND1}" == "--web" ]];
@@ -315,7 +328,7 @@ then
 fi
 
 #-----------------------------------------------------------------------------------------------
-#INSTALL
+#INSTALL - [WAIT]
 #-----------------------------------------------------------------------------------------------
 
 if [[ "${COMMAND1}" == "--install" ]];

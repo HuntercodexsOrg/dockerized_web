@@ -1,8 +1,12 @@
 #!/bin/bash
 
-echo ""
-echo "FORMAT DOCKER CONTENT"
-echo ""
+source ./bin/colours
+
+echo -e "${BACK_RED_COLOR}"
+echo "                                                                                        "
+echo " [WANING] FORMAT DOCKER CONTENT, THIS IS A SPECIAL RESOURCE FROM DOCKERIZED WEB         "
+echo "                                                                                        "
+echo -e "${COLOR_CLOSE}"
 
 echo "****************************************************************************************"
 echo "[ C O N T A I N E R S ]"

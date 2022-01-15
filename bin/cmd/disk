@@ -4,5 +4,7 @@ DEVICE=$(grep "/ was on /" "/etc/fstab" | cut -d "/" -f4 | cut -d " " -f1)
 
 df -h | egrep "(Usado|${DEVICE})" --color
 
+echo ""
 echo "Disk Check is done !"
+echo ""
 exit
