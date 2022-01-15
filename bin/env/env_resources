@@ -18,8 +18,9 @@ DATE_NOW=$(date +"%d%m%y%H%m%s")
 if [[ -e resources || -e docker-compose.yml ]]; then
 
     echo -e "${YELLOW_TEXT_COLOR}"
-    echo -e " [WARNING] The resources already is done !"
+    echo -e " [WARNING] The resources already exists !"
     echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e " [WARNING] But one backup will be made !"
     echo -e "${COLOR_CLOSE}"
     echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
     read -n1 OP
@@ -45,7 +46,7 @@ touch resources/available.txt
 sudo chmod 777 resources/available.txt
 sudo chown nobody:nogroup resources/available.txt
 
-res=$(ls base/source | awk '{print $1}' | grep -v "php" | xargs -i echo {})
+res=$(ls base/source | awk '{print $1}' | egrep -v "(php|java|python|nodejs)" | xargs -i echo {})
 res_available=$(echo $res | sed -e 's/ /,/g')
 echo "${res_available}" > resources/available.txt
 
@@ -57,6 +58,33 @@ sudo chown nobody:nogroup resources/php_available.txt
 res=$(ls base/source/php | awk '{print $1}' | xargs -i echo {})
 php_version=$(echo $res | sed -e 's/ /,/g')
 echo "${php_version}" > resources/php_available.txt
+
+#JAVA VERSION
+touch resources/java_available.txt
+sudo chmod 777 resources/java_available.txt
+sudo chown nobody:nogroup resources/java_available.txt
+
+res=$(ls base/source/java | awk '{print $1}' | xargs -i echo {})
+java_version=$(echo $res | sed -e 's/ /,/g')
+echo "${java_version}" > resources/java_available.txt
+
+#PYTHON VERSION
+touch resources/python_available.txt
+sudo chmod 777 resources/python_available.txt
+sudo chown nobody:nogroup resources/python_available.txt
+
+res=$(ls base/source/python | awk '{print $1}' | xargs -i echo {})
+python_version=$(echo $res | sed -e 's/ /,/g')
+echo "${python_version}" > resources/python_available.txt
+
+#NODEJS VERSION
+touch resources/nodejs_available.txt
+sudo chmod 777 resources/nodejs_available.txt
+sudo chown nobody:nogroup resources/nodejs_available.txt
+
+res=$(ls base/source/nodejs | awk '{print $1}' | xargs -i echo {})
+nodejs_version=$(echo $res | sed -e 's/ /,/g')
+echo "${nodejs_version}" > resources/nodejs_available.txt
 
 #-----------------------------------------------------------------------------------------------
 #FINISH PROCESS

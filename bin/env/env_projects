@@ -18,8 +18,9 @@ DATE_NOW=$(date +"%d%m%y%H%m%s")
 if [[ -e projects || -e docker-compose.yml ]]; then
 
     echo -e "${YELLOW_TEXT_COLOR}"
-    echo -e " [WARNING] The projects already is done !"
+    echo -e " [WARNING] The projects already exists !"
     echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e " [WARNING] But one backup will be made !"
     echo -e "${COLOR_CLOSE}"
     echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
     read -n1 OP
@@ -27,7 +28,7 @@ if [[ -e projects || -e docker-compose.yml ]]; then
 fi
 
 #-----------------------------------------------------------------------------------------------
-#CREATE PROJECTS FOLDER (WHERE THE PROJECTS SHOULD BE STAY)
+#CREATE PROJECTS FOLDER (WHERE THE PROJECTS SHOULD BE PLACED)
 #-----------------------------------------------------------------------------------------------
 
 if [[ -e projects ]]; then

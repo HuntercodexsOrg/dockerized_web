@@ -7,7 +7,13 @@ DOCKERIZED_WEB_PATH="${PWD}/web/"
 cd "${DOCKERIZED_WEB_PATH}"
 docker-compose start
 
+#java -jar dockerized-web-api.jar
+
 IP_POSSIBLE=$(ip addr | grep "inet" | grep "dynamic" | awk '{print $2}' | cut -f1 -d'/')
+
+if [[ ${IP_POSSIBLE} == "" ]]; then
+    IP_POSSIBLE="UNKNOWN"
+fi
 
 echo "-----------------------------------------------------------------------------------------------"
 echo "Dockerized Web is Up now !"

@@ -11,12 +11,12 @@
 #
 # Comando: ./dockerized --web
 # Objetivo: Configurar os serviços pela web ou manualmente nos arquivos .conf, caso não seja feito
-# pela web, os arquivos .conf contidos em ./projects/configurations/services deverão ser alterados
+# pela web, os arquivos .conf gerados em ./projects/configurations/services deverão ser alterados
 # manualmente
 #
 # Comando: ./dockerized --install
 # Objetivo: Instalar o ambiente após realizar todas as configurações necessárias citadas no passo
-# anterior (--prepare)
+# anterior (--web)
 #
 # Comando: ./dockerized --refresh
 # Objetivo: Atualizar o ambiente cm as alterações feitas nos arquivos de configurações, seja para
@@ -47,6 +47,7 @@ DATE_NOW=$(date +"%d%m%y%H%m%s")
 COMMANDS=",--web,--install,--refresh,--start,--stop,--status,--restart,--exec,--uninstall,--help,--repare,"
 COMMAND1="$1"
 COMMAND2="$2"
+JAVA_VERSION_EXPECTED="1.8.0"
 
 function help {
     echo -e "${BACK_BLACK_COLOR}"
@@ -94,15 +95,12 @@ function help {
 function run_initial_message {
     echo -e "${YELLOW_TEXT_COLOR}"
     echo -e ""
-    echo -e " [WARNING] The process installation should be executed by super user (sudo/root)"
+    echo -e " [WARNING] Some process should be executed by super user (sudo/root)"
     echo -e " [WARNING] Your password may be asked for at least once during the installation process !"
     echo -e "${COLOR_CLOSE}"
 }
 
-function run_checkin {
-    echo -ne "DOCKERIZED CHECKIN (please wait) -"
-
-    #Git installed ?
+function git_check {
     CHECKIN1=$(dpkg -l | grep git)
     CHECKIN2=$(builtin type -P git)
     apt show git >> /dev/null 2>&1
@@ -113,8 +111,9 @@ function run_checkin {
         echo -e "The git is not installed in your system !"
         exit
     fi
+}
 
-    #Docker installed ?
+function docker_check {
     CHECKIN1=$(dpkg -l | grep docker)
     CHECKIN2=$(builtin type -P docker)
     apt show docker >> /dev/null 2>&1
@@ -125,8 +124,9 @@ function run_checkin {
         echo -e "The docker is not installed in your system !"
         exit
     fi
+}
 
-    #Docker Compose installed ?
+function docker_compose_check {
     CHECKIN1=$(dpkg -l | grep docker-compose)
     CHECKIN2=$(builtin type -P docker-compose)
     apt show docker-compose >> /dev/null 2>&1
@@ -137,6 +137,43 @@ function run_checkin {
         echo -e "The docker-compose is not installed in your system !"
         exit
     fi
+}
+
+function java_check {
+    CHECKIN1=$(java -version 2>&1 >/dev/null | grep 'version' | awk '{print $3}' | cut -d "_" -f1 | sed -e 's/[^0-9.]//g')
+    CHECKIN2=$(builtin type -P java)
+    apt show java >> /dev/null 2>&1
+    CHECKIN3=$?
+    javac -version >> /dev/null 2>&1
+    CHECKIN4=$?
+    if [[ $CHECKIN1 == "" && $CHECKIN2 == "" && $CHECKIN3 != "0" && $CHECKIN4 == "" ]];
+    then
+        echo -e "${RED_TEXT_COLOR} [ERROR] ${COLOR_CLOSE}"
+        echo -e "The docker-compose is not installed in your system !"
+        exit
+    fi
+
+    if [[ $CHECKIN1 != $JAVA_VERSION_EXPECTED ]]; then
+        echo -e "${RED_TEXT_COLOR} [ERROR] ${COLOR_CLOSE}"
+        echo -e "The JAVA VERSION [${CHECKIN1}] is not accept,  expected ${JAVA_VERSION_EXPECTED} please see the documentation !"
+        exit
+    fi
+}
+
+function run_checkin {
+    echo -ne "DOCKERIZED CHECKIN (please wait) -"
+
+    #Git installed ?
+    git_check
+
+    #Docker installed ?
+    docker_check
+
+    #Docker Compose installed ?
+    docker_compose_check
+
+    #Java SDK/JDK/JRE installed (is required to communication between host and web app)
+    java_check
 
     if ! echo "${COMMANDS}" | grep ",${COMMAND1}," >> /dev/null 2>&1
     then
@@ -163,7 +200,7 @@ function run_web {
     ./bin/cmd/shortcut
     sleep 2
 
-    __docker_allow -y
+    _dockerized_allow -y
     sleep 2
 
     _prepare_projects
@@ -171,7 +208,7 @@ function run_web {
     _prepare_settings
     _dockerized_web
 
-    __docker_allow -y
+    _dockerized_allow -y
     sleep 2
 
 }

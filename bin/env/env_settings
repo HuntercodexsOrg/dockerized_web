@@ -18,8 +18,9 @@ DATE_NOW=$(date +"%d%m%y%H%m%s")
 if [[ -e settings || -e docker-compose.yml ]]; then
 
     echo -e "${YELLOW_TEXT_COLOR}"
-    echo -e " [WARNING] The settings already is done !"
+    echo -e " [WARNING] The settings already exists !"
     echo -e " [WARNING] If you continue the files will be overwrite !"
+    echo -e " [WARNING] But one backup will be made !"
     echo -e "${COLOR_CLOSE}"
     echo -n " Continue ? Press [Enter] to Yes, or [Ctrl+C] to No: "
     read -n1 OP
@@ -50,12 +51,18 @@ mkdir -p settings/services
 sudo chmod 777 settings/services
 sudo chown nobody:nogroup settings/services
 
+mkdir -p settings/env
+sudo chmod 777 settings/env
+sudo chown nobody:nogroup settings/env
+
 cp -rfv base/config/templates/configuration/*.tpl settings/
 cp -rfv base/config/templates/nginx/*.tpl settings/nginx/
+cp -rfv base/config/env/*.tpl settings/env
 
 touch settings/docker/networks.txt
 sudo chmod 777 settings/docker/networks.txt
 sudo chown nobody:nogroup settings/docker/networks.txt
+cat base/config/docker/networks.txt >> settings/docker/networks.txt
 
 #-----------------------------------------------------------------------------------------------
 #FINISH PROCESS

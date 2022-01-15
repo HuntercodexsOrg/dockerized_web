@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./bin/colours
+
 DATE_NOW=$(date +"%d%m%y%H%m%s")
 
 DOCKERIZED_PATH="${PWD}"
@@ -19,7 +21,7 @@ mkdir -p "${DOCKERIZED_WEB_PATH}"
 sudo chmod 777 "${DOCKERIZED_WEB_PATH}"
 sudo chown nobody:nogroup "${DOCKERIZED_WEB_PATH}"
 
-cp -rfv "${DOCKERIZED_CONF_PATH}/"* "${DOCKERIZED_WEB_PATH}/"
+cp -rf "${DOCKERIZED_CONF_PATH}/"* "${DOCKERIZED_WEB_PATH}/"
 
 #-----------------------------------------------------------------------------------------------
 #CHECKIN - APP INTEGRITY IS OK ?
@@ -61,9 +63,40 @@ fi
 
 cd "${DOCKERIZED_WEB_PATH}/"
 
-echo "Directory List:"
+echo -e "${BACK_BLUE_COLOR} Directory List: ${COLOR_CLOSE}"
 pwd
 ls -ltr *
+
+#-----------------------------------------------------------------------------------------------
+#JSHUNTER INSTALLER FROM GIT
+#-----------------------------------------------------------------------------------------------
+
+echo ""
+echo -e "${BACK_BLUE_COLOR} jsHunter Clone from GIT: ${COLOR_CLOSE}"
+
+cd ${DOCKERIZED_WEB_PATH}/app/js/
+git clone https://github.com/huntercodexsorg/jshunter.git
+
+if ! ls ${DOCKERIZED_WEB_PATH}/app/js/jshunter
+then
+    echo "[ERROR] jsHunter library is not cloned from git (is required), please check this and try again !"
+    exit
+fi
+
+#-----------------------------------------------------------------------------------------------
+#DATABASE FAKER IN TEXT
+#-----------------------------------------------------------------------------------------------
+
+echo ""
+echo -e "${BACK_BLUE_COLOR} Database Faker Extracting: ${COLOR_CLOSE}"
+
+cd ${DOCKERIZED_WEB_PATH}/app/api/data/
+tar -xvf ${DOCKERIZED_WEB_PATH}/app/api/data/data-faker.tar.gz
+echo "[INFO] Was created a database file in text mode to help you in fasts development !"
+echo "[INFO] Location: ${DOCKERIZED_WEB_PATH}/app/api/data/ !"
+
+echo ""
+echo "***********************************************************************************************"
 echo "Everything fine!"
 echo "-----------------------------------------------------------------------------------------------"
 echo "Docker Compose will be run now, continue ?"
@@ -71,9 +104,10 @@ echo "Press [Enter] to yes, [Ctrl+C] to cancel: "
 read OP
 
 #-----------------------------------------------------------------------------------------------
-#RUN
+#RUN BY DOCKER COMPOSE
 #-----------------------------------------------------------------------------------------------
 
+cd ${DOCKERIZED_WEB_PATH}
 docker network rm "dockerized_web_31800"
 docker network create "dockerized_web_31800"
 echo -ne "dockerized_web_31800;" >> settings/docker/networks.txt
@@ -89,13 +123,23 @@ fi
 #FINISHED
 #-----------------------------------------------------------------------------------------------
 
-IP_POSSIBLE=$(ip addr | grep "inet" | grep "dynamic" | awk '{print $2}' | cut -f1 -d'/')
+IP_POSSIBLE_LOCAL_SERVER=$(ip addr | grep "inet" | grep "dynamic" | awk '{print $2}' | cut -f1 -d'/')
+IP_POSSIBLE_SERVER=""
+if [[ ${IP_POSSIBLE_LOCAL_SERVER} != "" ]]; then
+    IP_POSSIBLE_SERVER="http://${IP_POSSIBLE_LOCAL_SERVER}:31800"
+fi
+
+IP_POSSIBLE_REMOTE_ACCESS=$(who | grep "pts" | awk '{print $5}' | sed -e 's/[^0-9.]//g')
+IP_POSSIBLE_REMOTE=""
+if [[ ${IP_POSSIBLE_REMOTE_ACCESS} != "" ]]; then
+    IP_POSSIBLE_REMOTE="http://${IP_POSSIBLE_REMOTE_ACCESS}"
+fi
 
 echo "-----------------------------------------------------------------------------------------------"
-echo "Dockerized Web is done to work !"
+echo "Dockerized Web say: Everything fine !"
 echo "-----------------------------------------------------------------------------------------------"
 echo "You can be accessed the configuration services in:"
-echo "Local IP: http://localhost:31800, http://127.0.0.1:31800, http://${IP_POSSIBLE}:31800"
-echo "Remote IP: http://192.168.1.100:31800 (SAMPLE REMOTE IP)"
-echo "Local Service Name: http://dockerized_web:31800 (IF CONFIGURED)"
+echo "Local IP: http://localhost:31800, http://127.0.0.1:31800, ${IP_POSSIBLE_SERVER}"
+echo "Remote IP: http://192.168.1.100:31800 (SAMPLE REMOTE IP), ${IP_POSSIBLE_REMOTE}"
+echo "Local Service Name: http://dockerized_web:31800 (IF CONFIGURED ON SERVER/DNS)"
 echo "-----------------------------------------------------------------------------------------------"
