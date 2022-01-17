@@ -24,6 +24,7 @@ class Mapper
             "NETWORK_GATEWAY" => Reader::apiReaderSetup('NETWORK_GATEWAY', $setup_file),
             "RESOURCES_DOCKERIZED_ALL" => Reader::apiReaderSetup('RESOURCES_DOCKERIZED_ALL', $setup_file),
             "RESOURCES_DOCKERIZED" => explode(",", Reader::apiReaderSetup('RESOURCES_DOCKERIZED', $setup_file)),
+            "DOCKER_EXTRA_IMAGES_NONE" => Reader::apiReaderSetup('DOCKER_EXTRA_IMAGES_NONE', $setup_file),
             "DOCKER_EXTRA_IMAGES" => explode(",", Reader::apiReaderSetup('DOCKER_EXTRA_IMAGES', $setup_file)),
             "PHP_VERSION_ALL" => Reader::apiReaderSetup('PHP_VERSION_ALL', $setup_file),
             "PHP_VERSION" => explode(",", Reader::apiReaderSetup('PHP_VERSION', $setup_file)),

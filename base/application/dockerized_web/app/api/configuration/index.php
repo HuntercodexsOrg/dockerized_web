@@ -9,9 +9,10 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
 $setup_file = "../../config/setup.txt";
+$config_file = "../../config/configuration.conf";
 $mapper = Dockerized\Mapper::mapperSetup($setup_file);
 
-if (!isset($_POST['action']) || !preg_match("/generate_(header|services|extra_services|footer)/", $_POST['action'], $m)) {
+if (!isset($_POST['action'])) {
     echo json_encode(["error"=>"Access Denied!", "action"=>$_POST['action']]);
     exit;
 }
@@ -83,3 +84,19 @@ if ($_POST['action'] == "generate_footer") {
     }
     exit;
 }
+
+if ($_POST['action'] == "delete_configuration") {
+    if (unlink($config_file)) {
+        echo json_encode([
+            "status" => "ok",
+            "response" => "File deleted successfully"
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "error",
+            "response" => "Was not possible delete the configuration file"
+        ]);
+    }
+    exit;
+}
+

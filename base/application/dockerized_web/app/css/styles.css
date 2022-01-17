@@ -352,8 +352,23 @@
     text-align: center;
 }
 
+#div-configuration-start {
+    color: #FD0000 !important;
+}
+
+#div-configuration-services {
+    background: #BABABA;
+}
+
+.div-configuration-service {
+    margin-bottom: 5px;
+    background: #a6e726 !important;
+}
+
 #div-welcome #button-welcome,
-#div-generate-configurations #button-generate-configurations {
+#div-generate-configurations #button-generate-configurations,
+#div-generate-configurations #button-view-configurations,
+#div-generate-configurations #button-delete-configurations {
     width: auto;
     height: auto;
     border: none;
@@ -368,6 +383,14 @@
     text-decoration: none;
     text-transform: uppercase;
     box-shadow: 1px 2px 3px #888888;
+}
+
+#div-generate-configurations #button-view-configurations {
+    background: #29a5c0;
+}
+
+#div-generate-configurations #button-delete-configurations {
+    background: #ff4400;
 }
 
 #div-welcome h1 {
@@ -393,7 +416,7 @@
 }
 
 #div-make-configurations {
-    display: none;
+    display: block;
 }
 
 /*FOOTER*/

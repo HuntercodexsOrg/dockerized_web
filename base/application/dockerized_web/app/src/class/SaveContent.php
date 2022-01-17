@@ -43,11 +43,13 @@ class SaveContent
         $docker_compose_version_other = $data['docker_compose_version_other'] ?? "";
         $network_default = $data['network_default'];
         $network_gateway = $data['network_gateway'];
+        $extra_images_none = $data['extra_images_none'] ?? "";
         $extra_images = $data['extra_images'] ?? "";
         file_put_contents($setup, "DOCKER_COMPOSE_VERSION = {$docker_compose_version}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "DOCKER_COMPOSE_VERSION_OTHER = {$docker_compose_version_other}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "NETWORK_DEFAULT = {$network_default}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "NETWORK_GATEWAY = {$network_gateway}".PHP_EOL, FILE_APPEND);
+        file_put_contents($setup, "DOCKER_EXTRA_IMAGES_NONE = {$extra_images_none}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "DOCKER_EXTRA_IMAGES = {$extra_images}".PHP_EOL, FILE_APPEND);
 
         /*DATABASES*/

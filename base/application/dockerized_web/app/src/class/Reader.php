@@ -7,12 +7,17 @@ class Reader
     /**
      * @description Reader Setup
      * @param string $var_name #Mandatory
+     * @param array $opts
      * @return string
-    */
-    public static function readerSetup(string $var_name): string
+     */
+    public static function readerSetup(string $var_name, array $opts = []): string
     {
         $setup = 'config/setup.txt';
-        return (self::get($setup, $var_name) == "true") ? 'style="display: block;"' : 'style="display: none;"';
+        if (count($opts) > 0) {
+            return in_array(self::get($setup, $var_name), $opts) ? 'style="display: block;"' : 'style="display: none;"';
+        } else {
+            return (self::get($setup, $var_name) == "true") ? 'style="display: block;"' : 'style="display: none;"';
+        }
     }
     /**
      * @description Reader Setup

@@ -164,7 +164,7 @@ if (file_exists('config/setup.txt')) {
             </a>
         </td>
         <td class="td-default">
-            <input type="checkbox" name="extra_images_default" id="checkbox-extra-images-none" /> <span>none</span>
+            <input type="checkbox" name="extra_images_none" id="checkbox-extra-images-none" /> <span>none</span>
         </td>
         <td colspan="2">
             <input

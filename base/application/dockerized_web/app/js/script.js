@@ -1,6 +1,7 @@
 
 let seq = 1;
 let git_project_from_setup = "";
+let dockerized_theme = "default";
 
 function activeHamburger() {
     jH("#icon-menu-header-open").on('click', function() {
@@ -45,7 +46,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Select a valid CONFIGURATION SETUP (true|false) !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -56,7 +57,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Type a correct SERVICES QUANTITY !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -67,7 +68,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Select a valid ENABLED NGINX CONFIGURE (true|false) !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -78,7 +79,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Select a valid ENABLED APACHE CONFIGURE (true|false) !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -89,7 +90,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Select a valid ENABLED SUPERVISOR CONFIGURE (true|false) !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -105,7 +106,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Select a valid DOCKER COMPOSE VERSION !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -116,7 +117,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Type a valid NETWORK GATEWAY !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -128,7 +129,7 @@ function checkFormSetup() {
             $$.alert({
                 title: "Error",
                 text: "Select a valid RESOURCES TO DOCKERIZED !",
-                theme: "default", /*default,dark,light*/
+                theme: dockerized_theme,
                 button: "OK"
             });
             return false;
@@ -143,7 +144,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Type a valid DOCKER EXTRA IMAGES or set checkbox none !",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
         return false;
@@ -155,7 +156,7 @@ function checkFormSetup() {
             $$.alert({
                 title: "Error",
                 text: "Select a valid PHP-FPM VERSION !",
-                theme: "default", /*default,dark,light*/
+                theme: dockerized_theme,
                 button: "OK"
             });
             return false;
@@ -168,7 +169,7 @@ function checkFormSetup() {
             $$.alert({
                 title: "Error",
                 text: "Select a valid JAVA VERSION !",
-                theme: "default", /*default,dark,light*/
+                theme: dockerized_theme,
                 button: "OK"
             });
             return false;
@@ -181,7 +182,20 @@ function checkFormSetup() {
             $$.alert({
                 title: "Error",
                 text: "Select a valid PYTHON VERSION !",
-                theme: "default", /*default,dark,light*/
+                theme: dockerized_theme,
+                button: "OK"
+            });
+            return false;
+        }
+    }
+
+    /*NODEJS VERSION*/
+    if (jH('#checkbox-nodejs-version-all').isChecked() === true) {
+        if (jH('.checkbox-nodejs-version').isChecked() === false) {
+            $$.alert({
+                title: "Error",
+                text: "Select a valid NODEJS VERSION !",
+                theme: dockerized_theme,
                 button: "OK"
             });
             return false;
@@ -199,7 +213,7 @@ function checkFormSetup() {
         $$.alert({
             title: "Error",
             text: "Invalid USERNAME/PROJECT to GITHUB project\ninform at least one user and project.",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             button: "OK"
         });
     }
@@ -214,7 +228,7 @@ function checkFormSetup() {
                 $$.alert({
                     title: "Error",
                     text: "Invalid SERVICES QUANTITY to project and resources !",
-                    theme: "default", /*default,dark,light*/
+                    theme: dockerized_theme,
                     button: "OK"
                 });
                 valid = false;
@@ -232,7 +246,7 @@ function checkSubmit() {
 
     switch (form_type) {
         case "setup":
-            if(checkFormSetup()) {
+            if (checkFormSetup())  {
                 return true;
             }
             break;
@@ -240,7 +254,7 @@ function checkSubmit() {
             $$.alert({
                 title: "Error",
                 text: "Invalid Form Type",
-                theme: "default", /*default,dark,light*/
+                theme: dockerized_theme,
                 button: "OK"
             });
     }
@@ -250,7 +264,7 @@ function checkSubmit() {
 
 function requestSetup() {
     $$.ajax({
-        url: "./api/setup/",
+        url: "./api/setup/load/",
         data: [],
         dataType: "json",
         contentType: "application/json",
@@ -282,118 +296,169 @@ function loadSetup(data) {
     })();
 
     if (data_setup.hasOwnProperty('CONFIGURATION_SETUP')) {
-        if(data_setup.CONFIGURATION_SETUP === "true"){
+        if (data_setup.CONFIGURATION_SETUP === "true") {
             jH('#config-setup-true').attr('checked', true);
+            jH("#config-display-menu").show();
         } else {
             jH('#config-setup-false').attr('checked', true);
+            jH("#config-display-menu").hide();
         }
     }
+
     if (data_setup.hasOwnProperty('SERVICES_QUANTITY')) {
         jH('#services-qty').val(data_setup.SERVICES_QUANTITY);
     }
+
     if (data_setup.hasOwnProperty('NGINX_SETUP')) {
-        if(data_setup.NGINX_SETUP === "true"){
+        if (data_setup.NGINX_SETUP === "true") {
             jH('#nginx-config-true').attr('checked', true);
+            jH("#nginx-display-menu").show();
         } else {
             jH('#nginx-config-false').attr('checked', true);
+            jH("#nginx-display-menu").hide();
         }
     }
+
     if (data_setup.hasOwnProperty('APACHE_SETUP')) {
-        if(data_setup.APACHE_SETUP === "true"){
+        if (data_setup.APACHE_SETUP === "true") {
             jH('#apache-config-true').attr('checked', true);
+            jH("#apache-display-menu").show();
         } else {
             jH('#apache-config-false').attr('checked', true);
+            jH("#apache-display-menu").hide();
         }
     }
+
     if (data_setup.hasOwnProperty('SUPERVISOR_SETUP')) {
-        if(data_setup.SUPERVISOR_SETUP === "true"){
+        if (data_setup.SUPERVISOR_SETUP === "true") {
             jH('#supervisor-config-true').attr('checked', true);
+            jH("#supervisor-display-menu").show();
         } else {
             jH('#supervisor-config-false').attr('checked', true);
+            jH("#supervisor-display-menu").hide();
         }
     }
+
     if (data_setup.hasOwnProperty('TOMCAT_SETUP')) {
-        if(data_setup.TOMCAT_SETUP === "true"){
+        if (data_setup.TOMCAT_SETUP === "true") {
             jH('#tomcat-config-true').attr('checked', true);
+            jH("#tomcat-display-menu").show();
         } else {
             jH('#tomcat-config-false').attr('checked', true);
+            jH("#tomcat-display-menu").hide();
         }
     }
+
     if (data_setup.hasOwnProperty('DOCKER_COMPOSE_VERSION')) {
         let v = data_setup.DOCKER_COMPOSE_VERSION.replace('.', '');
         jH('#docker-compose-version-'+v).attr('checked', true);
     }
+
     if (data_setup.hasOwnProperty('DOCKER_COMPOSE_VERSION_OTHER')) {
         jH('#docker-compose-version-other').val(data_setup.DOCKER_COMPOSE_VERSION_OTHER);
     }
+
     if (data_setup.hasOwnProperty('NETWORK_DEFAULT')) {
-        if(data_setup.NETWORK_DEFAULT === "on"){
+        if (data_setup.NETWORK_DEFAULT === "on") {
             jH('#checkbox-network-gateway').attr('checked', true);
+            jH("#input-text-network-gateway").props("disabled", true);
         } else {
             jH('#checkbox-network-gateway').attr('checked', false);
         }
     }
+
     if (data_setup.hasOwnProperty('NETWORK_GATEWAY')) {
         jH('#input-text-network-gateway').val(data_setup.NETWORK_GATEWAY);
     }
+
     if (data_setup.hasOwnProperty('RESOURCES_DOCKERIZED_ALL')) {
-        if(data_setup.RESOURCES_DOCKERIZED_ALL === "on"){
+        if (data_setup.RESOURCES_DOCKERIZED_ALL === "on") {
             jH('#checkbox-resources-all').attr('checked', true);
         } else {
             jH('#checkbox-resources-all').attr('checked', false);
         }
     }
+
+    if (data_setup.hasOwnProperty('DOCKER_EXTRA_IMAGES_NONE')) {
+        if (data_setup.DOCKER_EXTRA_IMAGES_NONE === "on") {
+            jH('#checkbox-extra-images-none').attr('checked', true);
+            jH("#input-text-extra-images").props("disabled", true);
+        } else {
+            jH('#checkbox-extra-images-none').attr('checked', false);
+        }
+    }
+
+    if (data_setup.hasOwnProperty('DOCKER_EXTRA_IMAGES')) {
+        jH('#input-text-extra-images').val(data_setup.DOCKER_EXTRA_IMAGES);
+    }
+
     if (data_setup.hasOwnProperty('RESOURCES_DOCKERIZED')) {
         let r = data_setup.RESOURCES_DOCKERIZED;
         for (let d = 0; d < r.length; d++) {
             jH('#checkbox-resources-'+r[d]).attr('checked', true);
         }
     }
-    if (data_setup.hasOwnProperty('DOCKER_EXTRA_IMAGES_NONE')) {
-        jH('#checkbox-extra-images-none').attr('checked', true);
-    }
-    if (data_setup.hasOwnProperty('DOCKER_EXTRA_IMAGES')) {
-        jH('#input-text-extra-images').val(data_setup.DOCKER_EXTRA_IMAGES);
-    }
+
     if (data_setup.hasOwnProperty('PHP_VERSION_ALL')) {
-        if(data_setup.PHP_VERSION_ALL === "on"){
+        if (data_setup.PHP_VERSION_ALL === "on") {
             jH('#checkbox-php-version-all').attr('checked', true);
         } else {
             jH('#checkbox-php-version-all').attr('checked', false);
         }
     }
+
     if (data_setup.hasOwnProperty('PHP_VERSION')) {
         let p = data_setup.PHP_VERSION;
         for (let d = 0; d < p.length; d++) {
             jH('#checkbox-php-version-'+p[d]).attr('checked', true);
         }
     }
+
     if (data_setup.hasOwnProperty('JAVA_VERSION_ALL')) {
-        if(data_setup.JAVA_VERSION_ALL === "on"){
+        if (data_setup.JAVA_VERSION_ALL === "on") {
             jH('#checkbox-java-version-all').attr('checked', true);
         } else {
             jH('#checkbox-java-version-all').attr('checked', false);
         }
     }
+
     if (data_setup.hasOwnProperty('JAVA_VERSION')) {
         let p = data_setup.JAVA_VERSION;
         for (let d = 0; d < p.length; d++) {
             jH('#checkbox-java-version-'+p[d]).attr('checked', true);
         }
     }
+
     if (data_setup.hasOwnProperty('PYTHON_VERSION_ALL')) {
-        if(data_setup.PYTHON_VERSION_ALL === "on"){
+        if (data_setup.PYTHON_VERSION_ALL === "on") {
             jH('#checkbox-python-version-all').attr('checked', true);
         } else {
             jH('#checkbox-python-version-all').attr('checked', false);
         }
     }
+
     if (data_setup.hasOwnProperty('PYTHON_VERSION')) {
         let p = data_setup.PYTHON_VERSION;
         for (let d = 0; d < p.length; d++) {
             jH('#checkbox-python-version-'+p[d]).attr('checked', true);
         }
     }
+
+    if (data_setup.hasOwnProperty('NODEJS_VERSION_ALL')) {
+        if (data_setup.NODEJS_VERSION_ALL === "on") {
+            jH('#checkbox-nodejs-version-all').attr('checked', true);
+        } else {
+            jH('#checkbox-nodejs-version-all').attr('checked', false);
+        }
+    }
+
+    if (data_setup.hasOwnProperty('NODEJS_VERSION')) {
+        let p = data_setup.NODEJS_VERSION;
+        for (let d = 0; d < p.length; d++) {
+            jH('#checkbox-nodejs-version-'+p[d]).attr('checked', true);
+        }
+    }
+
     if (data_setup.hasOwnProperty('GIT_PROJECT')) {
         let g = data_setup.GIT_PROJECT;
         jH('#table-git-projects').html("");
@@ -403,6 +468,54 @@ function loadSetup(data) {
             addGitProject(true);
         }
     }
+}
+
+function saveSetup() {
+    $$.ajax({
+        url: "./api/setup/save/",
+        data: $$.form("#generic-form").serialize(),
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        stringify: false,
+        cors: true,
+        async: true,
+        restful: false,
+        authorization: "",
+        credentials: false
+    }).post(
+        function(resp) {
+            try {
+                if (resp.status === "ok") {
+                    $$.toaster({
+                        type: "success",
+                        text: resp.message,
+                        timeout: 3000
+                    });
+
+                    $$.await(1).run(requestSetup);
+
+                } else {
+                    $$.toaster({
+                        type: "error",
+                        text: resp.message,
+                        timeout: 3000
+                    });
+                }
+            } catch (er) {
+                $$.log("saveSetup() => error: " + er).except();
+            }
+        },
+        function(err) {
+            $$.toaster({
+                type: "error",
+                text: err.message || "Internal Server Error",
+                timeout: 3000
+            });
+
+            $$.log("Error on Ajax Request to dockerized Web").print("orange");
+            $$.log(err).error();
+        }
+    );
 }
 
 function loadProjectsFromSetup() {
@@ -432,7 +545,7 @@ function loadProjectsFromSetup() {
         '</button>' +
         '</td>' +
         '<td class="td-default">' +
-        '    <input type="checkbox" name="git_project_private[]" id="git-project-private-' + seq + '" '+private_git+' /> <span>private</span>' +
+        '    <input type="checkbox" name="git_project_private[]" id="git-project-private-' + seq + '" '+private_git+' value="'+seq+'" /> <span>private</span>' +
         '</td>' +
         '<td>' +
         '    <input class="input-text-common" type="text" name="git_username[]" id="git-username-' + seq + '" value="'+username+'" placeholder="GitHub Username" />' +
@@ -457,7 +570,7 @@ function addGitProject(load_setup) {
             '</button>' +
             '</td>' +
             '<td class="td-default">' +
-            '    <input type="checkbox" name="git_project_private[]" id="git-project-private-' + seq + '" /> <span>private</span>' +
+            '    <input type="checkbox" name="git_project_private[]" id="git-project-private-' + seq + '" value="'+seq+'" /> <span>private</span>' +
             '</td>' +
             '<td>' +
             '    <input class="input-text-common" type="text" name="git_username[]" id="git-username-' + seq + '" placeholder="GitHub Username" />' +
@@ -485,7 +598,7 @@ function addGitProject(load_setup) {
         $$.confirm({
             title: "Warning",
             question: "Are you sure that you want remove this project ?",
-            theme: "default", /*default,dark,light*/
+            theme: dockerized_theme,
             buttons: ["Yes", "No"]
         }, function(args){
             $$.remove('#table-git-projects', "#tr-git-project-add-"+current);
@@ -602,21 +715,8 @@ function createFooter() {
 }
 
 function finishProgress() {
-    console.log("finishProgress");
-    $$.presenter(
-        {
-            // target: "#div-generate-configurations",
-            message: "Everything Fine !",
-            timer: 2000,
-            theme: "default", /*default,dark,light*/
-            effect: "fade" /*fade,blink,top-down*/
-        },
-        function(rsp) {
-            jH('#div-generate-configurations').toggle();
-            jH('#div-make-configurations').toggle();
-            console.log(rsp);
-        },
-        'test');
+    $$.log("finishProgress").print("cyan");
+    $$.await(3).run($$.redirect, "?content=configurations");
 }
 
 function generateConfiguration() {
@@ -646,6 +746,38 @@ function generateConfiguration() {
     }).run();
 }
 
+function deleteConfiguration() {
+    $$.ajax({
+        url: "./api/configuration/",
+        data: "action=delete_configuration",
+        dataType: "json",
+        contentType: "application/x-www-form-urlencoded",
+        stringify: false,
+        cors: true,
+        async: true,
+        restful: false,
+        authorization: "",
+        credentials: false
+    }).post(
+        function(success) {
+            $$.toaster({
+                type: "success",
+                text: success.response,
+                timeout: 3000
+            });
+
+            $$.await(3).run($$.redirect, "?content=configurations");
+        },
+        function(error) {
+            $$.toaster({
+                type: "error",
+                text: error.response,
+                timeout: 3000
+            });
+        }
+    );
+}
+
 $$.loaded(function() {
 
     /**
@@ -663,6 +795,7 @@ $$.loaded(function() {
     if ($$.findId('checkbox-network-gateway')) {
         jH('#checkbox-network-gateway').check('click', function() {
             jH('#input-text-network-gateway').toggle('dockerized_web_31800');
+            jH('#input-text-network-gateway').props("disabled", false);''
         });
     }
 
@@ -727,6 +860,16 @@ $$.loaded(function() {
     }
 
     /**
+     * NODEJS VERSION
+     */
+    if ($$.findId('checkbox-nodejs-version-all')) {
+        jH('#checkbox-nodejs-version-all').check('click', function() {
+            let flag = jH('#checkbox-nodejs-version-all').isOn({type: "checked", value: true}, 0);
+            jH('.checkbox-nodejs-version').attr('checked', flag);
+        });
+    }
+
+    /**
      * BUTTON SUBMIT FORM
      */
     if ($$.findId('button-submit')) {
@@ -735,10 +878,10 @@ $$.loaded(function() {
                 $$.confirm({
                     title: "Warning",
                     question: "Are you sure that you want to save the data ?",
-                    theme: "default", /*default,dark,light*/
+                    theme: dockerized_theme,
                     buttons: ["Yes", "No"]
                 }, function(args){
-                    jH('#generic-form').submit();
+                    saveSetup();
                 }, "myArgs");
             }
         });
@@ -762,7 +905,7 @@ $$.loaded(function() {
             $$.confirm({
                 title: "Warning",
                 question: "Are you sure that you want to cancel and reset all data ?",
-                theme: "default", /*default,dark,light*/
+                theme: dockerized_theme,
                 buttons: ["Yes", "No"]
             }, function(args){
                 jH('#generic-form').reset();
@@ -820,8 +963,41 @@ $$.loaded(function() {
      */
     if ($$.findId('button-generate-configurations')) {
         jH('#button-generate-configurations').on('click', function() {
-            jH('#button-generate-configurations').attr('disabled', true);
-            generateConfiguration();
+            $$.confirm({
+                title: "Warning",
+                question: "Are you sure that want generate configuration now ?",
+                theme: dockerized_theme,
+                buttons: ["Yes", "No"]
+            }, function(args){
+                jH('#button-generate-configurations').attr('disabled', true);
+                generateConfiguration();
+            }, "myArgs");
+        });
+    }
+
+    /**
+     * BUTTON VIEW CONFIGURATION
+     */
+    if ($$.findId('button-view-configurations')) {
+        jH('#button-view-configurations').on('click', function() {
+            $$.redirect("?content=configurations&action=view");
+        });
+    }
+
+    /**
+     * BUTTON DELETE CONFIGURATION
+     */
+    if ($$.findId('button-delete-configurations')) {
+        jH('#button-delete-configurations').on('click', function() {
+            $$.confirm({
+                title: "Warning",
+                question: "Are you sure that want delete the current configuration ?",
+                theme: dockerized_theme,
+                buttons: ["Yes", "No"]
+            }, function(args){
+                jH('#button-delete-configurations').attr('disabled', true);
+                deleteConfiguration();
+            }, "myArgs");
         });
     }
 

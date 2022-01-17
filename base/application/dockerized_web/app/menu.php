@@ -23,27 +23,27 @@ $supervisor_display    = Dockerized\Reader::readerSetup('SUPERVISOR_SETUP');
                 Setup
             </a>
         </li>
-        <li <?=$configuration_display;?>>
+        <li id="config-display-menu" <?=$configuration_display;?>>
             <a class="<?=$configurations;?>" id="a-configurations" href="?content=configurations">
                 Config
             </a>
         </li>
-        <li <?=$nginx_display;?>>
+        <li id="nginx-display-menu" <?=$nginx_display;?>>
             <a class="<?=$nginx;?>" id="a-nginx" href="?content=nginx">
                 Nginx
             </a>
         </li>
-        <li <?=$apache_display;?>>
+        <li id="apache-display-menu" <?=$apache_display;?>>
             <a class="<?=$apache;?>" id="a-apache" href="?content=apache">
                 Apache
             </a>
         </li>
-        <li <?=$supervisor_display;?>>
+        <li id="supervisor-display-menu" <?=$supervisor_display;?>>
             <a class="<?=$supervisor;?>" id="a-supervisor" href="?content=supervisor">
                 Supervisor
             </a>
         </li>
-        <li <?=$tomcat_display;?>>
+        <li id="tomcat-display-menu" <?=$tomcat_display;?>>
             <a class="<?=$tomcat;?>" id="a-tomcat" href="?content=tomcat">
                 Tomcat
             </a>
