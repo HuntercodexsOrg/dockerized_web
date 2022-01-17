@@ -7,13 +7,11 @@ class SaveContent
     /**
      * @description Save Setup
      * @param mixed $data #Mandatory
+     * @param string $setup #Mandatory
      * @return bool
-    */
-    public static function saveSetup(mixed $data): bool
+     */
+    public static function saveSetup(mixed $data, string $setup): bool
     {
-        /*Files*/
-        $setup = 'config/setup.txt';
-
         unlink($setup);
         touch($setup);
         chmod($setup, 0777);
@@ -42,10 +40,10 @@ class SaveContent
 
         /*DOCKER*/
         $docker_compose_version = $data['docker_compose_version'];
-        $docker_compose_version_other = $data['docker_compose_version_other'];
+        $docker_compose_version_other = $data['docker_compose_version_other'] ?? "";
         $network_default = $data['network_default'];
         $network_gateway = $data['network_gateway'];
-        $extra_images = $data['extra_images'];
+        $extra_images = $data['extra_images'] ?? "";
         file_put_contents($setup, "DOCKER_COMPOSE_VERSION = {$docker_compose_version}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "DOCKER_COMPOSE_VERSION_OTHER = {$docker_compose_version_other}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "NETWORK_DEFAULT = {$network_default}".PHP_EOL, FILE_APPEND);
@@ -54,36 +52,42 @@ class SaveContent
 
         /*DATABASES*/
         $resources_default_all = $data['resources_default_all'];
-        $resources_default = implode(',', $data['resources_default']);
+        $resources_default = $data['resources_default'];
         file_put_contents($setup, "RESOURCES_DOCKERIZED_ALL = {$resources_default_all}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "RESOURCES_DOCKERIZED = {$resources_default}".PHP_EOL, FILE_APPEND);
 
         /*PHP*/
         $php_version_all = $data['php_version_all'];
-        $php_version = implode(',', $data['php_version']);
+        $php_version = $data['php_version'];
         file_put_contents($setup, "PHP_VERSION_ALL = {$php_version_all}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "PHP_VERSION = {$php_version}".PHP_EOL, FILE_APPEND);
 
         /*JAVA*/
         $java_version_all = $data['java_version_all'];
-        $java_version = implode(',', $data['java_version']);
+        $java_version = $data['java_version'];
         file_put_contents($setup, "JAVA_VERSION_ALL = {$java_version_all}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "JAVA_VERSION = {$java_version}".PHP_EOL, FILE_APPEND);
 
         /*PYTHON*/
         $python_version_all = $data['python_version_all'];
-        $python_version = implode(',', $data['python_version']);
+        $python_version = $data['python_version'];
         file_put_contents($setup, "PYTHON_VERSION_ALL = {$python_version_all}".PHP_EOL, FILE_APPEND);
         file_put_contents($setup, "PYTHON_VERSION = {$python_version}".PHP_EOL, FILE_APPEND);
 
+        /*NODEJS*/
+        $nodejs_version_all = $data['nodejs_version_all'];
+        $nodejs_version = $data['nodejs_version'];
+        file_put_contents($setup, "NODEJS_VERSION_ALL = {$nodejs_version_all}".PHP_EOL, FILE_APPEND);
+        file_put_contents($setup, "NODEJS_VERSION = {$nodejs_version}".PHP_EOL, FILE_APPEND);
+
         /*GIT*/
-        $count_projects = count($data['git_username']);
-        $git_project_private = $data['git_project_private'] ?? [];
-        $git_username = $data['git_username'];
-        $git_project = $data['git_project'];
+        $count_projects = count(explode(",", $data['git_username']));
+        $git_username = explode(",", $data['git_username']);
+        $git_project = explode(",", $data['git_project']);
+        $git_project_private = explode(",", $data['git_project_private']) ?? [];
 
         for ($i = 0; $i < $count_projects; $i++){
-            if (isset($git_project_private[$i]) && $git_project_private[$i] == "on") {
+            if (in_array($i, $git_project_private)) {
                 $project = $git_username[$i].":{{{GITHUB_TOKEN}}}@".$git_project[$i];
             } else{
                 $project = "github.com/".$git_username[$i]."/".$git_project[$i];

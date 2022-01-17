@@ -1,10 +1,15 @@
 <?php
 
 require_once "../../src/class/Reader.php";
+require_once "../../src/class/Mapper.php";
+require_once "../../src/class/Generator.php";
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
+
+$setup_file = "../../config/setup.txt";
+$mapper = Dockerized\Mapper::mapperSetup($setup_file);
 
 if (!isset($_POST['action']) || !preg_match("/generate_(header|services|extra_services|footer)/", $_POST['action'], $m)) {
     echo json_encode(["error"=>"Access Denied!", "action"=>$_POST['action']]);
@@ -12,44 +17,69 @@ if (!isset($_POST['action']) || !preg_match("/generate_(header|services|extra_se
 }
 
 if ($_POST['action'] == "generate_header") {
-    sleep(1);
-    echo json_encode(["message"=>"API Generate Header Working..."]);
+    $header_file = "/data/dockerized_web/setup/header_configuration.tpl";
+    $response = Dockerized\Generator::headerGenerator($setup_file, $header_file);
+    if ($response == true) {
+        echo json_encode([
+            "status" => "ok",
+            "response" => $response
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "error",
+            "response" => $response
+        ]);
+    }
+    exit;
 }
 
 if ($_POST['action'] == "generate_services") {
-    sleep(1);
-    echo json_encode(["message"=>"API Generate Services Working..."]);
+    $services_file = "/data/dockerized_web/setup/services_configuration.tpl";
+    $response = Dockerized\Generator::servicesGenerator($setup_file, $services_file);
+    if ($response == true) {
+        echo json_encode([
+            "status" => "ok",
+            "response" => $response
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "error",
+            "response" => $response
+        ]);
+    }
+    exit;
 }
 
 if ($_POST['action'] == "generate_extra_services") {
-    sleep(1);
-    echo json_encode(["message"=>"API Generate Extra Services Working..."]);
+    $extras_file = "/data/dockerized_web/setup/extras_configuration.tpl";
+    $response = Dockerized\Generator::extrasGenerator($setup_file, $extras_file);
+    if ($response == true) {
+        echo json_encode([
+            "status" => "ok",
+            "response" => $response
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "error",
+            "response" => $response
+        ]);
+    }
+    exit;
 }
 
 if ($_POST['action'] == "generate_footer") {
-    sleep(1);
-    echo json_encode(["message"=>"API Generate Footer Working..."]);
+    $footer_file = "/data/dockerized_web/setup/footer_configuration.tpl";
+    $response = Dockerized\Generator::footerGenerator($setup_file, $footer_file);
+    if ($response == true) {
+        echo json_encode([
+            "status" => "ok",
+            "response" => $response
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "error",
+            "response" => $response
+        ]);
+    }
+    exit;
 }
-
-
-//
-//$setup_file = '../../config/setup.txt';
-//
-//echo json_encode([
-//    "CONFIGURATION_SETUP" => Dockerized\Reader::apiReaderSetup('CONFIGURATION_SETUP', $setup_file),
-//    "SERVICES_QUANTITY" => Dockerized\Reader::apiReaderSetup('SERVICES_QUANTITY', $setup_file),
-//    "NGINX_SETUP" => Dockerized\Reader::apiReaderSetup('NGINX_SETUP', $setup_file),
-//    "APACHE_SETUP" => Dockerized\Reader::apiReaderSetup('APACHE_SETUP', $setup_file),
-//    "SUPERVISOR_SETUP" => Dockerized\Reader::apiReaderSetup('SUPERVISOR_SETUP', $setup_file),
-//    "DOCKER_COMPOSE_VERSION" => Dockerized\Reader::apiReaderSetup('DOCKER_COMPOSE_VERSION', $setup_file),
-//    "DOCKER_COMPOSE_VERSION_OTHER" => Dockerized\Reader::apiReaderSetup('DOCKER_COMPOSE_VERSION_OTHER', $setup_file),
-//    "NETWORK_DEFAULT" => Dockerized\Reader::apiReaderSetup('NETWORK_DEFAULT', $setup_file),
-//    "NETWORK_GATEWAY" => Dockerized\Reader::apiReaderSetup('NETWORK_GATEWAY', $setup_file),
-//    "RESOURCES_DOCKERIZED_ALL" => Dockerized\Reader::apiReaderSetup('RESOURCES_DOCKERIZED_ALL', $setup_file),
-//    "RESOURCES_DOCKERIZED" => explode(",", Dockerized\Reader::apiReaderSetup('RESOURCES_DOCKERIZED', $setup_file)),
-//    "DOCKER_EXTRA_IMAGES" => explode(",", Dockerized\Reader::apiReaderSetup('DOCKER_EXTRA_IMAGES', $setup_file)),
-//    "PHP_VERSION_ALL" => Dockerized\Reader::apiReaderSetup('PHP_VERSION_ALL', $setup_file),
-//    "PHP_VERSION" => explode(",", Dockerized\Reader::apiReaderSetup('PHP_VERSION', $setup_file)),
-//    "GIT_PROJECT" => Dockerized\Reader::apiReaderSetupAll('GIT_PROJECT', $setup_file),
-//]);
-//

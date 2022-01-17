@@ -1,10 +1,10 @@
 <?php
 $resources_path = "/data/dockerized_web/resources";
-$available = file_get_contents($resources_path."/available.txt");
-$php_available = file_get_contents($resources_path."/php_available.txt");
-
-$available = explode(',', $available);
-$php_available = explode(',', $php_available);
+$available = explode(',', file_get_contents($resources_path."/available.txt"));
+$php_available = explode(',', file_get_contents($resources_path."/php_available.txt"));
+$java_available = explode(',', file_get_contents($resources_path."/java_available.txt"));
+$python_available = explode(',', file_get_contents($resources_path."/python_available.txt"));
+$nodejs_available = explode(',', file_get_contents($resources_path."/nodejs_available.txt"));
 
 $button_load_setup = "";
 $button_config = "";
@@ -246,7 +246,7 @@ if (file_exists('config/setup.txt')) {
     </tr>
     <tr>
         <td class="td-field-name">
-            JAVA SDK/JDK
+            JAVA SDK/JDK VERSION
         </td>
         <td class="td-default">
             <input type="checkbox" name="java_version_all" id="checkbox-java-version-all" /> <span>all</span>
@@ -254,14 +254,13 @@ if (file_exists('config/setup.txt')) {
         <td colspan="2">
 
             <?php
-            //TODO: ALTERAR PARA JAVA
-            for ($i = 0; $i < count($php_available); $i++){
-                $php = trim(str_replace(".", "", $php_available[$i]));
+            for ($i = 0; $i < count($java_available); $i++){
+                $php = trim(str_replace(".", "", $java_available[$i]));
                 echo '<input 
                     type="checkbox" 
                     name="java_version[]" 
                     id="checkbox-java-version-'.$php.'" 
-                    class="checkbox-java-version" value="'.$php.'" /> <span>'.$php_available[$i].' </span>'.PHP_EOL;
+                    class="checkbox-java-version" value="'.$php.'" /> <span>'.$java_available[$i].' </span>'.PHP_EOL;
             }
             ?>
 
@@ -277,7 +276,7 @@ if (file_exists('config/setup.txt')) {
     </tr>
     <tr>
         <td class="td-field-name">
-            PYTHON
+            PYTHON VERSION
         </td>
         <td class="td-default">
             <input type="checkbox" name="python_version_all" id="checkbox-python-version-all" /> <span>all</span>
@@ -285,14 +284,43 @@ if (file_exists('config/setup.txt')) {
         <td colspan="2">
 
             <?php
-            //TODO: ALTERAR PARA PYTHON
-            for ($i = 0; $i < count($php_available); $i++){
-                $php = trim(str_replace(".", "", $php_available[$i]));
+            for ($i = 0; $i < count($python_available); $i++){
+                $php = trim(str_replace(".", "", $python_available[$i]));
                 echo '<input 
                     type="checkbox" 
                     name="python_version[]" 
                     id="checkbox-python-version-'.$php.'" 
-                    class="checkbox-python-version" value="'.$php.'" /> <span>'.$php_available[$i].' </span>'.PHP_EOL;
+                    class="checkbox-python-version" value="'.$php.'" /> <span>'.$python_available[$i].' </span>'.PHP_EOL;
+            }
+            ?>
+
+        </td>
+    </tr>
+</table>
+
+<table id="table-nodejs">
+    <tr>
+        <td class="td-setup-session" colspan="4">
+            NODEJS
+        </td>
+    </tr>
+    <tr>
+        <td class="td-field-name">
+            NODEJS VERSION
+        </td>
+        <td class="td-default">
+            <input type="checkbox" name="nodejs_version_all" id="checkbox-nodejs-version-all" /> <span>all</span>
+        </td>
+        <td colspan="2">
+
+            <?php
+            for ($i = 0; $i < count($nodejs_available); $i++){
+                $php = trim(str_replace(".", "", $nodejs_available[$i]));
+                echo '<input 
+                    type="checkbox" 
+                    name="nodejs_version[]" 
+                    id="checkbox-nodejs-version-'.$php.'" 
+                    class="checkbox-nodejs-version" value="'.$php.'" /> <span>'.$nodejs_available[$i].' </span>'.PHP_EOL;
             }
             ?>
 

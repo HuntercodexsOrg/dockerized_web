@@ -1,0 +1,5 @@
+CURRENT_PATH=/home/jereelton/Server/Devel/dockerized;
+CURRENT_PATH=/home/jereelton/Server/Devel/dockerized;
+CURRENT_PATH=/home/jereelton/Server/Devel/dockerized;
+CURRENT_PATH=/home/jereelton/Server/Devel/dockerized;
+CURRENT_PATH=/home/jereelton/Server/Devel/dockerized;
