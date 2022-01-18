@@ -191,6 +191,8 @@ function run_checkin {
 function run_web {
     echo "WEB FUNCTION IS RUNNING..."
 
+    sudo usermod -aG docker ${USER}
+
     if ! ls .backup >> /dev/null 2>&1
     then
         mkdir -p .backup
@@ -274,13 +276,6 @@ function run_uninstall {
 
 source ./bin/colours
 
-#Properties File
-touch "${FILE_PROFILE}"
-sudo chmod 777 "${FILE_PROFILE}"
-sudo chown nobody:nogroup "${FILE_PROFILE}"
-
-echo "CURRENT_PATH=${PWD};" >> "${FILE_PROFILE}" 2>&1
-
 #-----------------------------------------------------------------------------------------------
 #CHECKIN AND HELP [DONE]
 #-----------------------------------------------------------------------------------------------
@@ -298,6 +293,16 @@ run_checkin
 
 if [[ "${COMMAND1}" == "--web" ]];
 then
+
+    if ! ls "${FILE_PROFILE}" >> /dev/null 2>&1
+    then
+        #Properties File
+        touch "${FILE_PROFILE}"
+        sudo chmod 777 "${FILE_PROFILE}"
+        sudo chown nobody:nogroup "${FILE_PROFILE}"
+    fi
+
+    echo "CURRENT_PATH=${PWD};" >> "${FILE_PROFILE}" 2>&1
 
     run_initial_message
 

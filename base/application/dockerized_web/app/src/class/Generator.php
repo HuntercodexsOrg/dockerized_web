@@ -2,8 +2,6 @@
 
 namespace Dockerized;
 
-use JetBrains\PhpStorm\Pure;
-
 class Generator
 {
     const FILENAME_CONF = "configuration.conf";
@@ -184,14 +182,8 @@ class Generator
      * @param string $template #Mandatory
      * @return string|bool
      */
-    #[Pure]
     public static function extrasGenerator(string $setup_file, string $template): string|bool
     {
-        $check = Generator::checkFileExists($setup_file, $template);
-        if ($check != true) {
-            return $check;
-        }
-
         return true;
     }
 

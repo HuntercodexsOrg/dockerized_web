@@ -37,4 +37,37 @@ class Mapper
             "GIT_PROJECT" => Reader::apiReaderSetupAll('GIT_PROJECT', $setup_file),
         ]);
     }
+
+    /**
+     * @description Mapper Configuration File
+     * @param string $config_file #Mandatory
+     * @return array
+     */
+    public static function mapperConfiguration(string $config_file): array
+    {
+        $header_mapper = [
+            /*Uniq line settings*/
+            "CONFIGURATION_SETUP" => Reader::apiReaderSetup('CONFIGURATION_SETUP', $config_file),
+            "SERVICES_QUANTITY" => Reader::apiReaderSetup('SERVICES_QUANTITY', $config_file),
+            "DOCKER_EXTRA_IMAGES" => explode(",", Reader::apiReaderSetup('DOCKER_EXTRA_IMAGES', $config_file)),
+            "RESOURCES_DOCKERIZED" => explode(",", Reader::apiReaderSetup('RESOURCES_DOCKERIZED', $config_file)),
+            "DOCKER_COMPOSE_VERSION" => Reader::apiReaderSetup('DOCKER_COMPOSE_VERSION', $config_file),
+            "NETWORK_GATEWAY" => Reader::apiReaderSetup('NETWORK_GATEWAY', $config_file),
+            "USE_PROJECT" => Reader::apiReaderSetupAll('USE_PROJECT', $config_file),
+
+            /*Many lines settings*/
+            "USE_DATABASE" => Reader::apiReaderBlock('\[DATABASE-START]', '\[DATABASE-END]', $config_file),
+            "USE_APP_URL" => Reader::apiReaderBlock('\[APP-START]', '\[APP-END]', $config_file),
+            "USE_API_URL" => Reader::apiReaderBlock('\[API-START]', '\[API-END]', $config_file)
+        ];
+
+        for ($i = 0; $i < intval($header_mapper["SERVICES_QUANTITY"]); $i++) {
+            $services_mapper[] = Reader::apiReaderBlock('#SERVICE-' . $i, '#SERVICE-' . ($i + 1), $config_file);
+        }
+
+        return [
+            "HEADER" => $header_mapper,
+            "SERVICES" => $services_mapper ?? []
+        ];
+    }
 }

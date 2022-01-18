@@ -1,133 +1,158 @@
 <?php
-$services_qty = Dockerized\Reader::getSetupVar('SERVICES_QUANTITY');
 
-$buttons_allowed = "";
+function showButtonsConfig() {
 
-if (file_exists('config/setup.txt') && !file_exists('config/configuration.conf')) {
-    $buttons_allowed = '
+    $services_qty = Dockerized\Reader::getSetupVar('SERVICES_QUANTITY');
+
+    $buttons_allowed = "";
+
+    if (file_exists('config/setup.txt') && !file_exists('config/configuration.conf')) {
+        $buttons_allowed = '
         <button type="button" value="button-generate-configurations" id="button-generate-configurations">
             Generate Configuration
         </button>
         <p class="p-message-default">
             Was found '.$services_qty.' service(s) to configurations generate
         </p>';
-} else {
-    $buttons_allowed = '
+    } else {
+        $buttons_allowed = '
         <button type="button" value="button-view-configurations" id="button-view-configurations">
             View Configuration
         </button>
         <button type="button" value="button-delete-configurations" id="button-delete-configurations">
             Delete Configuration
         </button>';
-}
-
-if (isset($_GET['action']) && $_GET['action'] == 'view') {
-    $i = 0;
-    $document = "";
-    $fho = fopen("config/configuration.conf", "r");
-
-    $resume_label = '
-            <table id="table-configuration-header">
-            <tr>
-                <td class="td-setup-session" colspan="10">
-                    RESUME CONFIGURATIONS
-                </td>
-            </tr>';
-
-    $services_label = '
-            <table id="table-configuration-services">
-            <tr>
-                <td class="td-setup-session" colspan="10">
-                    SERVICES
-                </td>
-            </tr>';
-
-    while (!feof($fho)) {
-        $line = trim(preg_replace('/[\n\r]/', '', fgets($fho, 4096)));
-        if ($line == "") continue;
-
-        /*HEADER CONFIGURATIONS*/
-        if (preg_match('/TIP=|IMPORTANT=|\[HEADER-START]|\[INFO-START]|\[INFO-END]|\[GLOBAL-START]|\[TARGET-PROJECTS]|\[DATABASE-START]|\[DATABASE-END]|\[APP-START]|\[APP-END]|\[API-START]|\[API-END]|\[GLOBAL-END]|\[HEADER-END]/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            continue;
-        }
-
-        if (preg_match('/CONFIGURATION_SETUP/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>CONFIGURATION_SETUP</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/SERVICES_QUANTITY/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>SERVICES_QUANTITY</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/DOCKER_EXTRA_IMAGES/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>DOCKER_EXTRA_IMAGES</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/RESOURCES_DOCKERIZED/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>RESOURCES_DOCKERIZED</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/DOCKER_COMPOSE_VERSION/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>DOCKER_COMPOSE_VERSION</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/NETWORK_GATEWAY/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>NETWORK_GATEWAY</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/USE_PROJECT/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>USE_PROJECT</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/DB_SETUP/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>DB_SETUP</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/APP_SETUP/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>APP_SETUP</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        if (preg_match('/API_SETUP/', $line, $m, PREG_OFFSET_CAPTURE)) {
-            $tmp = explode("=", $line);
-            $line = "<tr><td class='td-field-name'>API_SETUP</td><td>{$tmp[1]}</td></tr>";
-        }
-
-        $line = str_replace("[PROJECT-ENV-CONFIGURATION-START]", "<div id='div-configuration-start'>".$resume_label, $line);
-        $line = str_replace("[PROJECT-ENV-CONFIGURATION-END]", "</div>", $line);
-
-        /*SERVICES CONFIGURATIONS*/
-        $line = str_replace("[SERVICE-START]", "<div id='div-configuration-services'>".$services_label."</table>", $line);
-        $line = str_replace("[SERVICE-END]", "</div>", $line);
-
-        if (preg_match('/^#SERVICE-([0-9]+)/', $line, $m, PREG_OFFSET_CAPTURE) && $i == 0) {
-            $line = str_replace("#SERVICE-".$i, "<div class='div-configuration-service'>SERVICE-".$i, $line);
-            $i++;
-        } else if (preg_match('/^#SERVICE-([0-9]+)/', $line, $m, PREG_OFFSET_CAPTURE) && $i > 0) {
-            $line = "</div>".str_replace("#SERVICE-".$i, "<div class='div-configuration-service'>SERVICE-".$i, $line);
-            $i++;
-        }
-
-        $document .= $line.PHP_EOL."<br />";
     }
-
-    fclose($fho);
-
-    echo '<div id="div-make-configurations">'.$document.'</div>';
-
-} else {
     echo '
         <div id="div-generate-configurations">
             '.$buttons_allowed.'
             <div id="jh-typist-container"></div>
         </div>
     ';
+}
+
+function headerMount($data): string
+{
+    $header  = "<table>";
+    $header .= "<tr><td class='td-setup-session' colspan='10'>RESUME CONFIGURATION</td></tr>";
+
+    $header .= "<tr>";
+    $header .= "<td class='td-field-name box-cel'>CONFIGURATION SETUP</td><td>{$data["HEADER"]["CONFIGURATION_SETUP"]}</td>";
+    $header .= "<td class='td-field-name box-cel'>SERVICES QUANTITY</td><td>{$data["HEADER"]["SERVICES_QUANTITY"]}</td>";
+    $header .= "</tr>";
+
+    $header .= "<tr>";
+    $header .= "<td class='td-field-name box-cel'>DOCKER COMPOSE VERSION</td><td>{$data["HEADER"]["DOCKER_COMPOSE_VERSION"]}</td>";
+    $header .= "<td class='td-field-name box-cel'>NETWORK GATEWAY</td><td>{$data["HEADER"]["NETWORK_GATEWAY"]}</td>";
+    $header .= "</tr>";
+
+    /*DOCKER EXTRA IMAGES*/
+    $docker_extra_img = "";
+    for ($i = 0; $i < count($data["HEADER"]["DOCKER_EXTRA_IMAGES"]); $i++) {
+        $docker_extra_img .= "<span class='span-cell'>".$data["HEADER"]["DOCKER_EXTRA_IMAGES"][$i]."</span>";
+    }
+    $header .= "<tr>";
+    $header .= "<td class='td-field-name box-cel'>DOCKER EXTRA IMAGES</td><td colspan='3'>{$docker_extra_img}</td>";
+    $header .= "</tr>";
+
+    /*RESOURCES DOCKERIZED*/
+    $resources_dockerized = "";
+    for ($i = 0; $i < count($data["HEADER"]["RESOURCES_DOCKERIZED"]); $i++) {
+        $resources_dockerized .= "<span class='span-cell'>".$data["HEADER"]["RESOURCES_DOCKERIZED"][$i]."</span>";
+    }
+    $header .= "<tr>";
+    $header .= "<td class='td-field-name box-cel'>RESOURCES DOCKERIZED</td><td colspan='3'>{$resources_dockerized}</td>";
+    $header .= "</tr>";
+
+    /*GIT PROJECTS*/
+    $header .= "<tr>";
+    $header .= "<td class='td-setup-sub-session' colspan='10'>USE PROJECTS FROM GIT</td>";
+    $header .= "</tr>";
+    for ($i = 0; $i < count($data["HEADER"]["USE_PROJECT"]); $i++) {
+        $header .= "<tr>";
+        $header .= "<td class='td-field-name box-cel'>PROJECT {$i}</td><td colspan='3'>{$data["HEADER"]["USE_PROJECT"][$i]}</td>";
+        $header .= "</tr>";
+    }
+
+    /*DATABASE SETTINGS*/
+    $header .= "<tr>";
+    $header .= "<td class='td-setup-sub-session' colspan='10'>DATABASE SETTINGS - APP</td>";
+    $header .= "</tr>";
+    for ($i = 1; $i < count($data["HEADER"]["USE_DATABASE"]); $i++) {
+        $extract = explode("=", $data["HEADER"]["USE_DATABASE"][$i]);
+        $name = trim($extract[0]);
+        $value = trim(str_replace('"', '', $extract[1]));
+        $header .= "<tr>";
+        $header .= "<td class='td-field-name box-cel'>DATABASE {$i}</td><td colspan='1'>{$name}</td><td colspan='2'>{$value}</td>";
+        $header .= "</tr>";
+    }
+
+    /*APP SETTINGS*/
+    $header .= "<tr>";
+    $header .= "<td class='td-setup-sub-session' colspan='10'>APP SETTINGS URL</td>";
+    $header .= "</tr>";
+    for ($i = 1; $i < count($data["HEADER"]["USE_APP_URL"]); $i++) {
+        $extract = explode("=", $data["HEADER"]["USE_APP_URL"][$i]);
+        $name = trim($extract[0]);
+        $value = trim(str_replace('"', '', $extract[1]));
+        $header .= "<tr>";
+        $header .= "<td class='td-field-name box-cel'>APP URL {$i}</td><td colspan='1'>{$name}</td><td colspan='2'>{$value}</td>";
+        $header .= "</tr>";
+    }
+
+    /*API SETTINGS*/
+    $header .= "<tr>";
+    $header .= "<td class='td-setup-sub-session' colspan='10'>API SETTINGS URL</td>";
+    $header .= "</tr>";
+    for ($i = 1; $i < count($data["HEADER"]["USE_API_URL"]); $i++) {
+        $extract = explode("=", $data["HEADER"]["USE_API_URL"][$i]);
+        $name = trim($extract[0]);
+        $value = trim(str_replace('"', '', $extract[1]));
+        $header .= "<tr>";
+        $header .= "<td class='td-field-name box-cel'>API URL {$i}</td><td colspan='1'>{$name}</td><td colspan='2'>{$value}</td>";
+        $header .= "</tr>";
+    }
+
+    $header .= "</table>";
+
+    return $header;
+}
+
+function servicesMount($data): string
+{
+    $services = "<table>";
+    $services .= "<tr><td class='td-setup-session' colspan='10'>SERVICES CONFIGURATION</td></tr>";
+    foreach ($data["SERVICES"] as $k => $v) {
+        if (is_array($v)) {
+            $val = implode(',', $v);
+        } else {
+            $val = $v;
+        }
+        $services .= "<tr><td class='td-field-name'>{$k}</td><td>{$val}</td></tr>";
+    }
+    $services .= "</table>";
+
+    return $services;
+}
+
+function requestDataConfiguration() {
+
+    $config_file = "config/configuration.conf";
+    $data = Dockerized\Mapper::mapperConfiguration($config_file);
+    /*var_dump("<pre>", $data["HEADER"], "</pre>");
+    var_dump("<pre>", $data["SERVICES"], "</pre>");*/
+    $header = headerMount($data);
+    $services = servicesMount($data);
+
+    echo '
+        <div id="div-make-configurations">
+            '.$header.'
+            '.$services.'
+        </div>';
+}
+
+if (isset($_GET['action']) && $_GET['action'] == 'view') {
+    requestDataConfiguration();
+} else {
+    showButtonsConfig();
 }

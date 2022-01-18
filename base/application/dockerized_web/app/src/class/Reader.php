@@ -33,12 +33,53 @@ class Reader
     /**
      * @description Api Reader Setup
      * @param string $var_name #Mandatory
-     * @param string $setup_file #Mandatory
+     * @param string $source_file #Mandatory
      * @return string
      */
-    public static function apiReaderSetup(string $var_name, string $setup_file): string
+    public static function apiReaderSetup(string $var_name, string $source_file): string
     {
-        return self::get($setup_file, $var_name);
+        return self::get($source_file, $var_name);
+    }
+
+    /**
+     * @description Api Reader BLock
+     * @param string $start_str #Mandatory
+     * @param string $end_str #Mandatory
+     * @param string $source_file #Mandatory
+     * @return array
+     */
+    public static function apiReaderBlock(string $start_str, string $end_str, string $source_file): array
+    {
+        $founds = [];
+        $state = "off";
+        $handler = fopen($source_file, "r");
+
+        while (!feof($handler)) {
+            $source_line = fgets($handler, 4096);
+
+            if (trim($source_line) == "") continue;
+
+            if (preg_match("/^([*\-]{90})/", $source_line, $m, PREG_OFFSET_CAPTURE)) {
+                continue;
+            }
+
+            if (preg_match("/^{$start_str}/", $source_line, $m, PREG_OFFSET_CAPTURE)) {
+                $state = "on";
+                continue;
+            }
+
+            if (preg_match("/^{$end_str}/", $source_line, $m, PREG_OFFSET_CAPTURE)) {
+                $state = "off";
+                break;
+            }
+
+            if ($state == "on") {
+                $founds[] = $source_line;
+            }
+        }
+
+        fclose($handler);
+        return $founds;
     }
 
     /**
