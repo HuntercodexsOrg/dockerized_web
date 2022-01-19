@@ -1,0 +1,531 @@
+
+* {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    font-family: arial, sans-serif;
+    letter-spacing: 1px;
+}
+
+/*HEADER*/
+
+#div-header {
+    width: 20%;
+    height: 5%;
+    min-height: 48px;
+    background: #131336;
+    color: #29a5c0;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 3;
+    border-bottom: solid #29a5c0 5px;
+}
+
+#div-header h1 {
+    line-height: 10px;
+    font-size: 15px;
+    padding: 12px;
+    text-transform: capitalize;
+}
+
+#div-header h1 a {
+    text-decoration: none;
+    color: #29a5c0;
+}
+
+#div-header h1 small {
+    display: block;
+    font-size: 10px;
+    color: darkgoldenrod;
+    text-transform: lowercase;
+}
+
+#div-header #div-icon-hamburger {
+    cursor: pointer;
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    width: 50px;
+    height: 44px;
+    box-sizing: border-box;
+    text-align: center;
+    display: block;
+    padding: 5px;
+    transition: all 1s ease-in-out;
+}
+
+#div-header svg {
+    transition: all 1s ease-in-out;
+}
+
+/*MENU-TOP*/
+
+#div-menu-top {
+    width: 80%;
+    height: 5%;
+    min-height: 48px;
+    text-align: center;
+    background: #131336;
+    position: fixed;
+    top: 0px;
+    left: 20%;
+    z-index: 3;
+    border-bottom: solid #29a5c0 5px;
+}
+
+#div-menu-top ul {
+    width: auto;
+    height: 100%;
+    padding-left: 1px;
+    text-align: center;
+}
+
+#div-menu-top ul li {
+    float: left;
+    margin: 0px 1px 0px 0px;
+    height: 100%;
+    background: #0b7a8f;
+    overflow: hidden;
+    width: 120px;
+    font-size: 14px;
+}
+
+#div-menu-top ul li .active {
+    background: #7bc039;
+}
+
+#div-menu-top ul li a {
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    padding-top: 11%;
+    color: #FFFFFF;
+    text-decoration: none;
+    text-shadow: #232323 1px 2px 2px;
+}
+
+#div-menu-top ul li a:hover {
+    color: #888888;
+    background: #eae9e9;
+    text-shadow: none;
+}
+
+#div-menu-top ul li #a-documentation {
+    background: #c91927;
+}
+
+/*MENU-ITENS*/
+
+#div-menu-itens {
+    width: 20%;
+    height: 95%;
+    overflow: hidden;
+    overflow-y: auto;
+    background: #DEDEDE;
+    position: fixed;
+    top: 5%;
+    left: 0px;
+    z-index: 1;
+    transition: all 1s ease-in-out;
+}
+
+#div-menu-itens ul li {
+    margin: 1px;
+    width: 100%;
+    height: 50px;
+    line-height: 37px;
+    overflow: hidden;
+    background: #edfcfc;
+}
+
+#div-menu-itens ul li a {
+    display: block;
+    padding: 10px;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+}
+
+#div-menu-itens ul li a:hover {
+    color: #FD0000;
+}
+
+/*CONTENT*/
+
+#div-content {
+    width: 80%;
+    height: 95%;
+    overflow: hidden;
+    overflow-y: auto;
+    background: dimgray;
+    position: fixed;
+    top: 5%;
+    left: 20%;
+    z-index: 1;
+    transition: all 1s ease-in-out;
+}
+
+#div-content #generic-form {
+    width: 98%;
+    margin: 1%;
+    height: auto;
+    /*min-height: 200px;*/
+    background: #F0F8FFFF;
+    border: dashed #888888 1px;
+}
+
+#div-content #div-message-process-success {
+    display: none;
+    width: 96%;
+    margin: 1%;
+    padding: 1%;
+    height: auto;
+    color: #edfcfc;
+    background: #49c019;
+}
+
+#div-content #div-message-process-error {
+    display: none;
+    width: 96%;
+    margin: 1%;
+    padding: 1%;
+    height: auto;
+    color: #982525;
+    background: #fa8d8d;
+}
+
+#div-content .a-close {
+    float: right;
+    cursor: pointer;
+}
+
+#div-content #generic-form table {
+    width: 100%;
+    border: none;
+    font-size: 12px;
+    border-collapse: collapse;
+}
+
+#div-content #generic-form table th {
+    padding: 10px;
+    color: #c0a914;
+    text-align: left;
+    background: #380c2a;
+    border: solid #ffffff 1px;
+}
+
+#div-content #generic-form table .cel-key {
+    width: 250px !important;
+}
+
+#div-content #generic-form table .cel-value {
+
+}
+
+#div-content #generic-form table .cel-options {
+    width: 350px !important;
+}
+
+#div-content #generic-form table td {
+    padding: 10px;
+    border: dashed #888888 1px;
+    border-collapse: collapse;
+}
+
+#div-content #generic-form table .td-setup-session {
+    font-weight: bold;
+    color: #FFFFFF;
+    background: #295481;
+}
+
+#div-content #generic-form table .td-setup-sub-session {
+    color: #fffefd;
+    /*background: #295481;*/
+    background: #4f92d9;
+    font-weight: bold;
+}
+
+#div-content #generic-form table .td-setup-sub-session1 {
+    /*color: #fffefd;*/
+    /*background: #29a5c0;*/
+    color: #4f92d9;
+    background: #c7dff9;
+    font-weight: bold;
+}
+
+#div-content #generic-form table .td-field-name {
+    width: 250px;
+}
+
+#div-content #generic-form table .td-field-name select {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: none;
+    background: none;
+}
+
+#div-content #generic-form table .span-cell {
+    display: block;
+    float: left;
+    margin: 0px 5px;
+    background: #FFFF00;
+}
+
+#div-content #generic-form table .box-cel {
+    /*background: #c1e2ef !important;*/
+    background: #dadfe1 !important;
+}
+
+#div-content #generic-form table .box-cel-tab1 {
+    /*background: #e1ffc9 !important;*/
+    background: #ffffbe !important;
+}
+
+#div-content #generic-form table .center {
+    text-align: center !important;
+}
+
+#div-content #generic-form table .box-cel-tab {
+    font-size: 16px;
+    font-weight: bold;
+    /*color: #454545;*/
+    /*background: #DCDCDC;*/
+    color: #f9ffee;
+    background: #98BFE8;
+}
+
+#div-content #generic-form table td .input-text-common {
+    width: 98%;
+    height: 30px;
+    padding-left: 1%;
+    color: #888888;
+    font-size: 14px;
+}
+
+#div-content #generic-form table td .short-number {
+    text-align: center;
+    width: 10%;
+    padding: 0px;
+}
+
+#div-content #generic-form table .td-default {
+    width: 100px;
+}
+
+#div-content #generic-form table td button {
+    width: 120px;
+    height: 40px;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 1px 2px 3px #888888;
+}
+
+#div-content #generic-form table td #button-submit {
+    color: #edfcfc;
+    background: royalblue;
+}
+
+#div-content #generic-form table td #button-reset {
+    color: #edfcfc;
+    background: #a2a7a8;
+}
+
+#div-content #generic-form table td .button-remove {
+    width: 60px;
+    height: 25px;
+    cursor: pointer;
+    color: #edfcfc;
+    font-size: 10px;
+    background: #c40f0f;
+}
+
+#div-content #generic-form table td #button-add-git-project {
+    color: #edfcfc;
+    background: #2b71c0;
+    box-shadow: none;
+    width: 120px;
+    height: 30px;
+    margin-left: 100px;
+    cursor: pointer;
+}
+
+#div-content #generic-form table td #button-load-setup {
+    color: #edfcfc;
+    background: #06c000;
+    box-shadow: none;
+    width: 120px;
+    height: 30px;
+    margin-left: 30px;
+    cursor: pointer;
+}
+
+#div-content #generic-form table td #button-submit {
+    color: #edfcfc;
+    background: #2b70be;
+    box-shadow: none;
+    width: 120px;
+    height: 30px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#div-content #generic-form table td #button-reset {
+    color: #edfcfc;
+    background: #616365;
+    box-shadow: none;
+    width: 120px;
+    height: 30px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#div-content #generic-form table td #button-config {
+    color: #edfcfc;
+    background: #ee6b26;
+    box-shadow: none;
+    width: 120px;
+    height: 30px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#div-welcome,
+#div-generate-configurations {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 860px;
+    text-align: center;
+}
+
+#div-welcome #button-welcome,
+#div-generate-configurations #button-generate-configurations,
+#div-generate-configurations #button-view-configurations,
+#div-generate-configurations #button-delete-configurations {
+    width: auto;
+    height: auto;
+    border: none;
+    padding: 20px;
+    color: #edfcfc;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 350px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    background: #7abe39;
+    text-decoration: none;
+    text-transform: uppercase;
+    box-shadow: 1px 2px 3px #888888;
+}
+
+#div-generate-configurations #button-view-configurations {
+    background: #29a5c0;
+}
+
+#div-generate-configurations #button-delete-configurations {
+    background: #ff4400;
+}
+
+#div-welcome h1 {
+    width: 70%;
+    text-align: left;
+    color: #29a5c0;
+    letter-spacing: 10px;
+    box-sizing: border-box;
+    height: auto;
+    margin: 200px auto 0;
+    font-size: 80px;
+    text-shadow: 1px 2px 3px #888888;
+}
+
+#button-welcome {
+    margin-top: 80px !important;
+}
+
+#div-generate-configurations .p-message-default {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #888888;
+}
+
+#div-make-configurations {
+    display: block;
+}
+
+/*CONFIGURATION - RESUME*/
+
+#div-resume-config {
+    height: auto;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+#resume-config-toggle {
+    cursor: pointer;
+}
+
+/*CONFIGURATION - SERVICES*/
+
+#div-services-config,
+.div-service {
+    height: auto;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+#services-config-toggle, .pointer {
+    cursor: pointer;
+}
+
+.pointer:hover {
+    color: #454545 !important;
+    background: #a3e855 !important;
+}
+
+.td-token-git {
+
+}
+
+.td-token-git input {
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    border: none;
+    padding: 10px;
+    margin: 0;
+    color: #888888;
+}
+
+.bt-add-app-setting-disabled {
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    color: #888888;
+    background: #DEDEDE;
+}
+
+.bt-add-app-setting-enabled {
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    color: #FFFFFF;
+    background: #ff4400;
+}
+
+.bt-add-app-setting-enabled:hover {
+    box-shadow: 1px 2px 3px #888888;
+}
+
+/*FOOTER*/
+
+#div-footer {
+
+}
