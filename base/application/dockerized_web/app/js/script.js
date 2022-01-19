@@ -2,6 +2,7 @@
 let seq = 1;
 let git_project_from_setup = "";
 let dockerized_theme = "default";
+let resume_height = "35px";
 
 function activeHamburger() {
     jH("#icon-menu-header-open").on('click', function() {
@@ -1032,6 +1033,35 @@ $$.loaded(function() {
     if (window.location.href.search('load_setup') !== -1) {
         console.log("REQUEST");
         requestSetup();
+    }
+
+    /**
+     * RESUME CONFIGURATION TOGGLE
+     */
+    if ($$.findId(("resume-config-toggle"))) {
+        resume_height = jH("#div-resume-config").height()[0];
+        jH("#div-resume-config").height(resume_height);
+        jH("#resume-config-toggle").on('click', function () {
+            if (jH("#div-resume-config").height()[0] === "35px") {
+                jH("#div-resume-config").height(resume_height);
+            } else {
+                jH("#div-resume-config").height("35px");
+            }
+        });
+    }
+
+    /**
+     * SERVICES CONFIGURATION TOGGLE
+     */
+    if ($$.findId(("div-services-config"))) {
+        jH("[data-service-toggle]").on('click', function() {
+            let target = "#div-service-config-" + $$this.dataset.content;
+            if (jH(target).height()[0] === "35px") {
+                jH(target).height("auto");
+            } else {
+                jH(target).height("35px");
+            }
+        });
     }
 
 });

@@ -171,8 +171,8 @@
 #div-content #generic-form {
     width: 98%;
     margin: 1%;
-        height: auto;
-    min-height: 200px;
+    height: auto;
+    /*min-height: 200px;*/
     background: #F0F8FFFF;
     border: dashed #888888 1px;
 }
@@ -236,19 +236,36 @@
 }
 
 #div-content #generic-form table .td-setup-session {
-    color: #c0a914;
-    background: #380c2a;
     font-weight: bold;
+    color: #FFFFFF;
+    background: #295481;
 }
 
 #div-content #generic-form table .td-setup-sub-session {
     color: #fffefd;
-    background: #295481;
+    /*background: #295481;*/
+    background: #4f92d9;
+    font-weight: bold;
+}
+
+#div-content #generic-form table .td-setup-sub-session1 {
+    /*color: #fffefd;*/
+    /*background: #29a5c0;*/
+    color: #4f92d9;
+    background: #c7dff9;
     font-weight: bold;
 }
 
 #div-content #generic-form table .td-field-name {
     width: 250px;
+}
+
+#div-content #generic-form table .td-field-name select {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: none;
+    background: none;
 }
 
 #div-content #generic-form table .span-cell {
@@ -259,7 +276,26 @@
 }
 
 #div-content #generic-form table .box-cel {
-    background: #c1e2ef !important;
+    /*background: #c1e2ef !important;*/
+    background: #dadfe1 !important;
+}
+
+#div-content #generic-form table .box-cel-tab1 {
+    /*background: #e1ffc9 !important;*/
+    background: #ffffbe !important;
+}
+
+#div-content #generic-form table .center {
+    text-align: center !important;
+}
+
+#div-content #generic-form table .box-cel-tab {
+    font-size: 16px;
+    font-weight: bold;
+    /*color: #454545;*/
+    /*background: #DCDCDC;*/
+    color: #f9ffee;
+    background: #98BFE8;
 }
 
 #div-content #generic-form table td .input-text-common {
@@ -342,7 +378,7 @@
 
 #div-content #generic-form table td #button-reset {
     color: #edfcfc;
-    background: #a1a6a7;
+    background: #616365;
     box-shadow: none;
     width: 120px;
     height: 30px;
@@ -421,6 +457,50 @@
 
 #div-make-configurations {
     display: block;
+}
+
+/*CONFIGURATION - RESUME*/
+
+#div-resume-config {
+    height: auto;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+#resume-config-toggle {
+    cursor: pointer;
+}
+
+/*CONFIGURATION - SERVICES*/
+
+#div-services-config,
+.div-service {
+    height: auto;
+    overflow: hidden;
+    transition: all 1s ease-in-out;
+}
+
+#services-config-toggle, .pointer {
+    cursor: pointer;
+}
+
+.pointer:hover {
+    color: #454545 !important;
+    background: #a3e855 !important;
+}
+
+.td-token-git {
+
+}
+
+.td-token-git input {
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    border: none;
+    padding: 10px;
+    margin: 0;
+    color: #888888;
 }
 
 /*FOOTER*/

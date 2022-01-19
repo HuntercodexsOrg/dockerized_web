@@ -54,7 +54,9 @@ class Mapper
             "DOCKER_COMPOSE_VERSION" => Reader::apiReaderSetup('DOCKER_COMPOSE_VERSION', $config_file),
             "NETWORK_GATEWAY" => Reader::apiReaderSetup('NETWORK_GATEWAY', $config_file),
             "USE_PROJECT" => Reader::apiReaderSetupAll('USE_PROJECT', $config_file),
+        ];
 
+        $application_mapper = [
             /*Many lines settings*/
             "USE_DATABASE" => Reader::apiReaderBlock('\[DATABASE-START]', '\[DATABASE-END]', $config_file),
             "USE_APP_URL" => Reader::apiReaderBlock('\[APP-START]', '\[APP-END]', $config_file),
@@ -66,7 +68,8 @@ class Mapper
         }
 
         return [
-            "HEADER" => $header_mapper,
+            "HEADER" => $header_mapper ?? [],
+            "APPLICATION" => $application_mapper ?? [],
             "SERVICES" => $services_mapper ?? []
         ];
     }

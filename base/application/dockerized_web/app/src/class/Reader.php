@@ -73,6 +73,11 @@ class Reader
                 break;
             }
 
+            if (preg_match("/^(\[SERVICE-END]|\[PROJECT-ENV-CONFIGURATION-END])/", $source_line, $m, PREG_OFFSET_CAPTURE)) {
+                $state = "off";
+                break;
+            }
+
             if ($state == "on") {
                 $founds[] = $source_line;
             }
