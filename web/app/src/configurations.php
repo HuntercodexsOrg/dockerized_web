@@ -187,52 +187,57 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN PHP - DOTENV*/
+        $tb = "<table class='generic-table' id='tb-app-settings-php-{$i}'></table>";
         $add_bt = getButtonAdd("bt-add-php-".$i, $i);
         $services .= "<tr>";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>PHP DOTENV {$add_bt}</td>";
         $services .= "</tr>";
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel'>ENV NAME</td><td>NAME</td><td>VALUE</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN JAVA - PROPERTIES*/
+        $tb = "<table class='generic-table' id='tb-app-settings-java-{$i}'></table>";
         $add_bt = getButtonAdd("bt-add-java-".$i, $i);
-        $services .= "<tr>";
+        $services .= "<tr id='tr-app-settings-java-{$i}'>";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>JAVA PROPERTIES FILE {$add_bt}</td>";
         $services .= "</tr>";
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel'>PROPS NAME</td><td>NAME</td><td>VALUE</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN PYTHON - CFG*/
+        $tb = "<table class='generic-table' id='tb-app-settings-python-{$i}'></table>";
         $add_bt = getButtonAdd("bt-add-python-".$i, $i);
-        $services .= "<tr>";
+        $services .= "<tr id='tr-app-settings-python-{$i}' >";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>PYTHON CFG FILE {$add_bt}</td>";
         $services .= "</tr>";
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel'>CFG NAME</td><td>NAME</td><td>VALUE</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN NODEJS - CONFIGURATION*/
+        $tb = "<table class='generic-table' id='tb-app-settings-nodejs-{$i}'></table>";
         $add_bt = getButtonAdd("bt-add-nodejs-".$i, $i);
-        $services .= "<tr>";
+        $services .= "<tr id='tr-app-settings-node-{$i}'>";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>NODEJS CONFIGURATION FILE {$add_bt}</td>";
         $services .= "</tr>";
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel'>NODE NAME</td><td>NAME</td><td>VALUE</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN CSHARP - CONFIG*/
+        $tb = "<table class='generic-table' id='tb-app-settings-csharp-{$i}'></table>";
         $add_bt = getButtonAdd("bt-add-csharp-".$i, $i);
-        $services .= "<tr>";
+        $services .= "<tr id='tr-app-settings-csharp-{$i}' >";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>CSHARP CONFIG FILE {$add_bt}</td>";
         $services .= "</tr>";
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel'>C# NAME</td><td>NAME</td><td>VALUE</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 

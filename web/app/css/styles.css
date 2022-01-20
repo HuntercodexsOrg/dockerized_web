@@ -516,12 +516,51 @@
     border: none;
     border-radius: 5px;
     padding: 5px;
+    font-weight: bold;
     color: #FFFFFF;
     background: #ff4400;
 }
 
 .bt-add-app-setting-enabled:hover {
     box-shadow: 1px 2px 3px #888888;
+}
+
+.generic-input-text {
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    border: none;
+    padding: 10px;
+    margin: 0;
+    color: #888888;
+}
+
+.generic-table {
+
+}
+
+.generic-table td {
+    padding: 0 !important;
+}
+
+.generic-table .td-empty {
+    text-align: center;
+}
+
+.generic-table .td-field-name {
+    font-weight: bold;
+    padding-left: 10px !important;
+}
+
+#div-content #generic-form table td .generic-bt-remove {
+    width: 90%;
+    height: 25px;
+    cursor: pointer;
+    font-size: 10px;
+    border-radius: 5px;
+    border: none;
+    color: #edfcfc;
+    background: #d71111;
 }
 
 /*FOOTER*/

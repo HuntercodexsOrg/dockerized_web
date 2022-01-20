@@ -803,6 +803,7 @@ function requestLanguageVersion(language, service) {
         jH("#bt-add-csharp-"+service).addClass('bt-add-app-setting-disabled');
     }
 
+    /*Fix Bug: Empty Select*/
     if (!language) {
         disableButtons();
         return;
@@ -827,11 +828,14 @@ function requestLanguageVersion(language, service) {
                 jH("#language_version-"+service)
                     .append("<option value='"+item+"'>"+item+"</option>");
             });
+
             disableButtons();
+
             let id = "#bt-add-"+language.toString().toLowerCase()+"-"+service;
             jH(id).props('disabled', false);
             jH(id).removeClass('bt-add-app-setting-disabled');
             jH(id).addClass('bt-add-app-setting-enabled');
+
         },
         function(error) {
             $$.toaster({
@@ -872,6 +876,55 @@ function requestServerVersion(server, service) {
             });
         }
     );
+}
+
+function resetApplicationSettings(service) {
+    jH("#tb-app-settings-php-"+service).html("");
+    jH("#tb-app-settings-java-"+service).html("");
+    jH("#tb-app-settings-python-"+service).html("");
+    jH("#tb-app-settings-nodejs-"+service).html("");
+    jH("#tb-app-settings-csharp-"+service).html("");
+}
+
+function addApplicationSettingsLine(id, service) {
+    let lang = id.split("-")[2];
+    let settings_line = "";
+    let data_bt_rm = "data-bt-remove-app-settings-"+lang;
+
+    let bt_remove = "<input "+data_bt_rm+" type='button' value='REMOVE' class='generic-bt-remove' />";
+    let input_name = "<input type='text' class='generic-input-text' placeholder='Type a value' />";
+    let input_value = "<input type='text' class='generic-input-text' placeholder='Type a value' />";
+
+    settings_line += "<tr data-added-line-app-settings-"+lang+">";
+    settings_line += "<td class='td-field-name box-cel'>NAME</td><td>"+input_name+"</td>";
+    settings_line += "<td class='td-field-name box-cel'>VALUE</td><td>"+input_value+"</td>";
+    settings_line += "<td class='td-empty'>"+bt_remove+"</td>";
+    settings_line += "</tr>";
+
+    jH("#tb-app-settings-"+lang+"-"+service).append(settings_line);
+
+    jH('[data-bt-remove-app-settings-php]').on('click', function() {
+        console.log($$this.offsetParent.parentElement.offsetParent);
+        console.log($$this.offsetParent.parentElement);
+    });
+}
+
+function checkOthersAppSettings(service) {
+    if (jH("#bt-add-php-"+service).isOn({type: "disabled", value: false}, 0)) {
+        return true;
+    }
+    if (jH("#bt-add-java-"+service).isOn({type: "disabled", value: false}, 0)) {
+        return true;
+    }
+    if (jH("#bt-add-python-"+service).isOn({type: "disabled", value: false}, 0)) {
+        return true;
+    }
+    if (jH("#bt-add-nodejs-"+service).isOn({type: "disabled", value: false}, 0)) {
+        return true;
+    }
+    if (jH("#bt-add-csharp-"+service).isOn({type: "disabled", value: false}, 0)) {
+        return true;
+    }
 }
 
 $$.loaded(function() {
@@ -1166,8 +1219,19 @@ $$.loaded(function() {
         jH('[data-select-language]').on('change', function () {
             let lang = $$this.value;
             let service = $$this.dataset.content;
-
-            requestLanguageVersion(lang, service);
+            if (checkOthersAppSettings(service) && $$this.value) {
+                $$.confirm({
+                    title: "Warning",
+                    question: "Are you sure you want to change the language ?",
+                    theme: dockerized_theme,
+                    buttons: ["Yes", "No"]
+                }, function(args){
+                    resetApplicationSettings(service);
+                    requestLanguageVersion(lang, service);
+                }, "myArgs");
+            } else {
+                requestLanguageVersion(lang, service);
+            }
         });
 
         jH('[data-select-server]').on('change', function() {
@@ -1175,6 +1239,10 @@ $$.loaded(function() {
             let service = $$this.dataset.content;
 
             requestServerVersion(server, service);
+        });
+
+        jH('[data-button-app]').on('click', function() {
+            addApplicationSettingsLine($$this.id, $$this.dataset.content);
         });
     }
 
