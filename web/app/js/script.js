@@ -3,6 +3,7 @@ let seq = 1;
 let git_project_from_setup = "";
 let dockerized_theme = "default";
 let resume_height = "35px";
+let before_lang = "";
 
 function activeHamburger() {
     jH("#icon-menu-header-open").on('click', function() {
@@ -806,6 +807,7 @@ function requestLanguageVersion(language, service) {
     /*Fix Bug: Empty Select*/
     if (!language) {
         disableButtons();
+        jH("#language_version-"+service).html("<option value=''>Select Language Version</option>");
         return;
     }
 
@@ -848,6 +850,15 @@ function requestLanguageVersion(language, service) {
 }
 
 function requestServerVersion(server, service) {
+
+    /*Fix Bug: Empty Select*/
+    if (!server) {
+        lockServerSettingsFields(service);
+        resetServerSettingsOnService(service);
+        jH("#server_version-"+service).html("<option value=''>Select Server Version</option>");
+        return;
+    }
+
     $$.ajax({
         url: "./api/configuration/",
         data: "action=get_server_version&server="+server,
@@ -867,6 +878,14 @@ function requestServerVersion(server, service) {
                 jH("#server_version-"+service)
                     .append("<option value='"+item+"'>"+item+"</option>");
             });
+
+            resetServerSettingsOnService(service);
+
+            let id_server = "#tr-server-settings-"+server.toString().toLowerCase()+"-"+service;
+            jH(id_server).addClass('tr-active-server-settings');
+
+            lockServerSettingsFields(service);
+            allowServerSettingsFields(server, service);
         },
         function(error) {
             $$.toaster({
@@ -876,6 +895,68 @@ function requestServerVersion(server, service) {
             });
         }
     );
+}
+
+function lockServerSettingsFields(service) {
+    (function lockNginxFields() {
+        let nginx_fields = $$.select("[data-server-settings-nginx-"+service+"]");
+        if (!nginx_fields) return;
+        nginx_fields.forEach(function(item, index, array) {
+            item.disabled = true;
+        });
+    })();
+
+    (function lockApacheFields() {
+        let apache_fields = $$.select("[data-server-settings-apache-"+service+"]");
+        if (!apache_fields) return;
+        apache_fields.forEach(function(item, index, array) {
+            item.disabled = true;
+        });
+    })();
+
+    (function lockTomcatFields() {
+        let tomcat_fields = $$.select("[data-server-settings-tomcat-"+service+"]");
+        if (!tomcat_fields) return;
+        tomcat_fields.forEach(function(item, index, array) {
+            item.disabled = true;
+        });
+    })();
+
+    (function lockNodeFields() {
+        let node_fields = $$.select("[data-server-settings-node-"+service+"]");
+        if (!node_fields) return;
+        node_fields.forEach(function(item, index, array) {
+            item.disabled = true;
+        });
+    })();
+
+    (function lockWebConfigFields() {
+        let web_config_fields = $$.select("[data-server-settings-web_config-"+service+"]");
+        if (!web_config_fields) return;
+        web_config_fields.forEach(function(item, index, array) {
+            item.disabled = true;
+        });
+    })();
+}
+
+function allowServerSettingsFields(server, service) {
+    let generic_fields = $$.select("[data-server-settings-"+server+"-"+service+"]");
+    if (!generic_fields) return;
+    generic_fields.forEach(function(item, index, array) {
+        item.disabled = false;
+    });
+}
+
+function resetServerSettingsOnService(service) {
+    try {
+        jH("#tr-server-settings-nginx-"+service).removeClass('tr-active-server-settings');
+        jH("#tr-server-settings-apache-"+service).removeClass('tr-active-server-settings');
+        jH("#tr-server-settings-tomcat-"+service).removeClass('tr-active-server-settings');
+        jH("#tr-server-settings-node-"+service).removeClass('tr-active-server-settings');
+        jH("#tr-server-settings-web_config-"+service).removeClass('tr-active-server-settings');
+    } catch (er) {
+        console.log(er);
+    }
 }
 
 function resetApplicationSettings(service) {
@@ -890,10 +971,12 @@ function addApplicationSettingsLine(id, service) {
     let lang = id.split("-")[2];
     let settings_line = "";
     let data_bt_rm = "data-bt-remove-app-settings-"+lang;
+    let data_name = "data-name-app-settings-"+lang;
+    let data_value = "data-value-app-settings-"+lang;
 
     let bt_remove = "<input "+data_bt_rm+" type='button' value='REMOVE' class='generic-bt-remove' />";
-    let input_name = "<input type='text' class='generic-input-text' placeholder='Type a value' />";
-    let input_value = "<input type='text' class='generic-input-text' placeholder='Type a value' />";
+    let input_name = "<input "+data_name+" type='text' class='generic-input-text' placeholder='Type a value' />";
+    let input_value = "<input "+data_value+" type='text' class='generic-input-text' placeholder='Type a value' />";
 
     settings_line += "<tr data-added-line-app-settings-"+lang+">";
     settings_line += "<td class='td-field-name box-cel'>NAME</td><td>"+input_name+"</td>";
@@ -903,28 +986,17 @@ function addApplicationSettingsLine(id, service) {
 
     jH("#tb-app-settings-"+lang+"-"+service).append(settings_line);
 
-    jH('[data-bt-remove-app-settings-php]').on('click', function() {
-        console.log($$this.offsetParent.parentElement.offsetParent);
-        console.log($$this.offsetParent.parentElement);
+    jH('[data-bt-remove-app-settings-'+lang+']').on('click', function() {
+        $$this.offsetParent.parentElement.remove();
     });
 }
 
-function checkOthersAppSettings(service) {
-    if (jH("#bt-add-php-"+service).isOn({type: "disabled", value: false}, 0)) {
-        return true;
+function checkIfExistsValues(lang, service) {
+    let lines = $$.select('#tb-app-settings-'+lang.toLowerCase()+'-'+service+' tr');
+    if (!lines) {
+        return false;
     }
-    if (jH("#bt-add-java-"+service).isOn({type: "disabled", value: false}, 0)) {
-        return true;
-    }
-    if (jH("#bt-add-python-"+service).isOn({type: "disabled", value: false}, 0)) {
-        return true;
-    }
-    if (jH("#bt-add-nodejs-"+service).isOn({type: "disabled", value: false}, 0)) {
-        return true;
-    }
-    if (jH("#bt-add-csharp-"+service).isOn({type: "disabled", value: false}, 0)) {
-        return true;
-    }
+    return (lines.length > 0 || lines);
 }
 
 $$.loaded(function() {
@@ -1216,21 +1288,34 @@ $$.loaded(function() {
      * SELECT CONTROLS: LANGUAGES X SERVERS
      */
     if ($$.findId(("div-services-config"))) {
+        jH('[data-select-language]').on('focus', function () {
+            before_lang = $$this["value"];
+        });
+
         jH('[data-select-language]').on('change', function () {
-            let lang = $$this.value;
+            let choose_lang = $$this.value;
             let service = $$this.dataset.content;
-            if (checkOthersAppSettings(service) && $$this.value) {
+            let element = $$this;
+
+            if (before_lang && checkIfExistsValues(before_lang, service)) {
+
+                element.value = before_lang;
+                before_lang = "";
+
                 $$.confirm({
                     title: "Warning",
                     question: "Are you sure you want to change the language ?",
                     theme: dockerized_theme,
                     buttons: ["Yes", "No"]
-                }, function(args){
+                }, function(noArgs) {
                     resetApplicationSettings(service);
-                    requestLanguageVersion(lang, service);
-                }, "myArgs");
+                    requestLanguageVersion(choose_lang, service);
+                    element.value = choose_lang;
+                }, "");
+
             } else {
-                requestLanguageVersion(lang, service);
+                requestLanguageVersion(choose_lang, service);
+                element.value = choose_lang;
             }
         });
 

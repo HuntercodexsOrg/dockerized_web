@@ -39,7 +39,7 @@ class Data
     public static function getServers(): array
     {
         return [
-            "NGINX", "APACHE", "TOMCAT", "NODE", "WEB_CONFIG"
+            "NGINX", "APACHE", "TOMCAT", "TOMCAT ON JAVA/SPRING", "NODE", "WEB_CONFIG"
         ];
     }
 

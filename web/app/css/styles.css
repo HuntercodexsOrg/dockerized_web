@@ -244,7 +244,8 @@
 #div-content #generic-form table .td-setup-sub-session {
     color: #fffefd;
     /*background: #295481;*/
-    background: #4f92d9;
+    /*background: #4f92d9;*/
+    background: #d94f4f;
     font-weight: bold;
 }
 
@@ -561,6 +562,16 @@
     border: none;
     color: #edfcfc;
     background: #d71111;
+}
+
+.tr-active-server-settings {
+    background: #ff4400 !important;
+}
+
+.tr-active-server-settings td {
+    color: #FFFFFF;
+    font-weight: bold;
+    background: #ff4400 !important;
 }
 
 /*FOOTER*/

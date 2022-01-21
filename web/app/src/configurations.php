@@ -90,7 +90,7 @@ function headerMount($data): string
 
     /*USE PROJECTS FROM GIT*/
     $header .= "<tr>";
-    $header .= "<td class='td-setup-sub-session' colspan='10'>USE PROJECTS FROM GIT</td>";
+    $header .= "<td class='td-setup-sub-session1' colspan='10'>USE PROJECTS FROM GIT</td>";
     $header .= "</tr>";
     for ($i = 0; $i < count($data["HEADER"]["USE_PROJECT"]); $i++) {
 
@@ -187,7 +187,7 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN PHP - DOTENV*/
-        $tb = "<table class='generic-table' id='tb-app-settings-php-{$i}'></table>";
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-php-{$i}'></tbody></table>";
         $add_bt = getButtonAdd("bt-add-php-".$i, $i);
         $services .= "<tr>";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>PHP DOTENV {$add_bt}</td>";
@@ -198,7 +198,7 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN JAVA - PROPERTIES*/
-        $tb = "<table class='generic-table' id='tb-app-settings-java-{$i}'></table>";
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-java-{$i}'></tbody></table>";
         $add_bt = getButtonAdd("bt-add-java-".$i, $i);
         $services .= "<tr id='tr-app-settings-java-{$i}'>";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>JAVA PROPERTIES FILE {$add_bt}</td>";
@@ -209,7 +209,7 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN PYTHON - CFG*/
-        $tb = "<table class='generic-table' id='tb-app-settings-python-{$i}'></table>";
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-python-{$i}'></tbody></table>";
         $add_bt = getButtonAdd("bt-add-python-".$i, $i);
         $services .= "<tr id='tr-app-settings-python-{$i}' >";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>PYTHON CFG FILE {$add_bt}</td>";
@@ -220,7 +220,7 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN NODEJS - CONFIGURATION*/
-        $tb = "<table class='generic-table' id='tb-app-settings-nodejs-{$i}'></table>";
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-nodejs-{$i}'></tbody></table>";
         $add_bt = getButtonAdd("bt-add-nodejs-".$i, $i);
         $services .= "<tr id='tr-app-settings-node-{$i}'>";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>NODEJS CONFIGURATION FILE {$add_bt}</td>";
@@ -231,194 +231,13 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*WHEN CSHARP - CONFIG*/
-        $tb = "<table class='generic-table' id='tb-app-settings-csharp-{$i}'></table>";
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-csharp-{$i}'></tbody></table>";
         $add_bt = getButtonAdd("bt-add-csharp-".$i, $i);
         $services .= "<tr id='tr-app-settings-csharp-{$i}' >";
         $services .= "<td class='td-setup-sub-session1' colspan='10'>CSHARP CONFIG FILE {$add_bt}</td>";
         $services .= "</tr>";
         $services .= "<tr>";
         $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        /**
-         * GENERIC SETTINGS
-         */
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab' colspan='10'>GENERIC SETTINGS</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*PROJECT_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][23]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*SERVICE_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][0]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*CONTAINER_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][1]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*IMAGE*/
-        $data_current = explode("=", $data["SERVICES"][$i][2]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*LOCALHOST_PORT*/
-        $data_current = explode("=", $data["SERVICES"][$i][4]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*INTERNAL_PORT*/
-        $data_current = explode("=", $data["SERVICES"][$i][5]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*PRIVILEGED*/
-        $data_current = explode("=", $data["SERVICES"][$i][3]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*NETWORKS*/
-        $data_current = explode("=", $data["SERVICES"][$i][6]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*BUILD*/
-        $data_current = explode("=", $data["SERVICES"][$i][15]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*CONTEXT*/
-        $data_current = explode("=", $data["SERVICES"][$i][16]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*DOCKERFILE*/
-        $data_current = explode("=", $data["SERVICES"][$i][17]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*WORKING_DIR*/
-        $data_current = explode("=", $data["SERVICES"][$i][18]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-        /*COMMAND*/
-        $data_current = explode("=", $data["SERVICES"][$i][19]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*ENV_FILE*/
-        $data_current = explode("=", $data["SERVICES"][$i][20]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        $services .= "<tr>";
-
-        /*DEPLOY*/
-        $data_current = explode("=", $data["SERVICES"][$i][21]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-
-        /*DEPLOY_MEMORY*/
-        $data_current = explode("=", $data["SERVICES"][$i][22]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        /*ENVIRONMENT*/
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>ENVIRONMENT</td>";
-        $services .= "</tr>";
-
-        $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][7]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>ENV</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        /*VOLUMES*/
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>VOLUMES</td>";
-        $services .= "</tr>";
-
-        $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][9]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>VOLUME</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        /*LINKS*/
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>LINKS</td>";
-        $services .= "</tr>";
-
-        $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][11]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>LINK</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
-
-        /*DEPENDS_ON*/
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>DEPENDS_ON</td>";
-        $services .= "</tr>";
-
-        $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][13]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>DEPEND</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
@@ -433,8 +252,8 @@ function servicesMount($data): string
         /**
          * SERVER SETTINGS: NGINX
          */
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1 center' colspan='10'>NGINX</td>";
+        $services .= "<tr id='tr-server-settings-nginx-{$i}'>";
+        $services .= "<td class='center' colspan='10'>NGINX</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
@@ -443,13 +262,17 @@ function servicesMount($data): string
         $data_current = explode("=", $data["SERVICES"][$i][24]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Conf Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
 
         /*NGINX_SERVER_NAME*/
         $data_current = explode("=", $data["SERVICES"][$i][25]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Server Name Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
@@ -458,13 +281,17 @@ function servicesMount($data): string
         $data_current = explode("=", $data["SERVICES"][$i][26]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Root Path Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
 
         /*NGINX_APP_CONF*/
         $data_current = explode("=", $data["SERVICES"][$i][27]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx App Conf Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
@@ -473,13 +300,17 @@ function servicesMount($data): string
         $data_current = explode("=", $data["SERVICES"][$i][28]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Listen Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
 
         /*NGINX_FAST_CGI_PASS*/
         $data_current = explode("=", $data["SERVICES"][$i][29]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Fast Cgi Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
@@ -488,13 +319,17 @@ function servicesMount($data): string
         $data_current = explode("=", $data["SERVICES"][$i][30]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx72 Conf Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
 
         /*NGINX72_RESTFUL_CONF*/
         $data_current = explode("=", $data["SERVICES"][$i][31]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx72 Restful Conf Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
@@ -503,39 +338,436 @@ function servicesMount($data): string
         $data_current = explode("=", $data["SERVICES"][$i][32]);
         $field_name = $data_current[0] ?? "UNKNOWN";
         $field_value = $data_current[1] ?? "";
-        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$field_value}</td>";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Supervisor Conf Value' {$required} disabled />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /**
          * SERVER SETTINGS: APACHE
          */
+        $services .= "<tr id='tr-server-settings-apache-{$i}'>";
+        $services .= "<td class='center' colspan='10'>APACHE</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1 center' colspan='10'>APACHE</td>";
+        /*VIRTUAL HOST*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='localhost' disabled />";
+        $services .= "<td class='td-field-name box-cel'>VIRTUAL HOST</td><td>{$input}</td>";
+
+        /*VIRTUAL HOST PORT*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='80' disabled />";
+        $services .= "<td class='td-field-name box-cel'>VIRTUAL HOST PORT</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*SERVER ADMIN*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='admin@example.com' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER ADMIN</td><td>{$input}</td>";
+
+        /*SERVER NAME*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='sample.local' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*SERVER ALIAS*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='apache.sample.local' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER ALIAS</td><td>{$input}</td>";
+
+        /*DOCUMENT ROOT*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='/var/www/sample.local/public' disabled />";
+        $services .= "<td class='td-field-name box-cel'>DOCUMENT ROOT</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*ERROR LOG NAME*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='log name' disabled />";
+        $services .= "<td class='td-field-name box-cel'>ERRO LOG NAMES</td><td>{$input}</td>";
+
+        /*ACCESS LOG NAME (CUSTOM LOG)*/
+        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='log name' disabled />";
+        $services .= "<td class='td-field-name box-cel'>ACCESS LOG NAMES</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /**
          * SERVER SETTINGS: TOMCAT
          */
+        $services .= "<tr id='tr-server-settings-tomcat-{$i}'>";
+        $services .= "<td class='center' colspan='10'>TOMCAT</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1 center' colspan='10'>TOMCAT</td>";
+        /*DATABASE SOURCE URL - spring.datasource.url*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='jdbc:mysql://localhost:3306/dbname?useTimezone=true&serverTimezone=UTC' disabled />";
+        $services .= "<td class='td-field-name box-cel'>DATABASE SRC URL (JDBC)</td><td>{$input}</td>";
+
+        /*DATABASE SOURCE USERNAME - spring.datasource.username*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='devel' disabled />";
+        $services .= "<td class='td-field-name box-cel'>DATABASE SOURCE USERNAME</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*DATABASE SOURCE PASSWORD - spring.datasource.password*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='123456' disabled />";
+        $services .= "<td class='td-field-name box-cel'>DATABASE PASSWORD</td><td>{$input}</td>";
+
+        /*DATABASE SOURCE DRIVER CLASS - spring.datasource.driver-class-name*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='com.mysql.jdbc.Driver' disabled />";
+        $services .= "<td class='td-field-name box-cel'>DATABASE SOURCE DRIVER</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*SPRING JPA SHOW SQL - spring.jpa.show-sql*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='true' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SPRING JPA SHOW SQL</td><td>{$input}</td>";
+
+        /*SPRING JPA HIBERNATE AUTO - spring.jpa.hibernate.ddl-auto*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='update' disabled />";
+        $services .= "<td class='td-field-name box-cel'>HIBERNATE AUTO</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*DATABASE PLATFORM - spring.jpa.database-platform*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='org.hibernate.dialect.MySQL5InnoDBDialect' disabled />";
+        $services .= "<td class='td-field-name box-cel'>DATABASE PLATFORM</td><td>{$input}</td>";
+
+        /*SERVER PORT - server.port*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='9000' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*SERVER NAME - server.name*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='server' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
+
+        /*SERVER MODE - spring.main.web-application-type*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='servlet' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER MODE</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*SPRING DOCS PATH - springdoc.api-docs.path*/
+        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='/api-docs' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SPRING DOCS PATH</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /**
          * SERVER SETTINGS: NODE
          */
+        $services .= "<tr id='tr-server-settings-node-{$i}'>";
+        $services .= "<td class='center' colspan='10'>NODE</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1 center' colspan='10'>NODE</td>";
+        /*APPLICATION MODE*/
+        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Development/root/test' disabled />";
+        $services .= "<td class='td-field-name box-cel'>APPLICATION MODE</td><td>{$input}</td>";
+
+        /*APPLICATION ROOT*/
+        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='url-root-test' disabled />";
+        $services .= "<td class='td-field-name box-cel'>APPLICATION ROOT</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*APPLICATION URL*/
+        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='app.test.local' disabled />";
+        $services .= "<td class='td-field-name box-cel'>APPLICATION URL</td><td>{$input}</td>";
+
+        /*APPLICATION STARTUP FILE*/
+        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='index.js/app.js' disabled />";
+        $services .= "<td class='td-field-name box-cel'>APPLICATION STARTUP FILE</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*CONFIGURATION FILE*/
+        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='package.json' disabled />";
+        $services .= "<td class='td-field-name box-cel'>CONFIGURATION FILE</td><td>{$input}</td>";
+
+        /*SERVER PORT*/
+        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='9898' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /**
          * SERVER SETTINGS: WEB CONFIG
          */
+        $services .= "<tr id='tr-server-settings-web_config-{$i}'>";
+        $services .= "<td class='center' colspan='10'>WEB CONFIG</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1 center' colspan='10'>WEB CONFIG</td>";
+        /*SERVER NAME*/
+        $input = "<input data-server-settings-web_config-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='server name' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
+
+        /*SERVER PORT*/
+        $input = "<input data-server-settings-web_config-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='8888' disabled />";
+        $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        /**
+         * PROJECT SETTINGS
+         */
+        $services .= "<tr>";
+        $services .= "<td class='td-field-name box-cel-tab' colspan='10'>GENERIC SETTINGS</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*PROJECT_NAME*/
+        $data_current = explode("=", $data["SERVICES"][$i][23]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*SERVICE_NAME*/
+        $data_current = explode("=", $data["SERVICES"][$i][0]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*CONTAINER_NAME*/
+        $data_current = explode("=", $data["SERVICES"][$i][1]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*IMAGE*/
+        $data_current = explode("=", $data["SERVICES"][$i][2]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*LOCALHOST_PORT*/
+        $data_current = explode("=", $data["SERVICES"][$i][4]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*INTERNAL_PORT*/
+        $data_current = explode("=", $data["SERVICES"][$i][5]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*PRIVILEGED*/
+        $data_current = explode("=", $data["SERVICES"][$i][3]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*NETWORKS*/
+        $data_current = explode("=", $data["SERVICES"][$i][6]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*BUILD*/
+        $data_current = explode("=", $data["SERVICES"][$i][15]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*CONTEXT*/
+        $data_current = explode("=", $data["SERVICES"][$i][16]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*DOCKERFILE*/
+        $data_current = explode("=", $data["SERVICES"][$i][17]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*WORKING_DIR*/
+        $data_current = explode("=", $data["SERVICES"][$i][18]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+        /*COMMAND*/
+        $data_current = explode("=", $data["SERVICES"][$i][19]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*ENV_FILE*/
+        $data_current = explode("=", $data["SERVICES"][$i][20]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        $services .= "<tr>";
+
+        /*DEPLOY*/
+        $data_current = explode("=", $data["SERVICES"][$i][21]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+
+        /*DEPLOY_MEMORY*/
+        $data_current = explode("=", $data["SERVICES"][$i][22]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+        $placeholder = $field_value;
+        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
+        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
+        $services .= "<td class='td-field-name box-cel'>{$field_name}</td><td>{$input}</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        /*ENVIRONMENT*/
+        $services .= "<tr>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>ENVIRONMENT</td>";
+        $services .= "</tr>";
+
+        $services .= "<tr>";
+        $data_current = explode("=", $data["SERVICES"][$i][7]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $services .= "<td class='td-field-name box-cel'>ENV</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        /*VOLUMES*/
+        $services .= "<tr>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>VOLUMES</td>";
+        $services .= "</tr>";
+
+        $services .= "<tr>";
+        $data_current = explode("=", $data["SERVICES"][$i][9]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $services .= "<td class='td-field-name box-cel'>VOLUME</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        /*LINKS*/
+        $services .= "<tr>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>LINKS</td>";
+        $services .= "</tr>";
+
+        $services .= "<tr>";
+        $data_current = explode("=", $data["SERVICES"][$i][11]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $services .= "<td class='td-field-name box-cel'>LINK</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "</tr>";
+        //--------------------------------------------------------------------------------------------------------
+
+        /*DEPENDS_ON*/
+        $services .= "<tr>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>DEPENDS_ON</td>";
+        $services .= "</tr>";
+
+        $services .= "<tr>";
+        $data_current = explode("=", $data["SERVICES"][$i][13]);
+        $field_name = $data_current[0] ?? "UNKNOWN";
+        $field_value = str_replace('"', '', $data_current[1]) ?? "";
+        $services .= "<td class='td-field-name box-cel'>DEPEND</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
