@@ -79,6 +79,7 @@
     height: 100%;
     padding-left: 1px;
     text-align: center;
+    overflow: hidden;
 }
 
 #div-menu-top ul li {
@@ -469,7 +470,7 @@
 }
 
 #resume-config-toggle {
-    cursor: pointer;
+
 }
 
 /*CONFIGURATION - SERVICES*/
@@ -574,8 +575,18 @@
     background: #ff4400 !important;
 }
 
+.float-left {
+    display: block;
+    width: auto;
+    height: auto;
+    float: left;
+}
+
 #bt-collapse-services,
-#bt-expand-services {
+#bt-expand-services,
+#bt-collapse-configuration,
+#bt-expand-configuration {
+    cursor: pointer;
     width: 100px !important;
     height: 20px !important;
     font-size: 10px;
@@ -584,10 +595,45 @@
     float: right;
     color: #FFFFFF;
     background: #ff4400;
+    text-shadow: #232323 1px 2px 2px;
+    box-shadow: #232323 1px 2px 2px !important;
 }
 
-#bt-expand-services {
+#bt-expand-services,
+#bt-expand-configuration {
     display: none;
+}
+
+#bt-save-configuration,
+#bt-reset-configuration {
+    cursor: pointer;
+    width: 100px !important;
+    height: 20px !important;
+    font-size: 10px;
+    margin-left: 10px;
+    padding-left: 3px;
+    float: left;
+    color: #FFFFFF;
+    text-shadow: #232323 1px 2px 2px;
+    box-shadow: #232323 1px 2px 2px !important;
+}
+
+#bt-save-configuration {
+    background: #7abe39 !important;
+}
+
+#bt-reset-configuration {
+    background: #d71111 !important;
+}
+
+.required-class:after {
+    font-size: 20px;
+    content: "*";
+    color: #FD0000;
+    margin: 0;
+    padding: 0;
+    float: right;
+    line-height: 25px;
 }
 
 /*FOOTER*/

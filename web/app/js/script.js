@@ -824,7 +824,7 @@ function requestLanguageVersion(language, service) {
         credentials: false
     }).get(
         function(response) {
-            jH("#language_version-"+service).html("");
+            jH("#language_version-"+service).html("<option value=''>Select Language Version</option>");
 
             response.forEach(function(item, index, array) {
                 jH("#language_version-"+service)
@@ -872,7 +872,7 @@ function requestServerVersion(server, service) {
         credentials: false
     }).get(
         function(response) {
-            jH("#server_version-"+service).html("");
+            jH("#server_version-"+service).html("<option value=''>Select Server Version</option>");
 
             response.forEach(function(item, index, array) {
                 jH("#server_version-"+service)
@@ -968,25 +968,25 @@ function resetApplicationSettings(service) {
 }
 
 function addApplicationSettingsLine(id, service) {
-    let lang = id.split("-")[2];
+    let ref = id.split("-")[2];
     let settings_line = "";
-    let data_bt_rm = "data-bt-remove-app-settings-"+lang;
-    let data_name = "data-name-app-settings-"+lang;
-    let data_value = "data-value-app-settings-"+lang;
+    let data_bt_rm = "data-bt-remove-app-settings-"+ref;
+    let data_name = "data-name-app-settings-"+ref;
+    let data_value = "data-value-app-settings-"+ref;
 
     let bt_remove = "<input "+data_bt_rm+" type='button' value='REMOVE' class='generic-bt-remove' />";
     let input_name = "<input "+data_name+" type='text' class='generic-input-text' placeholder='Type a value' />";
     let input_value = "<input "+data_value+" type='text' class='generic-input-text' placeholder='Type a value' />";
 
-    settings_line += "<tr data-added-line-app-settings-"+lang+">";
+    settings_line += "<tr data-added-line-app-settings-"+ref+">";
     settings_line += "<td class='td-field-name box-cel'>NAME</td><td>"+input_name+"</td>";
     settings_line += "<td class='td-field-name box-cel'>VALUE</td><td>"+input_value+"</td>";
     settings_line += "<td class='td-empty'>"+bt_remove+"</td>";
     settings_line += "</tr>";
 
-    jH("#tb-app-settings-"+lang+"-"+service).append(settings_line);
+    jH("#tb-app-settings-"+ref+"-"+service).append(settings_line);
 
-    jH('[data-bt-remove-app-settings-'+lang+']').on('click', function() {
+    jH('[data-bt-remove-app-settings-'+ref+']').on('click', function() {
         $$this.offsetParent.parentElement.remove();
     });
 }
@@ -1134,11 +1134,6 @@ $$.loaded(function() {
                 seq = 0;
             }, "myArgs");
 
-            /*if (confirm('Are you sure that you want to cancel and reset all data ?')) {
-                jH('#generic-form').reset();
-                jH('#table-git-projects').html("");
-                seq = 0;
-            }*/
         });
     }
 
@@ -1256,17 +1251,42 @@ $$.loaded(function() {
     }
 
     /**
-     * RESUME CONFIGURATION TOGGLE
+     * BUTTON COLLAPSE/EXPAND CONFIGURATION RESUME
      */
-    if ($$.findId(("resume-config-toggle"))) {
+    if ($$.findId(("div-resume-config"))) {
+
         resume_height = jH("#div-resume-config").height()[0];
         jH("#div-resume-config").height(resume_height);
-        jH("#resume-config-toggle").on('click', function () {
-            if (jH("#div-resume-config").height()[0] === "35px") {
-                jH("#div-resume-config").height(resume_height);
-            } else {
-                jH("#div-resume-config").height("35px");
-            }
+
+        jH("#bt-collapse-configuration").on('click', function () {
+            jH("#div-resume-config").height("35px");
+            jH('#bt-collapse-configuration').display("none");
+            jH('#bt-expand-configuration').display("block");
+        });
+
+        jH("#bt-expand-configuration").on('click', function () {
+            jH("#div-resume-config").height(resume_height);
+            jH('#bt-collapse-configuration').display("block");
+            jH('#bt-expand-configuration').display("none");
+        });
+
+    }
+
+    /**
+     * BUTTON COLLAPSE/EXPAND CONFIGURATION RESUME
+     */
+    if ($$.findId(("bt-reset-configuration"))) {
+        jH("#bt-reset-configuration").on('click', function() {
+
+            $$.confirm({
+                title: "Warning",
+                question: "Are you sure that want reset the current configuration ?",
+                theme: dockerized_theme,
+                buttons: ["Yes", "No"]
+            }, function(args){
+                jH("#generic-form").reset();
+            }, "myArgs");
+
         });
     }
 
