@@ -574,6 +574,22 @@
     background: #ff4400 !important;
 }
 
+#bt-collapse-services,
+#bt-expand-services {
+    width: 100px !important;
+    height: 20px !important;
+    font-size: 10px;
+    margin-left: 10px;
+    padding-left: 3px;
+    float: right;
+    color: #FFFFFF;
+    background: #ff4400;
+}
+
+#bt-expand-services {
+    display: none;
+}
+
 /*FOOTER*/
 
 #div-footer {

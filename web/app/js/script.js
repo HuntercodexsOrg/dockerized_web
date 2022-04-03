@@ -1285,6 +1285,28 @@ $$.loaded(function() {
     }
 
     /**
+     * BUTTON COLLAPSE ALL SERVICES
+     */
+    if ($$.findId("bt-collapse-services")) {
+        jH('#bt-collapse-services').on('click', function() {
+            jH('#bt-collapse-services').display("none");
+            jH('#bt-expand-services').display("block");
+            jH(".div-service").height("35px");
+        });
+    }
+
+    /**
+     * BUTTON EXPAND ALL SERVICES
+     */
+    if ($$.findId("bt-expand-services")) {
+        jH('#bt-expand-services').on('click', function() {
+            jH('#bt-expand-services').display("none");
+            jH('#bt-collapse-services').display("block");
+            jH(".div-service").height("auto");
+        });
+    }
+
+    /**
      * SELECT CONTROLS: LANGUAGES X SERVERS
      */
     if ($$.findId(("div-services-config"))) {

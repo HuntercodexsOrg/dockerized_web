@@ -123,7 +123,11 @@ function servicesMount($data): string
     $services  = "<div id='div-services-config'>";
 
     $services .= "<table id='table-services-config'>";
-    $services .= "<tr><td class='td-setup-session' colspan='10'>SERVICES CONFIGURATION</td></tr>";
+    $services .= "<tr><td class='td-setup-session' colspan='10'>";
+    $services .= "SERVICES CONFIGURATION";
+    $services .= "<button id='bt-collapse-services'>Collapse All</button>";
+    $services .= "<button id='bt-expand-services'>Expand All</button>";
+    $services .= "</td></tr>";
     $services .= "</table>";
 
     for ($i = 0; $i < count($data["SERVICES"]); $i++) {
@@ -720,54 +724,46 @@ function servicesMount($data): string
         //--------------------------------------------------------------------------------------------------------
 
         /*ENVIRONMENT*/
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-env-{$i}'></tbody></table>";
+        $add_bt = getButtonAdd("bt-add-env-".$i, $i);
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>ENVIRONMENT</td>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>ENVIRONMENT {$add_bt}</td>";
         $services .= "</tr>";
-
         $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][7]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $services .= "<td class='td-field-name box-cel'>ENV</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*VOLUMES*/
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-volume-{$i}'></tbody></table>";
+        $add_bt = getButtonAdd("bt-add-volume-".$i, $i);
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>VOLUMES</td>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>VOLUMES {$add_bt}</td>";
         $services .= "</tr>";
-
         $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][9]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $services .= "<td class='td-field-name box-cel'>VOLUME</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*LINKS*/
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-link-{$i}'></tbody></table>";
+        $add_bt = getButtonAdd("bt-add-link-".$i, $i);
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>LINKS</td>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>LINKS {$add_bt}</td>";
         $services .= "</tr>";
-
         $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][11]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $services .= "<td class='td-field-name box-cel'>LINK</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
         /*DEPENDS_ON*/
+        $tb = "<table class='generic-table'><tbody id='tb-app-settings-depend-{$i}'></tbody></table>";
+        $add_bt = getButtonAdd("bt-add-depend-".$i, $i);
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>DEPENDS_ON</td>";
+        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>DEPENDS ON {$add_bt}</td>";
         $services .= "</tr>";
-
         $services .= "<tr>";
-        $data_current = explode("=", $data["SERVICES"][$i][13]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $services .= "<td class='td-field-name box-cel'>DEPEND</td><td colspan='2'>{$field_value}</td><td>DELETE</td>";
+        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 
