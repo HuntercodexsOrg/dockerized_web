@@ -45,35 +45,48 @@ function getButtonAdd(string $id, string $val, bool $disabled = true): string
     return "<input type='button' class='bt-add-app-setting-{$state}' id='{$id}' value='+ Add' data-button-app data-content='{$val}' {$state} />";
 }
 
-function headerMount($data): string
+function resumeLines(string $config_name, string $config_value, string $cols = "1"): string {
+    $cfgName = strtoupper(str_replace("_", " ", $config_name));
+    $name = strtolower(str_replace(" ", "_", $config_name));
+    $hidden_value = trim(strip_tags($config_value));
+
+    $config  = "<td class='td-field-name box-cel'>{$cfgName}</td>";
+    $config .= "<td colspan='{$cols}'>{$config_value}";
+    $config .= "<input type='hidden' name='{$name}' value='{$hidden_value}' />";
+    $config .= "</td>";
+
+
+    return $config;
+}
+
+function headerMount(array $data): string
 {
-    /**
-     * CONFIGURATIONS RESUME
-     */
+    /*CONFIGURATION RESUME*/
+
     $header  = "<div id='div-resume-config'>";
     $header .= "<table id='table-resume-config'>";
     $header .= "<tr><td id='resume-config-toggle' class='td-setup-session' colspan='10'>";
     $header .= "<span class='float-left'>CONFIGURATION RESUME</span>";
-    $header .= "<button id='bt-save-configuration'>Save</button>";
-    $header .= "<button id='bt-reset-configuration'>Reset</button>";
-    $header .= "<button id='bt-collapse-configuration'>Collapse</button>";
-    $header .= "<button id='bt-expand-configuration'>Expand</button>";
+    $header .= "<button id='bt-save-configuration' value='save'>Save</button>";
+    $header .= "<button id='bt-reset-configuration' value='reset'>Reset</button>";
+    $header .= "<button id='bt-collapse-configuration' value='collapse-resume'>Collapse</button>";
+    $header .= "<button id='bt-expand-configuration' value='expand-resume'>Expand</button>";
     $header .= "</td></tr>";
 
-    //--------------------------------------------------------------------------------------------------------
-
-    /*CONFIGURATION SETUP X SERVICES_QUANTITY*/
+    /*CONFIGURATION_SETUP X SERVICES_QUANTITY*/
     $header .= "<tr>";
-    $header .= "<td class='td-field-name box-cel'>CONFIGURATION SETUP</td><td>{$data["HEADER"]["CONFIGURATION_SETUP"]}</td>";
-    $header .= "<td class='td-field-name box-cel'>SERVICES QUANTITY</td><td>{$data["HEADER"]["SERVICES_QUANTITY"]}</td>";
+    $header .= resumeLines("CONFIGURATION_SETUP", $data["HEADER"]["CONFIGURATION_SETUP"]);
+    $header .= resumeLines("SERVICES_QUANTITY", $data["HEADER"]["SERVICES_QUANTITY"]);
     $header .= "</tr>";
+
     //--------------------------------------------------------------------------------------------------------
 
     /*DOCKER_COMPOSE_VERSION X NETWORK_GATEWAY*/
     $header .= "<tr>";
-    $header .= "<td class='td-field-name box-cel'>DOCKER COMPOSE VERSION</td><td>{$data["HEADER"]["DOCKER_COMPOSE_VERSION"]}</td>";
-    $header .= "<td class='td-field-name box-cel'>NETWORK GATEWAY</td><td>{$data["HEADER"]["NETWORK_GATEWAY"]}</td>";
+    $header .= resumeLines("DOCKER_COMPOSE_VERSION", $data["HEADER"]["DOCKER_COMPOSE_VERSION"]);
+    $header .= resumeLines("NETWORK_GATEWAY", $data["HEADER"]["NETWORK_GATEWAY"]);
     $header .= "</tr>";
+
     //--------------------------------------------------------------------------------------------------------
 
     /*DOCKER EXTRA IMAGES*/
@@ -82,18 +95,20 @@ function headerMount($data): string
         $docker_extra_img .= "<span class='span-cell'>".$data["HEADER"]["DOCKER_EXTRA_IMAGES"][$i]."</span>";
     }
     $header .= "<tr>";
-    $header .= "<td class='td-field-name box-cel'>DOCKER EXTRA IMAGES</td><td colspan='3'>{$docker_extra_img}</td>";
+    $header .= resumeLines("DOCKER_EXTRA_IMAGES", $docker_extra_img, "3");
     $header .= "</tr>";
+
     //--------------------------------------------------------------------------------------------------------
 
     /*RESOURCES DOCKERIZED*/
     $resources_dockerized = "";
     for ($i = 0; $i < count($data["HEADER"]["RESOURCES_DOCKERIZED"]); $i++) {
-        $resources_dockerized .= "<span class='span-cell'>".$data["HEADER"]["RESOURCES_DOCKERIZED"][$i]."</span>";
+        $resources_dockerized .= "<span class='span-cell'> ".$data["HEADER"]["RESOURCES_DOCKERIZED"][$i]."</span>";
     }
     $header .= "<tr>";
-    $header .= "<td class='td-field-name box-cel'>RESOURCES DOCKERIZED</td><td colspan='3'>{$resources_dockerized}</td>";
+    $header .= resumeLines("RESOURCES_DOCKERIZED", $resources_dockerized, "3");
     $header .= "</tr>";
+
     //--------------------------------------------------------------------------------------------------------
 
     /*USE PROJECTS FROM GITHUB*/
@@ -104,17 +119,24 @@ function headerMount($data): string
 
         $gp = $data["HEADER"]["USE_PROJECT"][$i];
         $header .= "<tr>";
-        $header .= "<td class='td-field-name box-cel'>PROJECT {$i}</td><td colspan='2'>{$gp}</td>";
-
-        if (preg_match("/GITHUB_TOKEN/", $gp, $m, PREG_OFFSET_CAPTURE)) {
-            $git_token = "<input type='password' data-gp-token data-content='{$gp}' value='' placeholder='Type Git Hub Token' />";
-            $header .= "<td class='td-token-git'>{$git_token}</td>";
-        } else {
-            $header .= "<td class='td-token-git'>Public</td>";
+        $header .= "<td class='td-field-name box-cel'>PROJECT {$i}</td>";
+        $header .= "<td colspan='2'>{$gp}";
+        $header .= "<input type='hidden' name='git_project[]' value='{$gp}' />";
+        if (!preg_match("/GITHUB_TOKEN/", $gp, $m, PREG_OFFSET_CAPTURE)) {
+            $header .= "<span class='span-cell'>[PUBLIC]</span>";
         }
+        $header .= "</td>";
 
+        $header .= "<td class='td-token-git'>";
+        if (preg_match("/GITHUB_TOKEN/", $gp, $m, PREG_OFFSET_CAPTURE)) {
+            $header .= "<input type='password' name='git_project_key[]' value='' placeholder='Type Git Hub Token' required />";
+        } else {
+            $header .= "<input type='password' name='git_project_key[]' value='public' disabled />";
+        }
+        $header .= "</td>";
         $header .= "</tr>";
     }
+
     //--------------------------------------------------------------------------------------------------------
 
     $header .= "</table>";
@@ -160,7 +182,7 @@ function servicesMount($data): string
          */
         $current = str_replace('"', "", explode("=", $data["SERVICES"][$i][0])[1]);
         $services .= "<tr>";
-        $services .= "<td data-service-toggle data-content='{$i}' class='td-setup-sub-session pointer' colspan='10'>SERVICE - {$current}</td>";
+        $services .= "<td data-service-toggle data-content='{$i}' class='td-setup-sub-session hover-tab-service' colspan='10'>SERVICE - {$current}</td>";
         $services .= "</tr>";
         //--------------------------------------------------------------------------------------------------------
 

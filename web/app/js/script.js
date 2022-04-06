@@ -1273,7 +1273,26 @@ $$.loaded(function() {
     }
 
     /**
-     * BUTTON COLLAPSE/EXPAND CONFIGURATION RESUME
+     * BUTTON SAVE CONFIGURATION RESUME (CONFIGURATION SCREEN)
+     */
+    if ($$.findId(("bt-save-configuration"))) {
+        jH("#bt-save-configuration").on('click', function() {
+
+            $$.confirm({
+                title: "Warning",
+                question: "Are you sure that want save the current configuration ?",
+                theme: dockerized_theme,
+                buttons: ["Yes", "No"]
+            }, function(args){
+                $$.log("Process form configuration").print("orange");
+                console.log($$.form("#generic-form").json());
+            }, "myArgs");
+
+        });
+    }
+
+    /**
+     * BUTTON RESET CONFIGURATION RESUME
      */
     if ($$.findId(("bt-reset-configuration"))) {
         jH("#bt-reset-configuration").on('click', function() {

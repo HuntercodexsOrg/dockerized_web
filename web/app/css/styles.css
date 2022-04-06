@@ -271,8 +271,8 @@
 }
 
 #div-content #generic-form table .span-cell {
-    display: block;
-    float: left;
+    display: inline-block;
+    /*float: left;*/
     margin: 0px 5px;
     background: #FFFF00;
 }
@@ -489,6 +489,12 @@
 .pointer:hover {
     color: #454545 !important;
     background: #a3e855 !important;
+}
+
+.hover-tab-service:hover {
+    cursor: pointer;
+    color: #454545 !important;
+    background: #f37474 !important;
 }
 
 .td-token-git {
