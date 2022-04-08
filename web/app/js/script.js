@@ -973,10 +973,11 @@ function addApplicationSettingsLine(id, service) {
     let data_bt_rm = "data-bt-remove-app-settings-"+ref;
     let data_name = "data-name-app-settings-"+ref;
     let data_value = "data-value-app-settings-"+ref;
+    let name = "app-set-"+ref+"-"+service;
 
-    let bt_remove = "<input "+data_bt_rm+" type='button' value='REMOVE' class='generic-bt-remove' />";
-    let input_name = "<input "+data_name+" type='text' class='generic-input-text' placeholder='Type a value' />";
-    let input_value = "<input "+data_value+" type='text' class='generic-input-text' placeholder='Type a value' />";
+    let bt_remove = "<input name='"+name+"' "+data_bt_rm+" type='button' value='REMOVE' class='generic-bt-remove' />";
+    let input_name = "<input name='"+name+"' "+data_name+" type='text' class='generic-input-text' placeholder='Type a value' />";
+    let input_value = "<input name='"+name+"' "+data_value+" type='text' class='generic-input-text' placeholder='Type a value' />";
 
     settings_line += "<tr data-added-line-app-settings-"+ref+">";
     settings_line += "<td class='td-field-name box-cel'>NAME</td><td>"+input_name+"</td>";
@@ -1284,8 +1285,10 @@ $$.loaded(function() {
                 theme: dockerized_theme,
                 buttons: ["Yes", "No"]
             }, function(args){
+
                 $$.log("Process form configuration").print("orange");
                 console.log($$.form("#generic-form").json());
+
             }, "myArgs");
 
         });

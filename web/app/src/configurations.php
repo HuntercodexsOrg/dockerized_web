@@ -3,8 +3,8 @@
 use Dockerized\Helpers;
 use Dockerized\Data;
 
-function showButtonsConfig() {
-
+function showButtonsConfig()
+{
     $services_qty = Dockerized\Reader::getSetupVar('SERVICES_QUANTITY');
 
     $buttons_allowed = "";
@@ -34,9 +34,9 @@ function showButtonsConfig() {
     ';
 }
 
-function htmlSelect(string $str, array $data, string $id, int $counter): string
+function htmlSelect(string $str, array $data, string $name, string $id, int $counter): string
 {
-    return Helpers::buildSelectHtmlElement($str, $data, ['id' => $id, 'counter' => $counter]);
+    return Helpers::buildSelectHtmlElement($str, $data, ['name' => $name, 'id' => $id, 'counter' => $counter]);
 }
 
 function getButtonAdd(string $id, string $val, bool $disabled = true): string
@@ -45,7 +45,8 @@ function getButtonAdd(string $id, string $val, bool $disabled = true): string
     return "<input type='button' class='bt-add-app-setting-{$state}' id='{$id}' value='+ Add' data-button-app data-content='{$val}' {$state} />";
 }
 
-function resumeLines(string $config_name, string $config_value, string $cols = "1"): string {
+function resumeLines(string $config_name, string $config_value, string $cols = "1"): string
+{
     $cfgName = strtoupper(str_replace("_", " ", $config_name));
     $name = strtolower(str_replace(" ", "_", $config_name));
     $hidden_value = trim(strip_tags($config_value));
@@ -55,14 +56,12 @@ function resumeLines(string $config_name, string $config_value, string $cols = "
     $config .= "<input type='hidden' name='{$name}' value='{$hidden_value}' />";
     $config .= "</td>";
 
-
     return $config;
 }
 
 function headerMount(array $data): string
 {
     /*CONFIGURATION RESUME*/
-
     $header  = "<div id='div-resume-config'>";
     $header .= "<table id='table-resume-config'>";
     $header .= "<tr><td id='resume-config-toggle' class='td-setup-session' colspan='10'>";
@@ -79,15 +78,11 @@ function headerMount(array $data): string
     $header .= resumeLines("SERVICES_QUANTITY", $data["HEADER"]["SERVICES_QUANTITY"]);
     $header .= "</tr>";
 
-    //--------------------------------------------------------------------------------------------------------
-
     /*DOCKER_COMPOSE_VERSION X NETWORK_GATEWAY*/
     $header .= "<tr>";
     $header .= resumeLines("DOCKER_COMPOSE_VERSION", $data["HEADER"]["DOCKER_COMPOSE_VERSION"]);
     $header .= resumeLines("NETWORK_GATEWAY", $data["HEADER"]["NETWORK_GATEWAY"]);
     $header .= "</tr>";
-
-    //--------------------------------------------------------------------------------------------------------
 
     /*DOCKER EXTRA IMAGES*/
     $docker_extra_img = "";
@@ -98,8 +93,6 @@ function headerMount(array $data): string
     $header .= resumeLines("DOCKER_EXTRA_IMAGES", $docker_extra_img, "3");
     $header .= "</tr>";
 
-    //--------------------------------------------------------------------------------------------------------
-
     /*RESOURCES DOCKERIZED*/
     $resources_dockerized = "";
     for ($i = 0; $i < count($data["HEADER"]["RESOURCES_DOCKERIZED"]); $i++) {
@@ -108,8 +101,6 @@ function headerMount(array $data): string
     $header .= "<tr>";
     $header .= resumeLines("RESOURCES_DOCKERIZED", $resources_dockerized, "3");
     $header .= "</tr>";
-
-    //--------------------------------------------------------------------------------------------------------
 
     /*USE PROJECTS FROM GITHUB*/
     $header .= "<tr>";
@@ -137,12 +128,63 @@ function headerMount(array $data): string
         $header .= "</tr>";
     }
 
-    //--------------------------------------------------------------------------------------------------------
-
     $header .= "</table>";
     $header .= "</div>";
 
     return $header;
+}
+
+function technologySettings(string $ref, string $resources, string $resources_version): string {
+    $name_ref = strtoupper($ref);
+    $settings  = "<td class='td-field-name box-cel-tab1'>{$name_ref}</td>";
+    $settings .= "<td class='td-field-name'>{$resources}</td>";
+    $settings .= "<td class='td-field-name box-cel-tab1'>{$name_ref} VERSION</td>";
+    $settings .= "<td class='td-field-name'>{$resources_version}</td>";
+    return $settings;
+}
+
+function applicationSettings(string $index, string $setRef, string $setTabName): string
+{
+    $lower     = strtolower($setRef);
+    $upper     = strtoupper($setTabName);
+    $tbody_id  = "tb-app-settings-{$lower}-{$index}";
+    $button_id = "bt-add-{$lower}-{$index}";
+    $tr_id     = "tr-app-settings-{$lower}-{$index}";
+
+    $bt_add    = getButtonAdd($button_id, $index, true);
+
+    $table_ref = "<table class='generic-table'><tbody id='{$tbody_id}'></tbody></table>";
+    $settings  = "<tr id='{$tr_id}'>";
+    $settings .= "<td class='td-setup-sub-session1' colspan='10'>{$upper} {$bt_add}</td>";
+    $settings .= "</tr>";
+    $settings .= "<tr>";
+    $settings .= "<td class='td-empty' colspan='10'>{$table_ref}</td>";
+    $settings .= "</tr>";
+
+    return $settings;
+}
+
+function nginxSettings(string $index, string $placeholder, string $data): string
+{
+    $data_current = explode("=", $data);
+    $field_name = $data_current[0] ?? "UNKNOWN";
+    $field_value = $data_current[1] ?? "";
+    $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+    $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
+    $input = "<input 
+                    data-server-settings-nginx-{$index} 
+                    type='text' 
+                    class='generic-input-text'
+                    name='server-settings-nginx-{$index}' 
+                    value='' 
+                    placeholder='{$placeholder}' 
+                    {$required} 
+                    disabled />";
+
+    $settings  = "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td>";
+    $settings .= "<td>{$input}</td>";
+
+    return $settings;
 }
 
 function servicesMount($data): string
@@ -165,17 +207,16 @@ function servicesMount($data): string
         /**
          * DATA SELECT HTMLElement
          */
-        $languages = htmlSelect("Language", Data::getLanguages(), "language", $i);
-        $languages_version = htmlSelect("Language Version", Data::getLanguagesVersion(), "language_version", $i);
-        $servers_type = htmlSelect("Server", Data::getServers(), "server", $i);
-        $server_version= htmlSelect("Server Version", Data::getServersVersion(), "server_version", $i);
+        $languages = htmlSelect("Language", Data::getLanguages(), "lang", "language", $i);
+        $languages_version = htmlSelect("Language Version", Data::getLanguagesVersion(), "lang", "language_version", $i);
+        $servers_type = htmlSelect("Server", Data::getServers(), "srv", "server", $i);
+        $server_version= htmlSelect("Server Version", Data::getServersVersion(), "srv", "server_version", $i);
 
         /**
          * BEGIN SERVICE
          */
         $services .= "<div id='div-service-config-{$i}' class='div-service'>";
         $services .= "<table class='table-service-config'>";
-        //--------------------------------------------------------------------------------------------------------
 
         /**
          * SERVICE IDENTIFY
@@ -184,7 +225,6 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td data-service-toggle data-content='{$i}' class='td-setup-sub-session hover-tab-service' colspan='10'>SERVICE - {$current}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
         /**
          * TECHNOLOGY SETTINGS
@@ -192,25 +232,16 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-field-name box-cel-tab' colspan='10'>TECHNOLOGY SETTINGS</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
         /*LANGUAGE X LANGUAGE VERSION*/
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1'>LANGUAGE</td>";
-        $services .= "<td class='td-field-name'>{$languages}</td>";
-        $services .= "<td class='td-field-name box-cel-tab1'>LANGUAGE VERSION</td>";
-        $services .= "<td class='td-field-name'>{$languages_version}</td>";
+        $services .= technologySettings("LANGUAGE", $languages, $languages_version);
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
         /*SERVER X SERVER VERSION*/
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1'>SERVER</td>";
-        $services .= "<td class='td-field-name'>{$servers_type}</td>";
-        $services .= "<td class='td-field-name box-cel-tab1'>SERVER VERSION</td>";
-        $services .= "<td class='td-field-name'>{$server_version}</td>";
+        $services .= technologySettings("SERVER", $servers_type, $server_version);
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
         /**
          * APPLICATION SETTINGS
@@ -218,62 +249,21 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-field-name box-cel-tab' colspan='10'>APPLICATION SETTINGS</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
         /*WHEN PHP - DOTENV*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-php-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-php-".$i, $i, true);
-        $services .= "<tr>";
-        $services .= "<td class='td-setup-sub-session1' colspan='10'>PHP DOTENV {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+        $services .= applicationSettings($i, 'php', 'PHP DOTENV');
 
         /*WHEN JAVA - PROPERTIES*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-java-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-java-".$i, $i, true);
-        $services .= "<tr id='tr-app-settings-java-{$i}'>";
-        $services .= "<td class='td-setup-sub-session1' colspan='10'>JAVA PROPERTIES FILE {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+        $services .= applicationSettings($i, 'java', 'JAVA FILE PROPERTIES');
 
         /*WHEN PYTHON - CFG*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-python-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-python-".$i, $i, true);
-        $services .= "<tr id='tr-app-settings-python-{$i}' >";
-        $services .= "<td class='td-setup-sub-session1' colspan='10'>PYTHON CFG FILE {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+        $services .= applicationSettings($i, 'python', 'PYTHON CFG FILE');
 
         /*WHEN NODEJS - CONFIGURATION*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-nodejs-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-nodejs-".$i, $i, true);
-        $services .= "<tr id='tr-app-settings-node-{$i}'>";
-        $services .= "<td class='td-setup-sub-session1' colspan='10'>NODEJS CONFIGURATION FILE {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+        $services .= applicationSettings($i, 'nodejs', 'NODEJS CONFIGURATION FILE');
 
         /*WHEN CSHARP - CONFIG*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-csharp-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-csharp-".$i, $i, true);
-        $services .= "<tr id='tr-app-settings-csharp-{$i}' >";
-        $services .= "<td class='td-setup-sub-session1' colspan='10'>CSHARP CONFIG FILE {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+        $services .= applicationSettings($i, 'csharp', 'CSHARP CONFIG FILE');
 
         /**
          * SERVER SETTINGS
@@ -281,7 +271,6 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-field-name box-cel-tab' colspan='10'>SERVER SETTINGS</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
         /**
          * SERVER SETTINGS: NGINX
@@ -289,103 +278,38 @@ function servicesMount($data): string
         $services .= "<tr id='tr-server-settings-nginx-{$i}'>";
         $services .= "<td class='center' colspan='10'>NGINX</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
+        /*NGINX_CONF X NGINX_SERVER_NAME*/
         $services .= "<tr>";
-        /*NGINX_CONF*/
-        $data_current = explode("=", $data["SERVICES"][$i][24]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Conf Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*NGINX_SERVER_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][25]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Server Name Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= nginxSettings($i, 'Type Nginx Conf Value', $data["SERVICES"][$i][24]);
+        $services .= nginxSettings($i, 'Type Nginx Server Name Value', $data["SERVICES"][$i][25]);
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
+        /*NGINX_ROOT_PATH X NGINX_APP_CONF*/
         $services .= "<tr>";
-        /*NGINX_ROOT_PATH*/
-        $data_current = explode("=", $data["SERVICES"][$i][26]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Root Path Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*NGINX_APP_CONF*/
-        $data_current = explode("=", $data["SERVICES"][$i][27]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx App Conf Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= nginxSettings($i, 'Type Nginx Root Path Value', $data["SERVICES"][$i][26]);
+        $services .= nginxSettings($i, 'Type Nginx App Conf Value', $data["SERVICES"][$i][27]);
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
+        /*NGINX_LISTEN X NGINX_FAST_CGI_PASS*/
         $services .= "<tr>";
-        /*NGINX_LISTEN*/
-        $data_current = explode("=", $data["SERVICES"][$i][28]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Listen Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*NGINX_FAST_CGI_PASS*/
-        $data_current = explode("=", $data["SERVICES"][$i][29]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx Fast Cgi Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= nginxSettings($i, 'Type Nginx Listen Value', $data["SERVICES"][$i][28]);
+        $services .= nginxSettings($i, 'Type Nginx Fast Cgi Value', $data["SERVICES"][$i][29]);
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
+        /*NGINX72_CONF X NGINX72_RESTFUL_CONF*/
         $services .= "<tr>";
-        /*NGINX72_CONF*/
-        $data_current = explode("=", $data["SERVICES"][$i][30]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx72 Conf Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*NGINX72_RESTFUL_CONF*/
-        $data_current = explode("=", $data["SERVICES"][$i][31]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Nginx72 Restful Conf Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= nginxSettings($i, 'Type Nginx72 Conf Value', $data["SERVICES"][$i][30]);
+        $services .= nginxSettings($i, 'Type Nginx72 Restful Conf Value', $data["SERVICES"][$i][31]);
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
 
+        /*SUPERVISOR_CONF X NGINX72_RESTFUL_CONF*/
         $services .= "<tr>";
-        /*SUPERVISOR_CONF*/
-        $data_current = explode("=", $data["SERVICES"][$i][32]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = $data_current[1] ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $input = "<input data-server-settings-nginx-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Type Supervisor Conf Value' {$required} disabled />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= nginxSettings($i, 'Type Supervisor Conf Value', $data["SERVICES"][$i][32]);
+        $services .= nginxSettings($i, 'Type an value', 'OTHERS');
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
+        //WORK: PARADO AQUI, REFATORANDO CODIGO
 
         /**
          * SERVER SETTINGS: APACHE
@@ -393,7 +317,7 @@ function servicesMount($data): string
         $services .= "<tr id='tr-server-settings-apache-{$i}'>";
         $services .= "<td class='center' colspan='10'>APACHE</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*VIRTUAL HOST*/
@@ -404,7 +328,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='80' disabled />";
         $services .= "<td class='td-field-name box-cel'>VIRTUAL HOST PORT</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*SERVER ADMIN*/
@@ -415,7 +339,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='sample.local' disabled />";
         $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*SERVER ALIAS*/
@@ -426,7 +350,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='/var/www/sample.local/public' disabled />";
         $services .= "<td class='td-field-name box-cel'>DOCUMENT ROOT</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*ERROR LOG NAME*/
@@ -437,7 +361,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='log name' disabled />";
         $services .= "<td class='td-field-name box-cel'>ACCESS LOG NAMES</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /**
          * SERVER SETTINGS: TOMCAT
@@ -445,7 +369,7 @@ function servicesMount($data): string
         $services .= "<tr id='tr-server-settings-tomcat-{$i}'>";
         $services .= "<td class='center' colspan='10'>TOMCAT</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*DATABASE SOURCE URL - spring.datasource.url*/
@@ -456,7 +380,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='devel' disabled />";
         $services .= "<td class='td-field-name box-cel'>DATABASE SOURCE USERNAME</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*DATABASE SOURCE PASSWORD - spring.datasource.password*/
@@ -467,7 +391,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='com.mysql.jdbc.Driver' disabled />";
         $services .= "<td class='td-field-name box-cel'>DATABASE SOURCE DRIVER</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*SPRING JPA SHOW SQL - spring.jpa.show-sql*/
@@ -478,7 +402,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='update' disabled />";
         $services .= "<td class='td-field-name box-cel'>HIBERNATE AUTO</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*DATABASE PLATFORM - spring.jpa.database-platform*/
@@ -489,7 +413,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='9000' disabled />";
         $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*SERVER NAME - server.name*/
@@ -500,14 +424,14 @@ function servicesMount($data): string
         $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='servlet' disabled />";
         $services .= "<td class='td-field-name box-cel'>SERVER MODE</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*SPRING DOCS PATH - springdoc.api-docs.path*/
         $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='/api-docs' disabled />";
         $services .= "<td class='td-field-name box-cel'>SPRING DOCS PATH</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /**
          * SERVER SETTINGS: NODE
@@ -515,7 +439,7 @@ function servicesMount($data): string
         $services .= "<tr id='tr-server-settings-node-{$i}'>";
         $services .= "<td class='center' colspan='10'>NODE</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*APPLICATION MODE*/
@@ -526,7 +450,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='url-root-test' disabled />";
         $services .= "<td class='td-field-name box-cel'>APPLICATION ROOT</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*APPLICATION URL*/
@@ -537,7 +461,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='index.js/app.js' disabled />";
         $services .= "<td class='td-field-name box-cel'>APPLICATION STARTUP FILE</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*CONFIGURATION FILE*/
@@ -548,7 +472,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='9898' disabled />";
         $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /**
          * SERVER SETTINGS: WEB CONFIG
@@ -556,7 +480,7 @@ function servicesMount($data): string
         $services .= "<tr id='tr-server-settings-web_config-{$i}'>";
         $services .= "<td class='center' colspan='10'>WEB CONFIG</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*SERVER NAME*/
@@ -567,7 +491,7 @@ function servicesMount($data): string
         $input = "<input data-server-settings-web_config-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='8888' disabled />";
         $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /**
          * PROJECT SETTINGS
@@ -575,7 +499,7 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-field-name box-cel-tab' colspan='10'>GENERIC SETTINGS</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*PROJECT_NAME*/
@@ -600,7 +524,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*CONTAINER_NAME*/
@@ -625,7 +549,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*LOCALHOST_PORT*/
@@ -650,7 +574,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*PRIVILEGED*/
@@ -675,7 +599,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*BUILD*/
@@ -700,7 +624,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*DOCKERFILE*/
@@ -725,7 +649,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
         /*COMMAND*/
@@ -750,7 +674,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "<tr>";
 
@@ -776,7 +700,7 @@ function servicesMount($data): string
         $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
         $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /*ENVIRONMENT*/
         $tb = "<table class='generic-table'><tbody id='tb-app-settings-env-{$i}'></tbody></table>";
@@ -787,7 +711,7 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /*VOLUMES*/
         $tb = "<table class='generic-table'><tbody id='tb-app-settings-volume-{$i}'></tbody></table>";
@@ -798,7 +722,7 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /*LINKS*/
         $tb = "<table class='generic-table'><tbody id='tb-app-settings-link-{$i}'></tbody></table>";
@@ -809,7 +733,7 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         /*DEPENDS_ON*/
         $tb = "<table class='generic-table'><tbody id='tb-app-settings-depend-{$i}'></tbody></table>";
@@ -820,7 +744,7 @@ function servicesMount($data): string
         $services .= "<tr>";
         $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
         $services .= "</tr>";
-        //--------------------------------------------------------------------------------------------------------
+
 
         $services .= "</table>";
         $services .= "</div>";
@@ -832,8 +756,8 @@ function servicesMount($data): string
     return $services;
 }
 
-function requestDataConfiguration() {
-
+function requestDataConfiguration()
+{
     $config_file = "config/configuration.conf";
     $data = Dockerized\Mapper::mapperConfiguration($config_file);
     $header = headerMount($data);

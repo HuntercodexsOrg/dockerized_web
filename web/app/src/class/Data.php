@@ -11,7 +11,7 @@ class Data
     public static function getLanguages(): array
     {
         return [
-            "PHP", "JAVA", "PYTHON", "NODEJS", "CSHARP"
+            "PHP", "PYTHON", "JAVA", "NODEJS", "CSHARP"
         ];
     }
 
