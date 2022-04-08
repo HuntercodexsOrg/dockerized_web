@@ -274,7 +274,17 @@
     display: inline-block;
     /*float: left;*/
     margin: 0px 5px;
+    padding: 0px 5px;
     background: #FFFF00;
+}
+
+#div-content #generic-form table .span-cell-light {
+    display: inline-block;
+    /*float: left;*/
+    margin: 0px 5px;
+    padding: 0px 5px;
+    color: #a4a3a3;
+    background: #e0e0e0;
 }
 
 #div-content #generic-form table .box-cel {
@@ -611,7 +621,9 @@
 }
 
 #bt-save-configuration,
-#bt-reset-configuration {
+#bt-reset-configuration,
+#bt-export-configuration,
+#bt-import-configuration {
     cursor: pointer;
     width: 100px !important;
     height: 20px !important;
@@ -630,6 +642,14 @@
 
 #bt-reset-configuration {
     background: #d71111 !important;
+}
+
+#bt-export-configuration {
+    background: #29a5c0 !important;
+}
+
+#bt-import-configuration {
+    background: #8248d0 !important;
 }
 
 .required-class:after {

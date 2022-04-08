@@ -68,6 +68,8 @@ function headerMount(array $data): string
     $header .= "<span class='float-left'>CONFIGURATION RESUME</span>";
     $header .= "<button id='bt-save-configuration' value='save'>Save</button>";
     $header .= "<button id='bt-reset-configuration' value='reset'>Reset</button>";
+    $header .= "<button id='bt-export-configuration' value='download'>Export</button>";
+    $header .= "<button id='bt-import-configuration' value='download'>Import</button>";
     $header .= "<button id='bt-collapse-configuration' value='collapse-resume'>Collapse</button>";
     $header .= "<button id='bt-expand-configuration' value='expand-resume'>Expand</button>";
     $header .= "</td></tr>";
@@ -114,7 +116,7 @@ function headerMount(array $data): string
         $header .= "<td colspan='2'>{$gp}";
         $header .= "<input type='hidden' name='git_project[]' value='{$gp}' />";
         if (!preg_match("/GITHUB_TOKEN/", $gp, $m, PREG_OFFSET_CAPTURE)) {
-            $header .= "<span class='span-cell'>[PUBLIC]</span>";
+            $header .= "<span class='span-cell-light'>public</span>";
         }
         $header .= "</td>";
 
@@ -183,6 +185,117 @@ function nginxSettings(string $index, string $placeholder, string $data): string
 
     $settings  = "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td>";
     $settings .= "<td>{$input}</td>";
+
+    return $settings;
+}
+
+function apacheSettings(string $index, string $placeholder, string $nameRef): string
+{
+    $input    = "<input 
+                    data-server-settings-apache-{$index} 
+                    type='text' 
+                    class='generic-input-text' 
+                    name='server-settings-apache-{$index}' 
+                    value='' 
+                    placeholder='{$placeholder}' 
+                    disabled />";
+    $settings  = "<td class='td-field-name box-cel'>{$nameRef}</td>";
+    $settings .= "<td>{$input}</td>";
+
+    return $settings;
+}
+
+function tomcatSpringBootSettings(string $index, string $placeholder, string $nameRef): string
+{
+    $input    = "<input 
+                    data-server-settings-tomcat-{$index} 
+                    type='text' 
+                    class='generic-input-text'
+                    name='server-settings-tomcat-{$index}' 
+                    value='' 
+                    placeholder='{$placeholder}' 
+                    disabled />";
+    $settings  = "<td class='td-field-name box-cel'>{$nameRef}</td>";
+    $settings .= "<td>{$input}</td>";
+
+    return $settings;
+}
+
+function nodejsSettings(string $index, string $placeholder, string $nameRef): string
+{
+    $input = "<input 
+                data-server-settings-node-{$index} 
+                type='text' 
+                class='generic-input-text'  
+                name='server-settings-node-{$index}' 
+                value='' 
+                placeholder='{$placeholder}' 
+                disabled />";
+    $settings  = "<td class='td-field-name box-cel'>{$nameRef}</td>";
+    $settings .= "<td>{$input}</td>";
+
+    return $settings;
+}
+
+function webConfigSettings(string $index, string $placeholder, string $nameRef): string
+{
+    $input = "<input 
+                data-server-settings-web_config-{$index} 
+                type='text' 
+                class='generic-input-text' 
+                name='server-settings-web_config-{$index}' 
+                value='' 
+                placeholder='{$placeholder}' 
+                disabled />";
+    $settings  = "<td class='td-field-name box-cel'>{$nameRef}</td>";
+    $settings .= "<td>{$input}</td>";
+
+    return $settings;
+}
+
+function projectSettings(string $index, string $data): string
+{
+    $data_current = explode("=", $data);
+    $field_name = $data_current[0] ?? "UNKNOWN";
+    $field_value = str_replace('"', '', $data_current[1]) ?? "";
+    $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
+    $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
+    $placeholder = $field_value;
+
+    if (
+        strpos($field_value, "{{{MANDATORY") ||
+        strpos($field_value, "{{{OPTIONAL") ||
+        strpos($field_value, "{{{SERVICE_NAME")
+    ) {
+        $field_value = "";
+    }
+
+    $input = "<input 
+                        data-generic-settings-project-{$index} 
+                        type='text' 
+                        class='generic-input-text' 
+                        name='generic-settings-project-{$index}' 
+                        value='{$field_value}' 
+                        placeholder='{$placeholder}' 
+                        {$required} />";
+
+    $settings = "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td>";
+    $settings .= "<td>{$input}</td>";
+
+    return $settings;
+}
+
+function additionalSettings(string $index, string $ref, string $nameRef): string
+{
+    $tb = "<table class='generic-table'><tbody id='tb-app-settings-{$ref}-{$index}'></tbody></table>";
+    $add_bt = getButtonAdd("bt-add-{$ref}-".$index, $index, false);
+
+    $settings  = "<tr>";
+    $settings .= "<td class='td-field-name box-cel-tab1' colspan='10'>{$nameRef} {$add_bt}</td>";
+    $settings .= "</tr>";
+    $settings .= "<tr>";
+    $settings .= "<td class='td-empty' colspan='10'>{$tb}</td>";
+    $settings .= "</tr>";
 
     return $settings;
 }
@@ -309,8 +422,6 @@ function servicesMount($data): string
         $services .= nginxSettings($i, 'Type an value', 'OTHERS');
         $services .= "</tr>";
 
-        //WORK: PARADO AQUI, REFATORANDO CODIGO
-
         /**
          * SERVER SETTINGS: APACHE
          */
@@ -318,120 +429,72 @@ function servicesMount($data): string
         $services .= "<td class='center' colspan='10'>APACHE</td>";
         $services .= "</tr>";
 
-
+        /*VIRTUAL HOST X VIRTUAL HOST PORT*/
         $services .= "<tr>";
-        /*VIRTUAL HOST*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='localhost' disabled />";
-        $services .= "<td class='td-field-name box-cel'>VIRTUAL HOST</td><td>{$input}</td>";
-
-        /*VIRTUAL HOST PORT*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='80' disabled />";
-        $services .= "<td class='td-field-name box-cel'>VIRTUAL HOST PORT</td><td>{$input}</td>";
+        $services .= apacheSettings($i, 'localhost', 'VIRTUAL HOST');
+        $services .= apacheSettings($i, '80', 'VIRTUAL HOST PORT');
         $services .= "</tr>";
 
-
+        /*SERVER ADMIN X SERVER NAME*/
         $services .= "<tr>";
-        /*SERVER ADMIN*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='admin@example.com' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER ADMIN</td><td>{$input}</td>";
-
-        /*SERVER NAME*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='sample.local' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
+        $services .= apacheSettings($i, 'admin@example.com', 'SERVER ADMIN');
+        $services .= apacheSettings($i, 'sample.local', 'SERVER NAME');
         $services .= "</tr>";
 
-
+        /*SERVER ALIAS X DOCUMENT ROOT*/
         $services .= "<tr>";
-        /*SERVER ALIAS*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='apache.sample.local' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER ALIAS</td><td>{$input}</td>";
-
-        /*DOCUMENT ROOT*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='/var/www/sample.local/public' disabled />";
-        $services .= "<td class='td-field-name box-cel'>DOCUMENT ROOT</td><td>{$input}</td>";
+        $services .= apacheSettings($i, 'apache.sample.local', 'SERVER ALIAS');
+        $services .= apacheSettings($i, '/var/www/sample.local/public', 'DOCUMENT ROOT');
         $services .= "</tr>";
 
-
+        /*ERROR LOG NAME X ACCESS LOG NAME (CUSTOM LOG)*/
         $services .= "<tr>";
-        /*ERROR LOG NAME*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='log name' disabled />";
-        $services .= "<td class='td-field-name box-cel'>ERRO LOG NAMES</td><td>{$input}</td>";
-
-        /*ACCESS LOG NAME (CUSTOM LOG)*/
-        $input = "<input data-server-settings-apache-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='log name' disabled />";
-        $services .= "<td class='td-field-name box-cel'>ACCESS LOG NAMES</td><td>{$input}</td>";
+        $services .= apacheSettings($i, 'log name', 'ERROR LOG NAME');
+        $services .= apacheSettings($i, 'log name', 'ACCESS LOG NAME');
         $services .= "</tr>";
-
 
         /**
-         * SERVER SETTINGS: TOMCAT
+         * SERVER SETTINGS: TOMCAT/JAVA-SPRING-BOOT
          */
         $services .= "<tr id='tr-server-settings-tomcat-{$i}'>";
-        $services .= "<td class='center' colspan='10'>TOMCAT</td>";
+        $services .= "<td class='center' colspan='10'>TOMCAT (JAVA SPRING BOOT PROJECTS)</td>";
         $services .= "</tr>";
 
-
+        /*DATABASE SOURCE URL - spring.datasource.url X DATABASE SOURCE USERNAME - spring.datasource.username*/
         $services .= "<tr>";
-        /*DATABASE SOURCE URL - spring.datasource.url*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='jdbc:mysql://localhost:3306/dbname?useTimezone=true&serverTimezone=UTC' disabled />";
-        $services .= "<td class='td-field-name box-cel'>DATABASE SRC URL (JDBC)</td><td>{$input}</td>";
-
-        /*DATABASE SOURCE USERNAME - spring.datasource.username*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='devel' disabled />";
-        $services .= "<td class='td-field-name box-cel'>DATABASE SOURCE USERNAME</td><td>{$input}</td>";
+        $services .= tomcatSpringBootSettings($i, 'jdbc:mysql://localhost:3306/dbname?useTimezone=true&serverTimezone=UTC', 'DATABASE SRC URL (JDBC)');
+        $services .= tomcatSpringBootSettings($i, 'user-devel', 'DATABASE SOURCE USERNAME');
         $services .= "</tr>";
 
-
+        /*DATABASE SOURCE PASSWORD - spring.datasource.password X DATABASE SOURCE DRIVER CLASS - spring.datasource.driver-class-name*/
         $services .= "<tr>";
-        /*DATABASE SOURCE PASSWORD - spring.datasource.password*/
-        $input = "<input data-server-settings-tomcat-{$i} type='password' class='generic-input-text' id='' name='' value='' placeholder='123456' disabled />";
-        $services .= "<td class='td-field-name box-cel'>DATABASE PASSWORD</td><td>{$input}</td>";
-
-        /*DATABASE SOURCE DRIVER CLASS - spring.datasource.driver-class-name*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='com.mysql.jdbc.Driver' disabled />";
-        $services .= "<td class='td-field-name box-cel'>DATABASE SOURCE DRIVER</td><td>{$input}</td>";
+        $services .= tomcatSpringBootSettings($i, '123456', 'DATABASE PASSWORD');
+        $services .= tomcatSpringBootSettings($i, 'com.mysql.jdbc.Driver', 'DATABASE SOURCE DRIVER');
         $services .= "</tr>";
 
-
+        /*SPRING JPA SHOW SQL - spring.jpa.show-sql X SPRING JPA HIBERNATE AUTO - spring.jpa.hibernate.ddl-auto*/
         $services .= "<tr>";
-        /*SPRING JPA SHOW SQL - spring.jpa.show-sql*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='true' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SPRING JPA SHOW SQL</td><td>{$input}</td>";
-
-        /*SPRING JPA HIBERNATE AUTO - spring.jpa.hibernate.ddl-auto*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='update' disabled />";
-        $services .= "<td class='td-field-name box-cel'>HIBERNATE AUTO</td><td>{$input}</td>";
+        $services .= tomcatSpringBootSettings($i, 'true', 'SPRING JPA SHOW SQL');
+        $services .= tomcatSpringBootSettings($i, 'update', 'HIBERNATE AUTO');
         $services .= "</tr>";
 
-
+        /*DATABASE PLATFORM - spring.jpa.database-platform X SERVER PORT - server.port*/
         $services .= "<tr>";
-        /*DATABASE PLATFORM - spring.jpa.database-platform*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='org.hibernate.dialect.MySQL8Dialect' disabled />";
-        $services .= "<td class='td-field-name box-cel'>DATABASE PLATFORM</td><td>{$input}</td>";
-
-        /*SERVER PORT - server.port*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='9000' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
+        $services .= tomcatSpringBootSettings($i, 'org.hibernate.dialect.MySQL8Dialect', 'DATABASE PLATFORM');
+        $services .= tomcatSpringBootSettings($i, '9000', 'SERVER PORT');
         $services .= "</tr>";
 
-
+        /*SERVER NAME - server.name X SERVER MODE - spring.main.web-application-type*/
         $services .= "<tr>";
-        /*SERVER NAME - server.name*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='server' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
-
-        /*SERVER MODE - spring.main.web-application-type*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='servlet' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER MODE</td><td>{$input}</td>";
+        $services .= tomcatSpringBootSettings($i, 'server', 'SERVER NAME');
+        $services .= tomcatSpringBootSettings($i, 'servlet', 'SERVER MODE');
         $services .= "</tr>";
 
-
-        $services .= "<tr>";
         /*SPRING DOCS PATH - springdoc.api-docs.path*/
-        $input = "<input data-server-settings-tomcat-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='/api-docs' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SPRING DOCS PATH</td><td>{$input}</td>";
+        $services .= "<tr>";
+        $services .= tomcatSpringBootSettings($i, '/api-docs', 'SPRING DOCS PATH');
+        $services .= tomcatSpringBootSettings($i, 'Type any value', 'OTHERS');
         $services .= "</tr>";
-
 
         /**
          * SERVER SETTINGS: NODE
@@ -440,39 +503,23 @@ function servicesMount($data): string
         $services .= "<td class='center' colspan='10'>NODE</td>";
         $services .= "</tr>";
 
-
+        /*APPLICATION MODE APPLICATION ROOT*/
         $services .= "<tr>";
-        /*APPLICATION MODE*/
-        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='Development/root/test' disabled />";
-        $services .= "<td class='td-field-name box-cel'>APPLICATION MODE</td><td>{$input}</td>";
-
-        /*APPLICATION ROOT*/
-        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='url-root-test' disabled />";
-        $services .= "<td class='td-field-name box-cel'>APPLICATION ROOT</td><td>{$input}</td>";
+        $services .= nodejsSettings($i, "Development/root/test", "APPLICATION MODE");
+        $services .= nodejsSettings($i, "url-root-test", "APPLICATION ROOT");
         $services .= "</tr>";
 
-
+        /*APPLICATION URL X APPLICATION STARTUP FILE*/
         $services .= "<tr>";
-        /*APPLICATION URL*/
-        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='app.test.local' disabled />";
-        $services .= "<td class='td-field-name box-cel'>APPLICATION URL</td><td>{$input}</td>";
-
-        /*APPLICATION STARTUP FILE*/
-        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='index.js/app.js' disabled />";
-        $services .= "<td class='td-field-name box-cel'>APPLICATION STARTUP FILE</td><td>{$input}</td>";
+        $services .= nodejsSettings($i, "app.test.local", "APPLICATION URL");
+        $services .= nodejsSettings($i, "index.js/app.js", "APPLICATION STARTUP FILE");
         $services .= "</tr>";
 
-
+        /*CONFIGURATION FILE X SERVER PORT*/
         $services .= "<tr>";
-        /*CONFIGURATION FILE*/
-        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='package.json' disabled />";
-        $services .= "<td class='td-field-name box-cel'>CONFIGURATION FILE</td><td>{$input}</td>";
-
-        /*SERVER PORT*/
-        $input = "<input data-server-settings-node-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='9898' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
+        $services .= nodejsSettings($i, "package.json", "CONFIGURATION FILE");
+        $services .= nodejsSettings($i, "9898", "SERVER PORT");
         $services .= "</tr>";
-
 
         /**
          * SERVER SETTINGS: WEB CONFIG
@@ -481,271 +528,80 @@ function servicesMount($data): string
         $services .= "<td class='center' colspan='10'>WEB CONFIG</td>";
         $services .= "</tr>";
 
-
+        /*SERVER NAME X SERVER PORT*/
         $services .= "<tr>";
-        /*SERVER NAME*/
-        $input = "<input data-server-settings-web_config-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='server name' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER NAME</td><td>{$input}</td>";
-
-        /*SERVER PORT*/
-        $input = "<input data-server-settings-web_config-{$i} type='text' class='generic-input-text' id='' name='' value='' placeholder='8888' disabled />";
-        $services .= "<td class='td-field-name box-cel'>SERVER PORT</td><td>{$input}</td>";
+        $services .= webConfigSettings($i, "server name", "SERVER NAME");
+        $services .= webConfigSettings($i, "8888", "SERVER PORT");
         $services .= "</tr>";
-
 
         /**
          * PROJECT SETTINGS
          */
         $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab' colspan='10'>GENERIC SETTINGS</td>";
+        $services .= "<td class='td-field-name box-cel-tab' colspan='10'>GENERIC SETTINGS (docker-compose.yml)</td>";
         $services .= "</tr>";
 
-
+        /*PROJECT_NAME X SERVICE_NAME*/
         $services .= "<tr>";
-        /*PROJECT_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][23]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*SERVICE_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][0]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][23]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][0]);
         $services .= "</tr>";
 
-
+        /*CONTAINER_NAME X IMAGE*/
         $services .= "<tr>";
-        /*CONTAINER_NAME*/
-        $data_current = explode("=", $data["SERVICES"][$i][1]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*IMAGE*/
-        $data_current = explode("=", $data["SERVICES"][$i][2]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][1]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][2]);
         $services .= "</tr>";
 
-
+        /*LOCALHOST_PORT X INTERNAL_PORT*/
         $services .= "<tr>";
-        /*LOCALHOST_PORT*/
-        $data_current = explode("=", $data["SERVICES"][$i][4]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*INTERNAL_PORT*/
-        $data_current = explode("=", $data["SERVICES"][$i][5]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][4]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][5]);
         $services .= "</tr>";
 
-
+        /*PRIVILEGED X NETWORKS*/
         $services .= "<tr>";
-        /*PRIVILEGED*/
-        $data_current = explode("=", $data["SERVICES"][$i][3]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*NETWORKS*/
-        $data_current = explode("=", $data["SERVICES"][$i][6]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][3]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][6]);
         $services .= "</tr>";
 
-
+        /*BUILD X CONTEXT*/
         $services .= "<tr>";
-        /*BUILD*/
-        $data_current = explode("=", $data["SERVICES"][$i][15]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*CONTEXT*/
-        $data_current = explode("=", $data["SERVICES"][$i][16]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][15]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][16]);
         $services .= "</tr>";
 
-
+        /*DOCKERFILE X WORKING_DIR*/
         $services .= "<tr>";
-        /*DOCKERFILE*/
-        $data_current = explode("=", $data["SERVICES"][$i][17]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*WORKING_DIR*/
-        $data_current = explode("=", $data["SERVICES"][$i][18]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][17]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][18]);
         $services .= "</tr>";
 
-
+        /*COMMAND X ENV_FILE*/
         $services .= "<tr>";
-        /*COMMAND*/
-        $data_current = explode("=", $data["SERVICES"][$i][19]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*ENV_FILE*/
-        $data_current = explode("=", $data["SERVICES"][$i][20]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][19]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][20]);
         $services .= "</tr>";
 
-
+        /*DEPLOY X DEPLOY_MEMORY*/
         $services .= "<tr>";
-
-        /*DEPLOY*/
-        $data_current = explode("=", $data["SERVICES"][$i][21]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
-
-        /*DEPLOY_MEMORY*/
-        $data_current = explode("=", $data["SERVICES"][$i][22]);
-        $field_name = $data_current[0] ?? "UNKNOWN";
-        $field_value = str_replace('"', '', $data_current[1]) ?? "";
-        $required = strpos($field_value, "MANDATORY") ? "required='true'" : "";
-        $required_class = strpos($field_value, "MANDATORY") ? "required-class" : "";
-        $placeholder = $field_value;
-        if (strpos($field_value, "{{{MANDATORY") || strpos($field_value, "{{{OPTIONAL") || strpos($field_value, "{{{SERVICE_NAME")) {$field_value = "";}
-        $input = "<input data-generic-settings-project-{$i} type='text' class='generic-input-text' id='' name='' value='{$field_value}' placeholder='{$placeholder}' {$required} />";
-        $services .= "<td class='td-field-name box-cel {$required_class}'>{$field_name}</td><td>{$input}</td>";
+        $services .= projectSettings($i, $data["SERVICES"][$i][21]);
+        $services .= projectSettings($i, $data["SERVICES"][$i][22]);
         $services .= "</tr>";
-
 
         /*ENVIRONMENT*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-env-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-env-".$i, $i, false);
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>ENVIRONMENT {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-
+        $services .= additionalSettings($i, "env", "ENVIRONMENT");
 
         /*VOLUMES*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-volume-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-volume-".$i, $i, false);
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>VOLUMES {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-
+        $services .= additionalSettings($i, "volume", "VOLUMES");
 
         /*LINKS*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-link-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-link-".$i, $i, false);
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>LINKS {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
-
+        $services .= additionalSettings($i, "link", "LINKS");
 
         /*DEPENDS_ON*/
-        $tb = "<table class='generic-table'><tbody id='tb-app-settings-depend-{$i}'></tbody></table>";
-        $add_bt = getButtonAdd("bt-add-depend-".$i, $i, false);
-        $services .= "<tr>";
-        $services .= "<td class='td-field-name box-cel-tab1' colspan='10'>DEPENDS ON {$add_bt}</td>";
-        $services .= "</tr>";
-        $services .= "<tr>";
-        $services .= "<td class='td-empty' colspan='10'>{$tb}</td>";
-        $services .= "</tr>";
+        $services .= additionalSettings($i, "depend", "DEPENDS ON");
 
-
+        /*FINISH TABLE*/
         $services .= "</table>";
         $services .= "</div>";
 
